@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ALFREDO</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/static/styles.css?v=2">
+</head>
+<body>
+<main>
+  <header><div><p class="eyebrow">ASSISTENTE LOCAL</p><h1>ALFREDO</h1></div><div id="health" class="status" role="status">○ Verificando</div></header>
+  <section class="console" aria-labelledby="chat-title">
+    <div class="section-title"><h2 id="chat-title">Comando</h2><span id="state">Pronto</span></div>
+    <form id="chat-form">
+      <label for="message">O que precisa ser feito?</label>
+      <textarea id="message" maxlength="20000" rows="4" required placeholder="Digite uma solicitação…"></textarea>
+      <div class="controls">
+        <label>Provedor<select id="provider"><option value="auto">Auto</option><option value="codex">Codex</option><option value="claude">Claude</option><option value="antigravity">Antigravity</option><option value="ollama">Local / Ollama</option></select></label>
+        <label id="model-wrap">Modelo local<select id="model"><option>qwen3.5:9b</option><option>qwen3.5:4b</option><option>qwen3.5:2b</option><option>gemma4:e4b</option></select></label>
+        <label class="check"><input id="fallback" type="checkbox"> Permitir fallback local</label>
+      </div>
+      <div class="actions"><button class="primary" type="submit">Enviar</button><button id="talk" type="button" aria-pressed="false">🎙 Pressione para falar</button><label class="check"><input id="speak-answer" type="checkbox"> Falar resposta</label></div>
+      <p class="hint">O navegador pedirá permissão para usar o microfone. Pressione e segure o botão para gravar.</p>
+    </form>
+  </section>
+  <section class="grid">
+    <article><h2>Resposta</h2><div id="answer" class="answer" aria-live="polite">Aguardando comando.</div><dl id="meta"></dl></article>
+    <aside><h2>Provedores</h2><div id="providers">Carregando diagnósticos…</div></aside>
+  </section>
+  <section class="grid memory">
+    <article><h2>Consultar memória</h2><form id="search-form" class="inline"><input id="search" minlength="2" placeholder="Buscar no cofre Markdown" required><button>Buscar</button></form><div id="notes"></div></article>
+    <article><h2>Propor memória</h2><form id="memory-form"><label>Caminho permitido<input id="memory-path" value="Alfredo/" required></label><label>Título<input id="memory-title" required></label><label>Conteúdo<textarea id="memory-content" rows="4" required></textarea></label><button>Revisar proposta</button></form><div id="proposal"></div></article>
+  </section>
+</main><script src="/static/app.js?v=2"></script>
+</body></html>

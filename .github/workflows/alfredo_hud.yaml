@@ -1,0 +1,44 @@
+name: alfredo_hud
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/alfredo_hud.yaml"
+      - "apps/hud/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/alfredo_hud.yaml"
+      - "apps/hud/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/hud
+    env:
+      ALFREDO_PROJECT: ${{ github.workspace }}
+      ALFREDO_RUNTIME: ${{ runner.temp }}/alfredo-runtime
+      ALFREDO_VAULT: ${{ runner.temp }}/alfredo-vault
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: apps/hud/pyproject.toml
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Test
+        run: python -m pytest -q

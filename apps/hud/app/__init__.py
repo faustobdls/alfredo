@@ -1,0 +1,2 @@
+"""Alfredo local-first assistant."""
+
