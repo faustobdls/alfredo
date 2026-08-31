@@ -30,7 +30,8 @@ void main() {
       expect(commandRunner.usage, isNot(contains('sample')));
     });
 
-    test('exposes source and package management commands', () {
+    test('exposes setup, source, and package management commands', () {
+      expect(commandRunner.usage, contains('setup'));
       expect(commandRunner.usage, contains('source'));
       expect(commandRunner.usage, contains('package'));
     });

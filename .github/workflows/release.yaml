@@ -2,6 +2,8 @@ name: release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*.*.*"
 
@@ -13,8 +15,56 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  prepare:
+    name: Prepare release tag
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.release.outputs.release_tag }}
+      should_release: ${{ steps.release.outputs.should_release }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate release candidate
+        id: release
+        shell: bash
+        run: |
+          package_version="$(sed -n 's/^version: //p' cli/pubspec.yaml)"
+          generated_version="$(sed -n "s/^const packageVersion = '\([^']*\)';/\1/p" cli/lib/src/version.dart)"
+          if [[ ! "$package_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Package version must use the X.Y.Z format." >&2
+            exit 1
+          fi
+          if [[ "$package_version" != "$generated_version" ]]; then
+            echo "pubspec ($package_version) and generated version ($generated_version) must match." >&2
+            exit 1
+          fi
+
+          release_tag="v${package_version}"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            if [[ "$GITHUB_REF_NAME" != "$release_tag" ]]; then
+              echo "Tag $GITHUB_REF_NAME does not match package version $package_version." >&2
+              exit 1
+            fi
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git rev-parse --quiet --verify "refs/tags/$release_tag" >/dev/null; then
+            echo "$release_tag already exists; no release is needed."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+
   verify:
     name: Verify release
+    needs: prepare
+    if: needs.prepare.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,21 +74,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Validate tag and package version
-        shell: bash
-        run: |
-          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Release tags must use the vX.Y.Z format." >&2
-            exit 1
-          fi
-          tag_version="${GITHUB_REF_NAME#v}"
-          package_version="$(sed -n 's/^version: //p' pubspec.yaml)"
-          generated_version="$(sed -n "s/^const packageVersion = '\([^']*\)';/\1/p" lib/src/version.dart)"
-          if [[ "$tag_version" != "$package_version" || "$tag_version" != "$generated_version" ]]; then
-            echo "Tag $GITHUB_REF_NAME, pubspec ($package_version), and generated version ($generated_version) must match." >&2
-            exit 1
-          fi
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.8.0
@@ -59,7 +94,7 @@ jobs:
 
   build:
     name: Build ${{ matrix.asset }}
-    needs: verify
+    needs: [prepare, verify]
     strategy:
       fail-fast: false
       matrix:
@@ -147,9 +182,30 @@ jobs:
           path: cli/${{ matrix.asset }}.${{ matrix.extension }}
           if-no-files-found: error
 
+  tag:
+    name: Create release tag
+    needs: [prepare, build]
+    if: needs.prepare.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create annotated tag after successful builds
+        if: github.ref_type != 'tag'
+        shell: bash
+        run: |
+          release_tag="${{ needs.prepare.outputs.release_tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag --annotate "$release_tag" --message "$release_tag"
+          git push origin "$release_tag"
+
   publish:
     name: Publish GitHub release
-    needs: build
+    needs: [prepare, build, tag]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -166,8 +222,9 @@ jobs:
       - name: Generate changelog and checksums
         shell: bash
         run: |
-          previous_tag="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
-          scripts/generate-release-notes.sh "$previous_tag" RELEASE_NOTES.md
+          release_tag="${{ needs.prepare.outputs.release_tag }}"
+          previous_tag="$(git describe --tags --abbrev=0 "${release_tag}^" 2>/dev/null || true)"
+          GITHUB_REF_NAME="$release_tag" scripts/generate-release-notes.sh "$previous_tag" RELEASE_NOTES.md
           cd dist
           sha256sum alfredo-* > SHA256SUMS
 
@@ -175,9 +232,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          gh release create "$GITHUB_REF_NAME"
+          gh release create "${{ needs.prepare.outputs.release_tag }}"
           dist/*
           --verify-tag
           --latest
-          --title "Alfredo $GITHUB_REF_NAME"
+          --title "Alfredo ${{ needs.prepare.outputs.release_tag }}"
           --notes-file RELEASE_NOTES.md

@@ -50,12 +50,31 @@ verifies its SHA-256 checksum, installs it under `~/.alfredo/bin`, and adds that
 directory to the current shell's user PATH. Set `ALFREDO_INSTALL_DIR` to use a
 different destination.
 
+Install the official packages for every supported agent:
+
+```sh
+alfredo setup --all
+```
+
+Or select one or more agents:
+
+```sh
+alfredo setup --cursor
+alfredo setup --codex --claude
+alfredo setup --antigravity
+```
+
+`setup` bootstraps the official source associated with the installed CLI
+release and installs into the user scope by default. Pass `--scope project` to
+install into the current project instead.
+
 Maintainers create a release by updating `cli/pubspec.yaml`, running
 `dart run build_runner build` inside `cli/`,
-updating this changelog, and then pushing an annotated `vX.Y.Z` tag. The release
+updating this changelog, and merging the change into `main`. The release
 workflow validates the version, runs the CLI checks, builds every supported
-artifact, generates release notes from Conventional Commits, and publishes the
-checksums and binaries to GitHub Releases.
+artifact, creates the annotated `vX.Y.Z` tag, generates release notes from
+Conventional Commits, and publishes the checksums and binaries to GitHub
+Releases. A matching manually pushed tag remains supported.
 
 ## Repository structure
 

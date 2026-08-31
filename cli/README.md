@@ -28,6 +28,14 @@ $ alfredo --version
 # Show usage help
 $ alfredo --help
 
+# Bootstrap the official source and install for every supported agent
+$ alfredo setup --all
+
+# Or install for one or more selected agents
+$ alfredo setup --cursor
+$ alfredo setup --codex --claude
+$ alfredo setup --antigravity --scope project
+
 # Register and validate this repository as a local, read-only source
 $ alfredo source add canonical --local /path/to/alfredo
 $ alfredo source add upstream --git https://github.com/example/skills.git --revision v1.0.0

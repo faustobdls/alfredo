@@ -146,4 +146,31 @@ void main() {
       );
     },
   );
+
+  test('restricts resolution to the selected source', () async {
+    final first = await createPackageSourceFixture(
+      temporary,
+      sourceId: 'first-source',
+      packages: const [PackageFixture(id: 'android-core')],
+    );
+    final second = await createPackageSourceFixture(
+      temporary,
+      sourceId: 'second-source',
+      packages: const [
+        PackageFixture(id: 'android-core', version: '2.0.0'),
+      ],
+    );
+    await registry.addLocal('first', first.path);
+    await registry.addLocal('second', second.path);
+    final resolver = PackageResolver(PackageCatalog(registry: registry));
+
+    final resolution = await resolver.resolve(
+      packageIds: ['android-core'],
+      target: 'codex',
+      sourceName: 'second',
+    );
+
+    expect(resolution.packages.single.sourceName, 'second');
+    expect(resolution.packages.single.manifest.version, '2.0.0');
+  });
 }

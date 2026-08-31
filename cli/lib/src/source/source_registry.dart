@@ -95,6 +95,43 @@ class SourceRegistry {
     return _addSnapshot(name, snapshot);
   }
 
+  /// Atomically refreshes an existing Git source after materializing it.
+  Future<RegisteredSource> replaceGit(
+    String name, {
+    required Uri url,
+    required String revision,
+  }) async {
+    _validateRegistrationName(name);
+    final sources = [...await list()];
+    final index = sources.indexWhere((source) => source.name == name);
+    if (index < 0) throw SourceException('Source is not registered: $name');
+    final existing = sources[index];
+    if (existing.kind != SourceKind.git) {
+      throw SourceException('Source is not a Git source: $name');
+    }
+    final snapshot = await _snapshotCache.fetchGit(
+      url: url,
+      revision: revision,
+    );
+    final catalog = await loader.load(snapshot.root);
+    if (catalog.id != existing.sourceId) {
+      throw SourceException(
+        'Source identity changed from ${existing.sourceId} to ${catalog.id}.',
+      );
+    }
+    final replacement = RegisteredSource(
+      name: name,
+      kind: SourceKind.git,
+      location: catalog.root,
+      sourceId: catalog.id,
+      sourceName: catalog.name,
+      transport: snapshot.transport,
+    );
+    sources[index] = replacement;
+    await _write(sources);
+    return replacement;
+  }
+
   /// Verifies, extracts, and registers a checksum-pinned archive snapshot.
   Future<RegisteredSource> addArchive(
     String name, {

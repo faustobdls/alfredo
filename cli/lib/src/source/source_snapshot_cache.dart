@@ -151,8 +151,10 @@ class SourceSnapshotCache {
     final kindDirectory = Directory(p.join(directory.path, kind.name));
     final stagingDirectory = Directory(p.join(kindDirectory.path, '.staging'));
     await stagingDirectory.create(recursive: true);
+    // Keep this segment short: on Windows the staging tree hosts a full Git
+    // checkout, and a cacheKey-prefixed name pushes deep paths past MAX_PATH.
     final stage = Directory(
-      p.join(stagingDirectory.path, '$cacheKey-${_nonce()}'),
+      p.join(stagingDirectory.path, _nonce()),
     );
     final target = Directory(p.join(kindDirectory.path, cacheKey));
     try {
@@ -380,7 +382,13 @@ class SourceSnapshotCache {
   }
 
   Future<ProcessResult> _runGit(List<String> arguments) async {
-    final result = await Process.run('git', arguments);
+    // core.longpaths lets Git write paths beyond the Windows MAX_PATH limit,
+    // independent of the OS-wide long path opt-in; it is a no-op elsewhere.
+    final result = await Process.run('git', [
+      '-c',
+      'core.longpaths=true',
+      ...arguments,
+    ]);
     if (result.exitCode != 0) {
       final error = (result.stderr as String).trim();
       throw SourceException(

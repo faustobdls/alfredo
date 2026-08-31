@@ -12,6 +12,7 @@ on:
       - "cli/**"
       - "packages/**"
       - "schemas/**"
+      - "scripts/install.ps1"
       - "skills/**"
   push:
     branches:
@@ -22,6 +23,7 @@ on:
       - "cli/**"
       - "packages/**"
       - "schemas/**"
+      - "scripts/install.ps1"
       - "skills/**"
 
 jobs:
@@ -43,6 +45,24 @@ jobs:
         uses: dart-lang/setup-dart@v1.8.0
         with:
           sdk: "3.12.0"
+
+      - name: Validate Windows installer syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: .
+        run: |
+          $tokens = $null
+          $errors = $null
+          $installer = Join-Path $env:GITHUB_WORKSPACE "scripts/install.ps1"
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            $installer,
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_ }
+            exit 1
+          }
 
       - name: Install dependencies
         run: dart pub get
