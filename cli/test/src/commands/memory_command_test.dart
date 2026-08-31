@@ -367,6 +367,117 @@ void main() {
     );
   });
 
+  test('enables embeddings when the model is tagged latest', () async {
+    embeddings = FakeEmbeddingsClient(
+      model: 'nomic-embed-text',
+      installedModels: const ['nomic-embed-text:latest'],
+    );
+    await registerMemorySource();
+
+    expect(
+      await runner.run([
+        'memory',
+        'setup',
+        '--all',
+        '--no-hook',
+        '--source',
+        'memory',
+        '--scope',
+        'user',
+      ]),
+      ExitCode.success.code,
+    );
+
+    final embeddingsConfig =
+        (jsonDecode(
+                  await File(
+                    p.join(userMemory.path, 'config.json'),
+                  ).readAsString(),
+                )
+                as Map<String, Object?>)['embeddings']!
+            as Map<String, Object?>;
+    expect(embeddingsConfig['enabled'], isTrue);
+    expect(embeddingsConfig['model'], 'nomic-embed-text');
+    expect(embeddings.pullCalls, 0);
+  });
+
+  test(
+    'reuses an already-installed known model instead of downloading',
+    () async {
+      embeddings = FakeEmbeddingsClient(
+        model: 'embeddinggemma',
+        installedModels: const ['llama3:latest', 'embeddinggemma:latest'],
+      );
+      await registerMemorySource();
+
+      expect(
+        await runner.run([
+          'memory',
+          'setup',
+          '--all',
+          '--no-hook',
+          '--source',
+          'memory',
+          '--scope',
+          'user',
+        ]),
+        ExitCode.success.code,
+      );
+
+      final embeddingsConfig =
+          (jsonDecode(
+                    await File(
+                      p.join(userMemory.path, 'config.json'),
+                    ).readAsString(),
+                  )
+                  as Map<String, Object?>)['embeddings']!
+              as Map<String, Object?>;
+      expect(embeddingsConfig['enabled'], isTrue);
+      expect(embeddingsConfig['model'], 'embeddinggemma');
+      expect(embeddings.pullCalls, 0);
+      verify(
+        () => logger.info(
+          any(
+            that: contains('Using installed embedding model "embeddinggemma"'),
+          ),
+        ),
+      ).called(1);
+    },
+  );
+
+  test('keeps keyword search when no known model is installed', () async {
+    embeddings = FakeEmbeddingsClient(
+      installedModels: const ['llama3:latest'],
+    );
+    await registerMemorySource();
+
+    expect(
+      await runner.run([
+        'memory',
+        'setup',
+        '--all',
+        '--no-hook',
+        '--source',
+        'memory',
+        '--scope',
+        'user',
+      ]),
+      ExitCode.success.code,
+    );
+
+    final embeddingsConfig =
+        (jsonDecode(
+                  await File(
+                    p.join(userMemory.path, 'config.json'),
+                  ).readAsString(),
+                )
+                as Map<String, Object?>)['embeddings']!
+            as Map<String, Object?>;
+    expect(embeddingsConfig['enabled'], isFalse);
+    expect(embeddings.pullCalls, 0);
+    expect(embeddings.embedCalls, 0);
+  });
+
   test('skips the hook when it is explicitly declined', () async {
     await registerMemorySource();
 

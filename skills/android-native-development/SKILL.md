@@ -1,6 +1,7 @@
 ---
 name: android-native-development
 description: Design and debug Android native code using the NDK, JNI, C/C++, Rust, Binder, and platform constraints with explicit ABI, lifecycle, performance, and deployment tradeoffs.
+tags: [domain:android, discipline:development, topic:native, topic:ndk, topic:jni, topic:toolchain]
 ---
 
 # Android Native Development

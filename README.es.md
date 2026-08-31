@@ -128,7 +128,7 @@ Alfredo mantiene un registro local y duradero de lo que se decidió y de lo que 
 
 La memoria vive en `.alfredo/memory/` y existe en dos ámbitos independientes: `~/.alfredo/memory/` para prácticas que valen en cualquier proyecto y `<repo>/.alfredo/memory/` para hechos que solo tienen sentido dentro de un repositorio. Cada store contiene un `journal/` append-only con archivos diarios, un directorio `notes/` con un hecho duradero por archivo, un `index/` generado y un `MEMORY.md` derivado. Solo `MEMORY.md` se regenera; los journals crecen por concatenación y las notas nunca se sobrescriben.
 
-La recuperación funciona sin red. La búsqueda por palabra clave siempre está disponible. Cuando hay un Ollama local accesible, `alfredo memory setup` puede habilitar la búsqueda por embeddings, y la búsqueda vuelve silenciosamente a palabras clave siempre que el proveedor no esté disponible. Un modelo solo se descarga con confirmación explícita del operador.
+La recuperación funciona sin red. La búsqueda por palabra clave siempre está disponible. Cuando hay un Ollama local accesible, `alfredo memory setup` puede habilitar la búsqueda por embeddings, y la búsqueda vuelve silenciosamente a palabras clave siempre que el proveedor no esté disponible. El setup reutiliza cualquier modelo de embedding conocido que ya hayas descargado (`nomic-embed-text`, `mxbai-embed-large`, `bge-m3`, `snowflake-arctic-embed2`, `embeddinggemma`, entre otros); un modelo solo se descarga con confirmación explícita del operador.
 
 | Comando | Efecto |
 | --- | --- |

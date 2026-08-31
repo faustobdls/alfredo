@@ -1,6 +1,7 @@
 ---
 name: android-linux-kernel
 description: Analyze Android kernel behavior and kernel-to-userspace boundaries for device bring-up, performance, power, scheduling, memory, storage, networking, and security decisions.
+tags: [domain:android, domain:linux, discipline:development, topic:linux-kernel, topic:platform-internals]
 ---
 
 # Android Linux Kernel

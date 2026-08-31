@@ -1,6 +1,7 @@
 ---
 name: adb-device-fleet
 description: Operate and collect reproducible UI evidence from multiple Android devices through ADB, especially parallel serial-scoped test and screenshot workflows.
+tags: [domain:android, discipline:tooling, topic:device-automation, topic:screenshots, topic:fleet, tool:adb]
 ---
 
 # ADB Device Fleet

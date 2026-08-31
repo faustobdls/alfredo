@@ -1,6 +1,7 @@
 ---
 name: android-platform-internals
 description: Reason about Android framework, system-server, Binder, HAL, ART, permissions, and build-system internals when behavior depends on platform boundaries rather than app code alone.
+tags: [domain:android, discipline:development, discipline:reference, topic:platform-internals]
 ---
 
 # Android Platform Internals
