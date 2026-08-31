@@ -11,6 +11,7 @@ on:
       - "alfredo-source.yaml"
       - "cli/**"
       - "packages/**"
+      - "rules/**"
       - "schemas/**"
       - "scripts/install.ps1"
       - "skills/**"
@@ -22,6 +23,7 @@ on:
       - "alfredo-source.yaml"
       - "cli/**"
       - "packages/**"
+      - "rules/**"
       - "schemas/**"
       - "scripts/install.ps1"
       - "skills/**"
@@ -90,6 +92,21 @@ jobs:
           dart run bin/alfredo.dart package status --target generic --scope user
           dart run bin/alfredo.dart package diff --target generic --scope user
           dart run bin/alfredo.dart package uninstall android-core --target generic --scope user
+
+      - name: Validate memory subsystem
+        env:
+          ALFREDO_CONFIG_HOME: ${{ runner.temp }}/alfredo-memory-config
+          ALFREDO_USER_ROOT: ${{ runner.temp }}/alfredo-memory-user
+          ALFREDO_PROJECT_ROOT: ${{ github.workspace }}
+          ALFREDO_MEMORY_HOME: ${{ runner.temp }}/alfredo-memory-store
+        run: |
+          dart run bin/alfredo.dart source add canonical --local ..
+          dart run bin/alfredo.dart memory setup --all --source canonical --scope user
+          dart run bin/alfredo.dart memory add --scope user --kind activity "ci smoke"
+          dart run bin/alfredo.dart memory add --scope user --kind note --title "ci note" "body"
+          dart run bin/alfredo.dart memory search ci --scope user
+          dart run bin/alfredo.dart memory list --since 7d --scope user
+          dart run bin/alfredo.dart memory digest --since 7d --max-chars 400 --scope user
 
       - name: Compile native executable
         run: dart compile exe bin/alfredo.dart -o alfredo
