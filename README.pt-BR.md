@@ -31,6 +31,32 @@ O repositório contém atualmente:
 
 Perfis, releases assinados e comandos Android que atuam nos dispositivos permanecem como próximas etapas.
 
+## Instalar a CLI
+
+macOS e Linux (x64 ou ARM64):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.sh | sh
+```
+
+Windows PowerShell (x64):
+
+```powershell
+irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps1 | iex
+```
+
+O instalador baixa o binário correto da release mais recente no GitHub, valida
+seu checksum SHA-256, instala em `~/.alfredo/bin` e inclui esse diretório no PATH
+do usuário para o shell atual. Defina `ALFREDO_INSTALL_DIR` para escolher outro
+destino.
+
+Para criar uma release, o mantenedor atualiza `cli/pubspec.yaml`, executa
+`dart run build_runner build` dentro de `cli/`,
+atualiza este changelog e então envia uma tag anotada `vX.Y.Z`. O workflow valida
+a versão, executa as verificações da CLI, compila todos os artefatos suportados,
+gera as notas com Conventional Commits e publica binários e checksums no GitHub
+Releases.
+
 ## Estrutura do repositório
 
 ```text

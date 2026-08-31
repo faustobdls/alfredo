@@ -1,0 +1,179 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag and package version
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tags must use the vX.Y.Z format." >&2
+            exit 1
+          fi
+          tag_version="${GITHUB_REF_NAME#v}"
+          package_version="$(sed -n 's/^version: //p' pubspec.yaml)"
+          generated_version="$(sed -n "s/^const packageVersion = '\([^']*\)';/\1/p" lib/src/version.dart)"
+          if [[ "$tag_version" != "$package_version" || "$tag_version" != "$generated_version" ]]; then
+            echo "Tag $GITHUB_REF_NAME, pubspec ($package_version), and generated version ($generated_version) must match." >&2
+            exit 1
+          fi
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1.8.0
+        with:
+          sdk: "3.12.0"
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: Test
+        run: dart test
+
+  build:
+    name: Build ${{ matrix.asset }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            asset: alfredo-linux-x64
+            executable: alfredo
+            target_os: linux
+            target_arch: x64
+            archive: tar
+            extension: tar.gz
+          - runner: ubuntu-latest
+            asset: alfredo-linux-arm64
+            executable: alfredo
+            target_os: linux
+            target_arch: arm64
+            archive: tar
+            extension: tar.gz
+          - runner: macos-15-intel
+            asset: alfredo-macos-x64
+            executable: alfredo
+            archive: tar
+            extension: tar.gz
+          - runner: macos-14
+            asset: alfredo-macos-arm64
+            executable: alfredo
+            archive: tar
+            extension: tar.gz
+          - runner: windows-latest
+            asset: alfredo-windows-x64
+            executable: alfredo.exe
+            archive: zip
+            extension: zip
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1.8.0
+        with:
+          sdk: "3.12.0"
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile Linux executable
+        if: matrix.target_os == 'linux'
+        shell: bash
+        run: >-
+          dart compile exe
+          --target-os=${{ matrix.target_os }}
+          --target-arch=${{ matrix.target_arch }}
+          -o build/${{ matrix.executable }}
+          bin/alfredo.dart
+
+      - name: Compile native executable
+        if: matrix.target_os != 'linux'
+        shell: bash
+        run: dart compile exe bin/alfredo.dart -o build/${{ matrix.executable }}
+
+      - name: Package Unix executable
+        if: matrix.archive == 'tar'
+        shell: bash
+        run: |
+          chmod +x build/alfredo
+          tar -C build -czf ${{ matrix.asset }}.tar.gz alfredo
+
+      - name: Package Windows executable
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: Compress-Archive -Path build/alfredo.exe -DestinationPath ${{ matrix.asset }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: cli/${{ matrix.asset }}.${{ matrix.extension }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Generate changelog and checksums
+        shell: bash
+        run: |
+          previous_tag="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+          scripts/generate-release-notes.sh "$previous_tag" RELEASE_NOTES.md
+          cd dist
+          sha256sum alfredo-* > SHA256SUMS
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          dist/*
+          --verify-tag
+          --latest
+          --title "Alfredo $GITHUB_REF_NAME"
+          --notes-file RELEASE_NOTES.md
