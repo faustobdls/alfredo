@@ -1,8 +1,10 @@
+import 'package:alfredo_cli/src/commands/memory_command.dart';
 import 'package:alfredo_cli/src/commands/package_command.dart';
 import 'package:alfredo_cli/src/commands/setup_command.dart';
 import 'package:alfredo_cli/src/commands/source_command.dart';
 import 'package:alfredo_cli/src/commands/update_command.dart';
 import 'package:alfredo_cli/src/commands/upgrade_command.dart';
+import 'package:alfredo_cli/src/memory/memory.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
 import 'package:alfredo_cli/src/upgrade/upgrade.dart';
@@ -33,6 +35,8 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     PackageInstaller? packageInstaller,
     AgentTargetRoots? targetRoots,
     SelfUpdater? selfUpdater,
+    MemoryRoots? memoryRoots,
+    EmbeddingsClient Function(MemoryConfig config)? embeddingsFactory,
   }) : _logger = logger ?? Logger(),
        super(executableName, description) {
     argParser
@@ -90,6 +94,16 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         logger: _logger,
       ),
     );
+    addCommand(
+      MemoryCommand(
+        roots: memoryRoots ?? defaultMemoryRoots(),
+        logger: _logger,
+        resolver: resolver,
+        installer: installer,
+        targetRoots: roots,
+        embeddingsFactory: embeddingsFactory,
+      ),
+    );
   }
 
   final Logger _logger;
@@ -123,6 +137,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     } on UpgradeException catch (error) {
       _logger.err(error.message);
       return ExitCode.unavailable.code;
+    } on MemoryException catch (error) {
+      _logger.err(error.message);
+      return ExitCode.config.code;
     }
   }
 

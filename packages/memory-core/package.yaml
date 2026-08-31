@@ -1,0 +1,20 @@
+schema_version: 1
+id: memory-core
+name: Memory Core
+version: 0.1.0
+description: Skills and rules that teach an agent to use the Alfredo memory subsystem.
+license: MIT
+targets:
+  - codex
+  - claude-code
+  - cursor
+  - antigravity
+  - generic
+contents:
+  skills:
+    - skills/alfredo-memory
+  rules:
+    - rules/memory-usage.md
+    - rules/memory-hygiene.md
+dependencies: []
+conflicts: []
