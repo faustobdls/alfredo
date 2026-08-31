@@ -6,6 +6,11 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Materialize Git source snapshots without exceeding the Windows path limit by
+  using a short staging directory name and enabling Git `core.longpaths`.
+
 ## [0.0.2] - 2026-08-31
 
 ### Added
