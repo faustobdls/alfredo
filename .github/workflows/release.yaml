@@ -109,6 +109,10 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
+      - name: Create build directory
+        shell: bash
+        run: mkdir -p build
+
       - name: Compile Linux executable
         if: matrix.target_os == 'linux'
         shell: bash
