@@ -83,11 +83,12 @@ Releases. A matching manually pushed tag remains supported.
 alfredo/
 ├── .github/             # CI, dependency updates, and repository templates
 ├── adapters/            # Agent-specific installation and rendering adapters
+├── agents/              # Canonical sub-agent personas, answering as Alfredo
 ├── apps/
 │   └── hud/             # Existing local FastAPI HUD and browser frontend
 ├── cli/                 # Cross-platform Dart CLI and native binary entry point
 ├── docs/                # Architecture decisions and cross-project documentation
-├── packages/            # Installable bundles of skills, rules, scripts, and assets
+├── packages/            # Installable bundles of skills, rules, agents, and assets
 ├── profiles/            # Reproducible personal, work, and project configurations
 ├── rules/               # Canonical behavioral and engineering rules
 ├── schemas/             # Versioned source, package, profile, and lockfile contracts
@@ -116,6 +117,10 @@ The CLI has no Flutter runtime dependency. Native binaries will be compiled on e
 The canonical home for reusable agent skills. Every skill has a required `SKILL.md`. The initial set covers Android/Linux kernel internals, Android platform internals, native development, application security, and parallel ADB device-fleet operation.
 
 Agent-specific copies must be generated from this canonical content instead of being maintained independently.
+
+### `agents/`
+
+The canonical sub-agent catalogue. One Markdown file per agent, in Claude Code sub-agent format, all answering **as Alfredo** — the household's butler-engineer: precise, unflappable, and exacting about standards. The `agents-core` package ships them; `alfredo setup` installs them into each target's agent directory. See [docs/architecture/agents.md](docs/architecture/agents.md).
 
 ### `packages/`
 
@@ -166,6 +171,14 @@ Alfredo sources are designed to be read-only from the CLI's perspective:
 - Installed versions will be recorded in a deterministic lockfile.
 
 Source repositories are maintained and published through their own workflows. Alfredo only consumes them.
+
+Start a new one with:
+
+```sh
+alfredo init source ./my-source
+```
+
+This scaffolds the manifest, the content roots (`skills/`, `rules/`, `agents/`, `profiles/`), a sample package, and a README. `--id` and `--name` override the defaults; `--force` allows a non-empty directory.
 
 ## Memory
 

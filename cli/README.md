@@ -36,6 +36,10 @@ $ alfredo setup --cursor
 $ alfredo setup --codex --claude
 $ alfredo setup --antigravity --scope project
 
+# Scaffold a new Alfredo source repository
+$ alfredo init source ./my-source
+$ alfredo init source ./my-source --id team-tools --name "Team Tools" --force
+
 # Register and validate this repository as a local, read-only source
 $ alfredo source add canonical --local /path/to/alfredo
 $ alfredo source add upstream --git https://github.com/example/skills.git --revision v1.0.0

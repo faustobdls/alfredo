@@ -38,11 +38,12 @@ Los perfiles, releases firmados y comandos Android que operan dispositivos sigue
 alfredo/
 ├── .github/             # CI, actualización de dependencias y plantillas
 ├── adapters/            # Adaptadores de instalación y renderizado por agente
+├── agents/              # Sub-agentes canónicos, respondiendo como Alfredo
 ├── apps/
 │   └── hud/             # HUD FastAPI local y frontend del navegador
 ├── cli/                 # CLI Dart multiplataforma y entrada del binario nativo
 ├── docs/                # Decisiones arquitectónicas y documentación transversal
-├── packages/            # Conjuntos instalables de skills, reglas, scripts y assets
+├── packages/            # Conjuntos instalables de skills, reglas, agentes y assets
 ├── profiles/            # Configuraciones reproducibles personales, laborales y de proyecto
 ├── rules/               # Reglas canónicas de comportamiento e ingeniería
 ├── schemas/             # Contratos versionados de fuentes, paquetes, perfiles y lockfiles
@@ -86,6 +87,10 @@ Contiene instrucciones canónicas sobre cómo debe trabajar un agente: estándar
 
 Contiene lógica y plantillas de instalación para Codex, Claude Code, Cursor, Antigravity y destinos genéricos basados en directorios. Los adaptadores conocen las rutas y formatos de cada agente, pero no son propietarios del conocimiento canónico.
 
+### `agents/`
+
+El catálogo canónico de sub-agentes. Un archivo Markdown por agente, en formato de sub-agente de Claude Code, todos respondiendo **como Alfredo** — el mayordomo-ingeniero de la casa: preciso, imperturbable y exigente con los estándares. El paquete `agents-core` los distribuye; `alfredo setup` los instala en el directorio de agentes de cada destino. Ver [docs/architecture/agents.md](docs/architecture/agents.md).
+
 ### `schemas/`
 
 Contiene contratos v1 legibles por máquina para fuentes, paquetes, perfiles, estado instalado y lockfiles. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
@@ -121,6 +126,14 @@ Las fuentes de Alfredo son de solo lectura desde la perspectiva de la CLI:
 - Las versiones instaladas se registrarán en un lockfile determinista.
 
 Los repositorios de origen se mantienen y publican mediante sus propios flujos. Alfredo solamente los consume.
+
+Para empezar uno nuevo:
+
+```sh
+alfredo init source ./mi-fuente
+```
+
+Esto genera el manifiesto, las raíces de contenido (`skills/`, `rules/`, `agents/`, `profiles/`), un paquete de ejemplo y un README. `--id` y `--name` sobrescriben los valores por defecto; `--force` permite un directorio no vacío.
 
 ## Memoria
 

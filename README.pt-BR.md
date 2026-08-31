@@ -83,11 +83,12 @@ suportado.
 alfredo/
 ├── .github/             # CI, atualização de dependências e templates do repositório
 ├── adapters/            # Adaptadores de instalação e renderização por agente
+├── agents/              # Sub-agentes canônicos, respondendo como Alfredo
 ├── apps/
 │   └── hud/             # HUD FastAPI local e frontend do navegador
 ├── cli/                 # CLI Dart multiplataforma e entrada do binário nativo
 ├── docs/                # Decisões arquiteturais e documentação transversal
-├── packages/            # Conjuntos instaláveis de skills, regras, scripts e assets
+├── packages/            # Conjuntos instaláveis de skills, regras, agentes e assets
 ├── profiles/            # Configurações reproduzíveis pessoais, de trabalho e projeto
 ├── rules/               # Regras canônicas de comportamento e engenharia
 ├── schemas/             # Contratos versionados de fontes, pacotes, perfis e lockfiles
@@ -116,6 +117,10 @@ A CLI não depende do runtime Flutter. Os binários nativos serão compilados no
 É a fonte canônica das skills reutilizáveis. Cada skill possui um `SKILL.md` obrigatório. O conjunto inicial cobre kernel Android/Linux, internos da plataforma Android, desenvolvimento nativo, segurança de aplicações e operação paralela de frotas ADB.
 
 As versões específicas para cada agente devem ser geradas desse conteúdo canônico, e não mantidas como cópias independentes.
+
+### `agents/`
+
+O catálogo canônico de sub-agentes. Um arquivo Markdown por agente, no formato de sub-agente do Claude Code, todos respondendo **como Alfredo** — o mordomo-engenheiro da casa: preciso, imperturbável e exigente com padrões. O pacote `agents-core` os distribui; o `alfredo setup` os instala no diretório de agentes de cada destino. Veja [docs/architecture/agents.md](docs/architecture/agents.md).
 
 ### `packages/`
 
@@ -166,6 +171,14 @@ As fontes do Alfredo são somente leitura do ponto de vista da CLI:
 - As versões instaladas serão registradas em lockfile determinístico.
 
 Os repositórios de origem são mantidos e publicados por seus próprios fluxos. O Alfredo apenas os consome.
+
+Para começar um novo:
+
+```sh
+alfredo init source ./minha-origem
+```
+
+Isso cria o manifesto, as raízes de conteúdo (`skills/`, `rules/`, `agents/`, `profiles/`), um pacote de exemplo e um README. `--id` e `--name` sobrescrevem os padrões; `--force` permite um diretório não vazio.
 
 ## Memória
 
