@@ -1,6 +1,7 @@
 ---
 name: android-app-security
 description: Assess, harden, and—only in explicitly authorized labs—test Android application security across app, IPC, storage, network, WebView, native, and platform boundaries.
+tags: [domain:android, discipline:security, topic:app-security, topic:offensive-security, topic:defensive-security, topic:hardening, tool:adb]
 ---
 
 # Android App Security
