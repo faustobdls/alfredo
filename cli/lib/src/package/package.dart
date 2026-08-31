@@ -8,3 +8,4 @@ export 'package_installer.dart';
 export 'package_manifest_loader.dart';
 export 'package_models.dart';
 export 'package_resolver.dart';
+export 'package_updater.dart';

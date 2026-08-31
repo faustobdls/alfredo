@@ -53,12 +53,30 @@ $ alfredo package install android-core --target codex --scope user
 $ alfredo package status --target codex --scope user
 $ alfredo package diff --target codex --scope user
 $ alfredo package uninstall android-core --target codex --scope user
+
+# Refresh installed packages from their sources
+$ alfredo update
+$ alfredo update --dry-run
+$ alfredo update --target codex --scope user --package android-core
+$ alfredo update --no-refresh-sources
+
+# Update the CLI binary itself
+$ alfredo upgrade --check
+$ alfredo upgrade
 ```
 
 Set `ALFREDO_CONFIG_HOME` to override the platform-specific configuration
 directory. Set `ALFREDO_USER_ROOT` or `ALFREDO_PROJECT_ROOT` to redirect an
 installation root, which is also useful in CI. Sources are consumed read-only:
 Git revisions are resolved to commits and archives require a SHA-256 digest.
+
+`alfredo update` re-resolves every installed target and scope, advances Git
+sources to their newest revision (skip with `--no-refresh-sources`), and
+reinstalls only packages whose content changed; locally modified managed files
+are reported and left untouched. `alfredo upgrade` downloads the matching
+release asset, verifies it against `SHA256SUMS`, and swaps the running
+executable. Override the release origin with `ALFREDO_GITHUB_REPOSITORY` or
+`ALFREDO_DOWNLOAD_BASE_URL`.
 
 Supported targets are `codex`, `claude-code`, `cursor`, `antigravity`, and
 `generic`. Installation is fail-closed on unmanaged or locally modified files;

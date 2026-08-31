@@ -1,8 +1,11 @@
 import 'package:alfredo_cli/src/commands/package_command.dart';
 import 'package:alfredo_cli/src/commands/setup_command.dart';
 import 'package:alfredo_cli/src/commands/source_command.dart';
+import 'package:alfredo_cli/src/commands/update_command.dart';
+import 'package:alfredo_cli/src/commands/upgrade_command.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
+import 'package:alfredo_cli/src/upgrade/upgrade.dart';
 import 'package:alfredo_cli/src/version.dart';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
@@ -29,6 +32,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     PackageResolver? packageResolver,
     PackageInstaller? packageInstaller,
     AgentTargetRoots? targetRoots,
+    SelfUpdater? selfUpdater,
   }) : _logger = logger ?? Logger(),
        super(executableName, description) {
     argParser
@@ -68,6 +72,24 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         logger: _logger,
       ),
     );
+    addCommand(
+      UpdateCommand(
+        updater: PackageUpdater(
+          registry: registry,
+          catalog: catalog,
+          resolver: resolver,
+          installer: installer,
+          roots: roots,
+        ),
+        logger: _logger,
+      ),
+    );
+    addCommand(
+      UpgradeCommand(
+        updater: selfUpdater ?? SelfUpdater(client: GithubReleaseClient()),
+        logger: _logger,
+      ),
+    );
   }
 
   final Logger _logger;
@@ -98,6 +120,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     } on PackageException catch (error) {
       _logger.err(error.message);
       return ExitCode.config.code;
+    } on UpgradeException catch (error) {
+      _logger.err(error.message);
+      return ExitCode.unavailable.code;
     }
   }
 

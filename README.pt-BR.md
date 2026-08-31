@@ -186,6 +186,9 @@ dart test
 dart run bin/alfredo.dart --help
 dart run bin/alfredo.dart source add canonical --local ..
 dart run bin/alfredo.dart package install android-core --target codex --scope user
+dart run bin/alfredo.dart update --dry-run
+dart run bin/alfredo.dart update
+dart run bin/alfredo.dart upgrade --check
 ```
 
 Compile um executável nativo no sistema atual:

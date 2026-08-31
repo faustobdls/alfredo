@@ -218,6 +218,44 @@ class RegisteredSource {
   }
 }
 
+/// The kind of change a source registry refresh applied to a registration.
+enum SourceRefreshKind {
+  /// A local source whose content is always read live.
+  live,
+
+  /// A remote source already at its newest resolved revision.
+  unchanged,
+
+  /// A remote source advanced to a newer resolved revision.
+  updated,
+
+  /// A checksum-pinned archive source that cannot be moved.
+  pinned,
+}
+
+/// The result of revalidating and possibly advancing a registered source.
+class SourceRefresh {
+  /// Creates a source refresh result.
+  const SourceRefresh({
+    required this.kind,
+    required this.source,
+    this.previousRevision,
+    this.newRevision,
+  });
+
+  /// What happened to the registration.
+  final SourceRefreshKind kind;
+
+  /// The registration after the refresh.
+  final RegisteredSource source;
+
+  /// Resolved revision before the refresh, for remote sources.
+  final String? previousRevision;
+
+  /// Resolved revision after the refresh, for remote sources.
+  final String? newRevision;
+}
+
 /// A rejected source, manifest, or registry operation.
 class SourceException implements Exception {
   /// Creates a source exception with an actionable [message].

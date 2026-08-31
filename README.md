@@ -188,6 +188,9 @@ dart run bin/alfredo.dart source add canonical --local ..
 dart run bin/alfredo.dart source test canonical
 dart run bin/alfredo.dart package install android-core --target codex --scope user
 dart run bin/alfredo.dart package status --target codex --scope user
+dart run bin/alfredo.dart update --dry-run
+dart run bin/alfredo.dart update
+dart run bin/alfredo.dart upgrade --check
 ```
 
 Compile a native executable on the current platform:

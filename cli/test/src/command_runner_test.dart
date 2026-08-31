@@ -36,6 +36,11 @@ void main() {
       expect(commandRunner.usage, contains('package'));
     });
 
+    test('exposes the update and upgrade lifecycle commands', () {
+      expect(commandRunner.usage, contains('update'));
+      expect(commandRunner.usage, contains('upgrade'));
+    });
+
     test('handles FormatException', () async {
       const exception = FormatException('oops!');
       var firstInvocation = true;
