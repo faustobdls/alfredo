@@ -50,4 +50,33 @@ void main() {
 
     expect(file.path, endsWith(r'Alfredo\sources.json'));
   });
+
+  test('uses the explicit Alfredo cache override', () {
+    final directory = defaultSourceCacheDirectory(
+      environment: const {'ALFREDO_CACHE_HOME': '/work/cache'},
+      operatingSystem: 'linux',
+    );
+
+    expect(directory.path, p.join('/work/cache', 'snapshots'));
+  });
+
+  test('uses Cache and XDG cache locations', () {
+    final macos = defaultSourceCacheDirectory(
+      environment: const {'HOME': '/Users/alfredo'},
+      operatingSystem: 'macos',
+    );
+    final linux = defaultSourceCacheDirectory(
+      environment: const {
+        'HOME': '/home/alfredo',
+        'XDG_CACHE_HOME': '/work/cache',
+      },
+      operatingSystem: 'linux',
+    );
+
+    expect(
+      macos.path,
+      p.join('/Users/alfredo', 'Library', 'Caches', 'Alfredo', 'snapshots'),
+    );
+    expect(linux.path, p.join('/work/cache', 'alfredo', 'snapshots'));
+  });
 }

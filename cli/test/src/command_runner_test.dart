@@ -30,6 +30,11 @@ void main() {
       expect(commandRunner.usage, isNot(contains('sample')));
     });
 
+    test('exposes source and package management commands', () {
+      expect(commandRunner.usage, contains('source'));
+      expect(commandRunner.usage, contains('package'));
+    });
+
     test('handles FormatException', () async {
       const exception = FormatException('oops!');
       var firstInvocation = true;

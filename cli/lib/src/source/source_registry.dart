@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:alfredo_cli/src/source/source_manifest_loader.dart';
 import 'package:alfredo_cli/src/source/source_models.dart';
+import 'package:alfredo_cli/src/source/source_paths.dart';
+import 'package:alfredo_cli/src/source/source_snapshot_cache.dart';
 
 /// Persists registered sources without modifying their contents.
 class SourceRegistry {
@@ -10,6 +12,7 @@ class SourceRegistry {
   SourceRegistry({
     required this.file,
     this.loader = const SourceManifestLoader(),
+    this.snapshots,
   });
 
   /// Registry state file.
@@ -17,6 +20,9 @@ class SourceRegistry {
 
   /// Validator used before a source is persisted or tested.
   final SourceManifestLoader loader;
+
+  /// Optional cache used to materialize immutable remote source snapshots.
+  final SourceSnapshotCache? snapshots;
 
   /// Returns registrations sorted by their user-selected name.
   Future<List<RegisteredSource>> list() async {
@@ -75,6 +81,34 @@ class SourceRegistry {
     return registration;
   }
 
+  /// Resolves, validates, and registers an immutable Git source snapshot.
+  Future<RegisteredSource> addGit(
+    String name, {
+    required Uri url,
+    required String revision,
+  }) async {
+    await _validateAvailableName(name);
+    final snapshot = await _snapshotCache.fetchGit(
+      url: url,
+      revision: revision,
+    );
+    return _addSnapshot(name, snapshot);
+  }
+
+  /// Verifies, extracts, and registers a checksum-pinned archive snapshot.
+  Future<RegisteredSource> addArchive(
+    String name, {
+    required Uri url,
+    required String sha256,
+  }) async {
+    await _validateAvailableName(name);
+    final snapshot = await _snapshotCache.fetchArchive(
+      url: url,
+      sha256: sha256,
+    );
+    return _addSnapshot(name, snapshot);
+  }
+
   /// Revalidates a registered source and returns its current catalog.
   Future<SourceCatalog> test(String name) async {
     final source = await get(name);
@@ -96,6 +130,45 @@ class SourceRegistry {
     await _write(sources);
     return removed;
   }
+
+  Future<RegisteredSource> _addSnapshot(
+    String name,
+    SourceSnapshot snapshot,
+  ) async {
+    _validateRegistrationName(name);
+    final catalog = await loader.load(snapshot.root);
+    final sources = [...await list()];
+    if (sources.any((source) => source.name == name)) {
+      throw SourceException('Source name is already registered: $name');
+    }
+    if (sources.any((source) => source.location == catalog.root)) {
+      throw SourceException(
+        'Source path is already registered: ${catalog.root}',
+      );
+    }
+    final registration = RegisteredSource(
+      name: name,
+      kind: snapshot.transport.kind,
+      location: catalog.root,
+      sourceId: catalog.id,
+      sourceName: catalog.name,
+      transport: snapshot.transport,
+    );
+    sources.add(registration);
+    await _write(sources);
+    return registration;
+  }
+
+  Future<void> _validateAvailableName(String name) async {
+    _validateRegistrationName(name);
+    if ((await list()).any((source) => source.name == name)) {
+      throw SourceException('Source name is already registered: $name');
+    }
+  }
+
+  SourceSnapshotCache get _snapshotCache =>
+      snapshots ??
+      SourceSnapshotCache(directory: defaultSourceCacheDirectory());
 
   Future<void> _write(List<RegisteredSource> sources) async {
     await file.parent.create(recursive: true);

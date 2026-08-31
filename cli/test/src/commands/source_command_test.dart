@@ -81,11 +81,43 @@ void main() {
     verify(() => logger.err(any(that: contains('does not exist')))).called(1);
   });
 
-  test('requires one source name and a local path', () async {
+  test('requires one source name and exactly one transport', () async {
     expect(
       await runner.run(['source', 'add', 'primary']),
       ExitCode.usage.code,
     );
-    verify(() => logger.err(any(that: contains('--local')))).called(1);
+    verify(
+      () => logger.err(any(that: contains('exactly one'))),
+    ).called(1);
+  });
+
+  test('validates transport-specific pinning options', () async {
+    expect(
+      await runner.run([
+        'source',
+        'add',
+        'remote',
+        '--git',
+        'https://example.com/alfredo.git',
+      ]),
+      ExitCode.usage.code,
+    );
+    expect(
+      await runner.run([
+        'source',
+        'add',
+        'bundle',
+        '--archive',
+        'https://example.com/alfredo.zip',
+      ]),
+      ExitCode.usage.code,
+    );
+
+    verify(
+      () => logger.err(any(that: contains('--git requires --revision'))),
+    ).called(1);
+    verify(
+      () => logger.err(any(that: contains('--archive requires --sha256'))),
+    ).called(1);
   });
 }

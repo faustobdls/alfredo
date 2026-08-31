@@ -30,13 +30,31 @@ $ alfredo --help
 
 # Register and validate this repository as a local, read-only source
 $ alfredo source add canonical --local /path/to/alfredo
+$ alfredo source add upstream --git https://github.com/example/skills.git --revision v1.0.0
+$ alfredo source add bundle --archive file:///path/to/skills.zip --sha256 DIGEST
 $ alfredo source list
 $ alfredo source show canonical
 $ alfredo source test canonical
 $ alfredo source remove canonical
+
+# Discover and install packages
+$ alfredo package list
+$ alfredo package search android
+$ alfredo package show android-core
+$ alfredo package install android-core --target codex --scope user
+$ alfredo package status --target codex --scope user
+$ alfredo package diff --target codex --scope user
+$ alfredo package uninstall android-core --target codex --scope user
 ```
 
-Set `ALFREDO_CONFIG_HOME` to override the platform-specific configuration directory. Local source commands only update Alfredo's `sources.json` registry; they never modify source contents.
+Set `ALFREDO_CONFIG_HOME` to override the platform-specific configuration
+directory. Set `ALFREDO_USER_ROOT` or `ALFREDO_PROJECT_ROOT` to redirect an
+installation root, which is also useful in CI. Sources are consumed read-only:
+Git revisions are resolved to commits and archives require a SHA-256 digest.
+
+Supported targets are `codex`, `claude-code`, `cursor`, `antigravity`, and
+`generic`. Installation is fail-closed on unmanaged or locally modified files;
+uninstall preserves modified managed files.
 
 ## Running Tests with coverage 🧪
 

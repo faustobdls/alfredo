@@ -20,13 +20,16 @@ El repositorio contiene actualmente:
 - La CLI Dart inicial, generada con la plantilla Dart CLI de Very Good Ventures.
 - El punto de entrada nativo `alfredo`, con ayuda, versión y soporte de autocompletado del shell.
 - Contratos v1 versionados para manifiestos de fuente, paquete y perfil.
-- Registro validado de fuentes locales de solo lectura mediante `source add`, `list`, `show`, `test` y `remove`.
-- Un paquete mínimo `android-core` que ejercita el contrato del catálogo.
+- Fuentes locales, Git y archivos con checksum, validadas como snapshots inmutables.
+- Descubrimiento determinista, resolución de dependencias, lockfiles y control del estado instalado.
+- Instalación transaccional, status, diff y desinstalación segura en ámbitos de usuario y proyecto.
+- Adaptadores para Codex, Claude Code, Cursor, Antigravity y un destino genérico.
+- El paquete `android-core` con cinco skills Android validadas.
 - El HUD FastAPI existente, aislado en `apps/hud/`.
 - Raíces versionadas para skills, paquetes, reglas, adaptadores, schemas y perfiles.
 - CI de la CLI Dart en macOS, Linux y Windows, además de la suite de pruebas Python del HUD.
 
-Las fuentes Git/archive, la instalación de paquetes, los adaptadores de agentes y los comandos Android son las próximas etapas de implementación.
+Los perfiles, releases firmados y comandos Android que operan dispositivos siguen como próximas etapas.
 
 ## Estructura del repositorio
 
@@ -51,20 +54,20 @@ Contiene las automatizaciones del repositorio. `alfredo_cli.yaml` formatea, anal
 
 ### `cli/`
 
-Contiene el paquete Dart puro `alfredo_cli` y el ejecutable `alfredo`. Ya implementa la validación de fuentes locales y el CRUD del registro. Sus próximas responsabilidades son:
+Contiene el paquete Dart puro `alfredo_cli` y el ejecutable `alfredo`. Implementa:
 
-- Descargas de solo lectura y snapshots inmutables.
-- Búsqueda en el catálogo y resolución de paquetes.
-- Instalación, actualización, diff, rollback y eliminación.
+- Fuentes locales y Git/archive de solo lectura con snapshots inmutables.
+- Búsqueda y resolución determinista de paquetes.
+- Instalación transaccional, status, diff y eliminación segura.
 - Alcances de usuario y proyecto.
-- Detección de agentes y selección de adaptadores.
+- Selección explícita de adaptadores para cinco destinos.
 - Futuros comandos multi-device en `alfredo android`.
 
 La CLI no depende del runtime de Flutter. Los binarios nativos se compilarán en el sistema operativo de destino.
 
 ### `skills/`
 
-Es la fuente canónica de las skills reutilizables. Cada skill será un directorio con un `SKILL.md` obligatorio y directorios opcionales `scripts/`, `references/` y `assets/`. Las skills describen conocimiento y procedimientos especializados, como kernel Android, desarrollo nativo, diagnóstico, seguridad y operación de flotas ADB.
+Es la fuente canónica de las skills reutilizables. Cada skill tiene un `SKILL.md` obligatorio. El conjunto inicial cubre kernel Android/Linux, internos de la plataforma, desarrollo nativo, seguridad de aplicaciones y operación paralela de flotas ADB.
 
 Las versiones específicas para cada agente deben generarse desde este contenido canónico y no mantenerse como copias independientes.
 
@@ -84,7 +87,7 @@ Contiene lógica y plantillas de instalación para Codex, Claude Code, Cursor, A
 
 ### `schemas/`
 
-Contiene contratos v1 legibles por máquina para manifiestos de fuentes, paquetes y perfiles. Los contratos de estado instalado y lockfile vendrán después. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
+Contiene contratos v1 legibles por máquina para fuentes, paquetes, perfiles, estado instalado y lockfiles. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
 
 ### `profiles/`
 
@@ -136,6 +139,8 @@ dart format --output=none --set-exit-if-changed .
 dart analyze --fatal-infos --fatal-warnings
 dart test
 dart run bin/alfredo.dart --help
+dart run bin/alfredo.dart source add canonical --local ..
+dart run bin/alfredo.dart package install android-core --target codex --scope user
 ```
 
 Compila un ejecutable nativo en el sistema actual:
@@ -180,14 +185,10 @@ Abre `http://127.0.0.1:8765` después de iniciar el servidor.
 
 ## Roadmap
 
-1. Completar los schemas de lockfile y estado instalado.
-2. Extender el registro local ya implementado con descargas Git/archive y caché inmutable.
-3. Añadir resolución determinista e instalación transaccional.
-4. Implementar adaptadores para Codex, Claude Code, Cursor y Antigravity.
-5. Añadir update, diff, rollback, perfiles y bundles offline.
-6. Publicar binarios firmados para macOS, Windows y Linux.
-7. Construir comandos Android y ADB multi-device.
-8. Completar las skills iniciales de Android internals, desarrollo nativo, diagnóstico y seguridad.
+1. Añadir perfiles declarativos, actualización, rollback y bundles offline.
+2. Publicar binarios firmados para macOS, Windows y Linux.
+3. Construir comandos Android y ADB multi-device que operen dispositivos.
+4. Ampliar las skills Android con referencias, scripts y laboratorios versionados.
 
 ## Idiomas de la documentación
 

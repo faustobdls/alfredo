@@ -10,7 +10,13 @@ void main() {
 
   setUpAll(() async {
     schemas = {
-      for (final name in ['source', 'package', 'profile'])
+      for (final name in [
+        'source',
+        'package',
+        'profile',
+        'lockfile',
+        'installed-state',
+      ])
         name: await _loadSchema(name),
     };
   });
@@ -35,6 +41,8 @@ void main() {
       isFalse,
     );
     expect(schema.validate({...valid, 'unknown': true}).isValid, isFalse);
+    expect(schema.validate({...valid, 'kind': 'git'}).isValid, isFalse);
+    expect(schema.validate({...valid, 'kind': 'archive'}).isValid, isFalse);
   });
 
   test('package schema executes positive and adversarial fixtures', () {
@@ -108,6 +116,53 @@ void main() {
       isFalse,
     );
     expect(schema.validate({...valid, 'unknown': true}).isValid, isFalse);
+  });
+
+  test('lockfile and installed-state schemas reject unsafe persisted data', () {
+    final lockfile = schemas['lockfile']!;
+    final state = schemas['installed-state']!;
+    const digest =
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    final validLock = <String, Object?>{
+      'version': 1,
+      'target': 'codex',
+      'packages': [
+        {
+          'id': 'android-core',
+          'version': '1.0.0',
+          'source': 'local',
+          'digest': digest,
+        },
+      ],
+    };
+    final validState = <String, Object?>{
+      'version': 1,
+      'target': 'codex',
+      'files': [
+        {
+          'path': 'skills/android/SKILL.md',
+          'digest': digest,
+          'package_id': 'android-core',
+        },
+      ],
+    };
+
+    expect(lockfile.validate(validLock).isValid, isTrue);
+    expect(lockfile.validate({...validLock, 'unknown': true}).isValid, isFalse);
+    expect(state.validate(validState).isValid, isTrue);
+    expect(
+      state.validate({
+        ...validState,
+        'files': [
+          {
+            'path': '../outside',
+            'digest': digest,
+            'package_id': 'android-core',
+          },
+        ],
+      }).isValid,
+      isFalse,
+    );
   });
 }
 

@@ -1,4 +1,6 @@
+import 'package:alfredo_cli/src/commands/package_command.dart';
 import 'package:alfredo_cli/src/commands/source_command.dart';
+import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
 import 'package:alfredo_cli/src/version.dart';
 import 'package:args/args.dart';
@@ -19,9 +21,15 @@ const description =
 /// {@endtemplate}
 class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro alfredo_cli_command_runner}
-  AlfredoCliCommandRunner({Logger? logger, SourceRegistry? sourceRegistry})
-    : _logger = logger ?? Logger(),
-      super(executableName, description) {
+  AlfredoCliCommandRunner({
+    Logger? logger,
+    SourceRegistry? sourceRegistry,
+    PackageCatalog? packageCatalog,
+    PackageResolver? packageResolver,
+    PackageInstaller? packageInstaller,
+    AgentTargetRoots? targetRoots,
+  }) : _logger = logger ?? Logger(),
+       super(executableName, description) {
     argParser
       ..addFlag(
         'version',
@@ -33,10 +41,16 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         'verbose',
         help: 'Show detailed command information.',
       );
+    final registry =
+        sourceRegistry ?? SourceRegistry(file: defaultSourceRegistryFile());
+    final catalog = packageCatalog ?? PackageCatalog(registry: registry);
+    addCommand(SourceCommand(registry: registry, logger: _logger));
     addCommand(
-      SourceCommand(
-        registry:
-            sourceRegistry ?? SourceRegistry(file: defaultSourceRegistryFile()),
+      PackageCommand(
+        catalog: catalog,
+        resolver: packageResolver ?? PackageResolver(catalog),
+        installer: packageInstaller ?? const PackageInstaller(),
+        roots: targetRoots ?? defaultAgentTargetRoots(),
         logger: _logger,
       ),
     );
@@ -65,6 +79,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         ..info(error.usage);
       return ExitCode.usage.code;
     } on SourceException catch (error) {
+      _logger.err(error.message);
+      return ExitCode.config.code;
+    } on PackageException catch (error) {
       _logger.err(error.message);
       return ExitCode.config.code;
     }

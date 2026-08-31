@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/installed-state.schema.json",
+  "title": "Alfredo installed package state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "target", "files"],
+  "properties": {
+    "version": {"const": 1},
+    "target": {"enum": ["codex", "claude-code", "cursor", "antigravity", "generic"]},
+    "files": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/file"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$", "maxLength": 64},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9][A-Za-z0-9._/-]*$", "maxLength": 512},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest", "package_id"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "digest": {"$ref": "#/$defs/digest"},
+        "package_id": {"$ref": "#/$defs/id"}
+      }
+    }
+  }
+}

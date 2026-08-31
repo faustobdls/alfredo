@@ -2,6 +2,84 @@
 enum SourceKind {
   /// A directory that already exists on the local filesystem.
   local,
+
+  /// A snapshot materialized from an immutable Git commit.
+  git,
+
+  /// A snapshot extracted from a checksum-verified archive.
+  archive,
+}
+
+/// The immutable transport details that produced a source snapshot.
+class SourceTransport {
+  /// Creates transport metadata for a non-local source.
+  const SourceTransport({
+    required this.kind,
+    required this.url,
+    this.revision,
+    this.resolvedRevision,
+    this.sha256,
+  });
+
+  /// Recreates persisted transport metadata.
+  factory SourceTransport.fromJson(Map<String, Object?> json) {
+    final kindValue = json['kind'];
+    final url = json['url'];
+    if (kindValue is! String || url is! String) {
+      throw const FormatException('Invalid source transport metadata.');
+    }
+    final kind = switch (kindValue) {
+      'git' => SourceKind.git,
+      'archive' => SourceKind.archive,
+      _ => throw const FormatException('Invalid source transport kind.'),
+    };
+    final revision = json['revision'];
+    final resolvedRevision = json['resolved_revision'];
+    final sha256 = json['sha256'];
+    if ((revision != null && revision is! String) ||
+        (resolvedRevision != null && resolvedRevision is! String) ||
+        (sha256 != null && sha256 is! String)) {
+      throw const FormatException('Invalid source transport metadata.');
+    }
+    if (kind == SourceKind.git &&
+        (revision is! String || resolvedRevision is! String)) {
+      throw const FormatException('Git source metadata is incomplete.');
+    }
+    if (kind == SourceKind.archive && sha256 is! String) {
+      throw const FormatException('Archive source metadata is incomplete.');
+    }
+    return SourceTransport(
+      kind: kind,
+      url: url,
+      revision: revision as String?,
+      resolvedRevision: resolvedRevision as String?,
+      sha256: sha256 as String?,
+    );
+  }
+
+  /// Source transport.
+  final SourceKind kind;
+
+  /// Canonical remote URI.
+  final String url;
+
+  /// User-requested Git revision, when [kind] is [SourceKind.git].
+  final String? revision;
+
+  /// Full Git commit resolved from [revision], when applicable.
+  final String? resolvedRevision;
+
+  /// Expected archive SHA-256, when [kind] is [SourceKind.archive].
+  final String? sha256;
+
+  /// Converts this transport to the durable registry format.
+  Map<String, Object?> toJson() => {
+    'kind': kind.name,
+    'url': url,
+    if (revision != null) 'revision': revision,
+    if (resolvedRevision != null) 'resolved_revision': resolvedRevision,
+    if (sha256 != null) 'sha256': sha256,
+  };
 }
 
 /// A package entry declared by an Alfredo source manifest.
@@ -50,7 +128,7 @@ class SourceCatalog {
   final List<SourcePackage> packages;
 }
 
-/// A locally registered source.
+/// A registered local or immutable remote source.
 class RegisteredSource {
   /// Creates a registered source.
   const RegisteredSource({
@@ -59,6 +137,7 @@ class RegisteredSource {
     required this.location,
     required this.sourceId,
     required this.sourceName,
+    this.transport,
   });
 
   /// Parses a registration from persisted JSON.
@@ -69,18 +148,34 @@ class RegisteredSource {
     final sourceId = json['source_id'];
     final sourceName = json['source_name'];
     if (name is! String ||
-        kind != SourceKind.local.name ||
+        kind is! String ||
         location is! String ||
         sourceId is! String ||
         sourceName is! String) {
       throw const FormatException('Invalid source registry entry.');
     }
+    final sourceKind = switch (kind) {
+      'local' => SourceKind.local,
+      'git' => SourceKind.git,
+      'archive' => SourceKind.archive,
+      _ => throw const FormatException('Invalid source registry kind.'),
+    };
+    final transportValue = json['transport'];
+    final transport = transportValue == null
+        ? null
+        : SourceTransport.fromJson(_asMap(transportValue));
+    if ((sourceKind == SourceKind.local && transport != null) ||
+        (sourceKind != SourceKind.local &&
+            (transport == null || transport.kind != sourceKind))) {
+      throw const FormatException('Invalid source registry transport.');
+    }
     return RegisteredSource(
       name: name,
-      kind: SourceKind.local,
+      kind: sourceKind,
       location: location,
       sourceId: sourceId,
       sourceName: sourceName,
+      transport: transport,
     );
   }
 
@@ -99,14 +194,28 @@ class RegisteredSource {
   /// Name read from the source manifest when it was registered.
   final String sourceName;
 
+  /// Immutable origin metadata for Git and archive registrations.
+  final SourceTransport? transport;
+
   /// Converts this registration to persisted JSON.
-  Map<String, Object?> toJson() => {
-    'name': name,
-    'kind': kind.name,
-    'location': location,
-    'source_id': sourceId,
-    'source_name': sourceName,
-  };
+  Map<String, Object?> toJson() {
+    final sourceTransport = transport;
+    return {
+      'name': name,
+      'kind': kind.name,
+      'location': location,
+      'source_id': sourceId,
+      'source_name': sourceName,
+      if (sourceTransport != null) 'transport': sourceTransport.toJson(),
+    };
+  }
+
+  static Map<String, Object?> _asMap(Object? value) {
+    if (value is! Map) {
+      throw const FormatException('Invalid source transport metadata.');
+    }
+    return value.map((key, item) => MapEntry('$key', item));
+  }
 }
 
 /// A rejected source, manifest, or registry operation.

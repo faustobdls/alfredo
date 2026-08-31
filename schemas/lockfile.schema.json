@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/lockfile.schema.json",
+  "title": "Alfredo package lockfile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "target", "packages"],
+  "properties": {
+    "version": {"const": 1},
+    "target": {"enum": ["codex", "claude-code", "cursor", "antigravity", "generic"]},
+    "packages": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/package"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$", "maxLength": 64},
+    "semver": {"type": "string", "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "source", "digest"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "version": {"$ref": "#/$defs/semver"},
+        "source": {"$ref": "#/$defs/id"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    }
+  }
+}

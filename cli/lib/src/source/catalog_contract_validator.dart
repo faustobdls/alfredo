@@ -13,7 +13,6 @@ class CatalogContractValidator {
     r'(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$',
   );
   static final _pathPattern = RegExp(r'^[A-Za-z0-9][A-Za-z0-9._/-]*$');
-  static final _sha256Pattern = RegExp(r'^[A-Fa-f0-9]{64}$');
   static const _targets = {
     'codex',
     'claude-code',
@@ -37,10 +36,7 @@ class CatalogContractValidator {
       'name',
       'description',
       'kind',
-      'url',
       'path',
-      'revision',
-      'sha256',
       'read_only',
       'packages_path',
       'profiles_path',
@@ -67,22 +63,6 @@ class CatalogContractValidator {
         field: 'profiles_path',
         allowDot: true,
       );
-    }
-    _optionalText(source, 'revision');
-    if (source['url'] case final String url) {
-      final uri = Uri.tryParse(url);
-      if (uri == null || !uri.hasScheme) {
-        throw SourceException('Invalid source url: $url');
-      }
-    } else if (source.containsKey('url')) {
-      throw const SourceException('Missing or invalid source url.');
-    }
-    if (source['sha256'] case final String digest) {
-      if (!_sha256Pattern.hasMatch(digest)) {
-        throw const SourceException('Invalid source sha256.');
-      }
-    } else if (source.containsKey('sha256')) {
-      throw const SourceException('Missing or invalid source sha256.');
     }
   }
 

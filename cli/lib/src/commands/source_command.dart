@@ -36,15 +36,36 @@ abstract class _SourceSubcommand extends Command<int> {
 
 class _AddSourceCommand extends _SourceSubcommand {
   _AddSourceCommand({required super.registry, required super.logger}) {
-    argParser.addOption(
-      'local',
-      help: 'Path to a local Alfredo source directory.',
-      valueHelp: 'path',
-    );
+    argParser
+      ..addOption(
+        'local',
+        help: 'Path to a local Alfredo source directory.',
+        valueHelp: 'path',
+      )
+      ..addOption(
+        'git',
+        help: 'URI of an Alfredo Git repository.',
+        valueHelp: 'uri',
+      )
+      ..addOption(
+        'archive',
+        help: 'URI of an Alfredo ZIP or tar archive.',
+        valueHelp: 'uri',
+      )
+      ..addOption(
+        'revision',
+        help: 'Immutable Git revision or commit to resolve.',
+        valueHelp: 'revision',
+      )
+      ..addOption(
+        'sha256',
+        help: 'Expected SHA-256 digest of an archive.',
+        valueHelp: 'digest',
+      );
   }
 
   @override
-  String get description => 'Validate and register a local source.';
+  String get description => 'Validate and register a source snapshot.';
 
   @override
   String get name => 'add';
@@ -52,16 +73,63 @@ class _AddSourceCommand extends _SourceSubcommand {
   @override
   Future<int> run() async {
     final name = requireName();
-    final path = argResults!['local'] as String?;
-    if (path == null || path.trim().isEmpty) {
-      throw UsageException('The --local option is required.', usage);
+    final local = _option('local');
+    final git = _option('git');
+    final archive = _option('archive');
+    final revision = _option('revision');
+    final sha256 = _option('sha256');
+    final transports = [local, git, archive].whereType<String>().length;
+    if (transports != 1) {
+      throw UsageException(
+        'Use exactly one of --local, --git, or --archive.',
+        usage,
+      );
     }
-    final source = await registry.addLocal(name, path);
+    late final RegisteredSource source;
+    if (local != null) {
+      if (revision != null || sha256 != null) {
+        throw UsageException(
+          '--revision and --sha256 cannot be used with --local.',
+          usage,
+        );
+      }
+      source = await registry.addLocal(name, local);
+    } else if (git != null) {
+      if (revision == null || sha256 != null) {
+        throw UsageException(
+          '--git requires --revision and cannot use --sha256.',
+          usage,
+        );
+      }
+      source = await registry.addGit(
+        name,
+        url: Uri.parse(git),
+        revision: revision,
+      );
+    } else {
+      if (sha256 == null || revision != null) {
+        throw UsageException(
+          '--archive requires --sha256 and cannot use --revision.',
+          usage,
+        );
+      }
+      source = await registry.addArchive(
+        name,
+        url: Uri.parse(archive!),
+        sha256: sha256,
+      );
+    }
     logger.success(
       'Added source ${source.name} (${source.sourceId}) '
       'from ${source.location}.',
     );
     return ExitCode.success.code;
+  }
+
+  String? _option(String name) {
+    final value = argResults![name] as String?;
+    final normalized = value?.trim();
+    return normalized == null || normalized.isEmpty ? null : normalized;
   }
 }
 

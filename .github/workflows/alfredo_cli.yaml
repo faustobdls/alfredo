@@ -12,6 +12,7 @@ on:
       - "cli/**"
       - "packages/**"
       - "schemas/**"
+      - "skills/**"
   push:
     branches:
       - main
@@ -21,6 +22,7 @@ on:
       - "cli/**"
       - "packages/**"
       - "schemas/**"
+      - "skills/**"
 
 jobs:
   verify:
@@ -57,9 +59,17 @@ jobs:
       - name: Validate canonical catalog
         env:
           ALFREDO_CONFIG_HOME: ${{ runner.temp }}/alfredo-config
+          ALFREDO_USER_ROOT: ${{ runner.temp }}/alfredo-user
+          ALFREDO_PROJECT_ROOT: ${{ github.workspace }}
         run: |
           dart run bin/alfredo.dart source add canonical --local ..
           dart run bin/alfredo.dart source test canonical
+          dart run bin/alfredo.dart package list
+          dart run bin/alfredo.dart package show android-core
+          dart run bin/alfredo.dart package install android-core --target generic --scope user
+          dart run bin/alfredo.dart package status --target generic --scope user
+          dart run bin/alfredo.dart package diff --target generic --scope user
+          dart run bin/alfredo.dart package uninstall android-core --target generic --scope user
 
       - name: Compile native executable
         run: dart compile exe bin/alfredo.dart -o alfredo

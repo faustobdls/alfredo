@@ -9,8 +9,14 @@ targets:
   - claude-code
   - cursor
   - antigravity
+  - generic
 contents:
-  skills: []
+  skills:
+    - skills/adb-device-fleet
+    - skills/android-linux-kernel
+    - skills/android-platform-internals
+    - skills/android-native-development
+    - skills/android-app-security
   rules: []
 dependencies: []
 conflicts: []

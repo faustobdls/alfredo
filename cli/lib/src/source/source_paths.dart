@@ -45,3 +45,44 @@ File defaultSourceRegistryFile({
     ),
   );
 }
+
+/// Resolves the content-addressed snapshot cache for the current platform.
+Directory defaultSourceCacheDirectory({
+  Map<String, String>? environment,
+  String? operatingSystem,
+}) {
+  final env = environment ?? Platform.environment;
+  final override = env['ALFREDO_CACHE_HOME'];
+  if (override != null && override.trim().isNotEmpty) {
+    return Directory(p.join(override, 'snapshots'));
+  }
+
+  final os = operatingSystem ?? Platform.operatingSystem;
+  if (os == 'windows') {
+    final root = env['LOCALAPPDATA'] ?? env['APPDATA'];
+    if (root == null || root.isEmpty) {
+      throw const SourceException(
+        'LOCALAPPDATA or APPDATA is required on Windows.',
+      );
+    }
+    return Directory(
+      p.Context(style: p.Style.windows).join(root, 'Alfredo', 'snapshots'),
+    );
+  }
+
+  final home = env['HOME'];
+  if (home == null || home.isEmpty) {
+    throw const SourceException('HOME is required to store Alfredo cache.');
+  }
+  if (os == 'macos') {
+    return Directory(p.join(home, 'Library', 'Caches', 'Alfredo', 'snapshots'));
+  }
+  final root = env['XDG_CACHE_HOME'];
+  return Directory(
+    p.join(
+      root == null || root.isEmpty ? p.join(home, '.cache') : root,
+      'alfredo',
+      'snapshots',
+    ),
+  );
+}
