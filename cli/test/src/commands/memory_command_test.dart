@@ -367,6 +367,40 @@ void main() {
     );
   });
 
+  test('enables embeddings when the model is tagged latest', () async {
+    embeddings = FakeEmbeddingsClient(
+      model: 'nomic-embed-text',
+      installedModels: const ['nomic-embed-text:latest'],
+    );
+    await registerMemorySource();
+
+    expect(
+      await runner.run([
+        'memory',
+        'setup',
+        '--all',
+        '--no-hook',
+        '--source',
+        'memory',
+        '--scope',
+        'user',
+      ]),
+      ExitCode.success.code,
+    );
+
+    final embeddingsConfig =
+        (jsonDecode(
+                  await File(
+                    p.join(userMemory.path, 'config.json'),
+                  ).readAsString(),
+                )
+                as Map<String, Object?>)['embeddings']!
+            as Map<String, Object?>;
+    expect(embeddingsConfig['enabled'], isTrue);
+    expect(embeddingsConfig['model'], 'nomic-embed-text');
+    expect(embeddings.pullCalls, 0);
+  });
+
   test('skips the hook when it is explicitly declined', () async {
     await registerMemorySource();
 

@@ -295,7 +295,7 @@ class _SetupMemory extends _MemorySubcommand {
     }
     var available = false;
     try {
-      available = (await client.listModels()).contains(client.model);
+      available = _modelInstalled(await client.listModels(), client.model);
     } on Exception {
       return disabled;
     }
@@ -332,6 +332,17 @@ class _SetupMemory extends _MemorySubcommand {
       );
       return disabled;
     }
+  }
+
+  /// Whether [requested] is already present in [installed].
+  ///
+  /// Ollama reports models with an explicit tag (`nomic-embed-text:latest`),
+  /// while the configured model name is usually tagless. Treat a missing tag as
+  /// the implicit `latest` on both sides before comparing.
+  static bool _modelInstalled(Iterable<String> installed, String requested) {
+    String withTag(String name) => name.contains(':') ? name : '$name:latest';
+    final target = withTag(requested);
+    return installed.map(withTag).contains(target);
   }
 
   Future<void> _install(List<String> targets, MemoryScope scope) async {

@@ -6,6 +6,17 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Discovery `tags` in the frontmatter of the five `android-core` skills so agents
+  can filter and route them by domain, discipline, topic, and tool.
+
+### Fixed
+
+- `alfredo memory setup --all` now recognizes an already-installed embedding model
+  that Ollama reports with an explicit `:latest` tag, instead of falling back to
+  keyword search and leaving embeddings disabled.
+
 ## [0.0.3] - 2026-08-31
 
 ### Added
