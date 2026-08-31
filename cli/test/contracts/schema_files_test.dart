@@ -65,6 +65,33 @@ void main() {
 
     expect(schema.validate(valid).isValid, isTrue);
     expect(
+      schema.validate({
+        ...valid,
+        'contents': {
+          'agents': ['agents'],
+        },
+      }).isValid,
+      isTrue,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'contents': {
+          'agents': ['../escape'],
+        },
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'contents': {
+          'unknown-kind': ['x'],
+        },
+      }).isValid,
+      isFalse,
+    );
+    expect(
       schema.validate({...valid, 'id': ' android-core '}).isValid,
       isFalse,
     );

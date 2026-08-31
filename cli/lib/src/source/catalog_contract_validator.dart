@@ -23,6 +23,7 @@ class CatalogContractValidator {
   static const _contentKinds = {
     'skills',
     'rules',
+    'agents',
     'scripts',
     'assets',
     'references',

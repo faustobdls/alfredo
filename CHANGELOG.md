@@ -6,6 +6,18 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `agents` content kind for packages, alongside `skills` and `rules`. Packages
+  can bundle sub-agent definitions that install into each target's agent
+  directory (`~/.claude/agents/`, `~/.codex/agents/`, and so on).
+- Canonical `agents/` root and the `agents-core` package: a catalogue of 19
+  sub-agent personas (executor, planner, architect, code-reviewer, debugger,
+  and more) that answer in Alfredo's voice.
+- `alfredo init source <path>` scaffolds a new Alfredo source repository —
+  manifest, content roots (`skills/`, `rules/`, `agents/`, `profiles/`), a
+  sample package, README, and CHANGELOG — with `--id`, `--name`, and `--force`.
+
 ## [0.0.4] - 2026-08-31
 
 ### Added

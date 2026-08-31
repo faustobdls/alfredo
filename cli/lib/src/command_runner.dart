@@ -1,3 +1,4 @@
+import 'package:alfredo_cli/src/commands/init_command.dart';
 import 'package:alfredo_cli/src/commands/memory_command.dart';
 import 'package:alfredo_cli/src/commands/package_command.dart';
 import 'package:alfredo_cli/src/commands/setup_command.dart';
@@ -56,6 +57,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     final resolver = packageResolver ?? PackageResolver(catalog);
     final installer = packageInstaller ?? const PackageInstaller();
     final roots = targetRoots ?? defaultAgentTargetRoots();
+    addCommand(InitCommand(logger: _logger));
     addCommand(SourceCommand(registry: registry, logger: _logger));
     addCommand(
       SetupCommand(

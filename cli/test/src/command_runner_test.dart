@@ -34,11 +34,20 @@ void main() {
       expect(commandRunner.usage, isNot(contains('sample')));
     });
 
-    test('exposes setup, source, package, and memory management commands', () {
+    test('exposes init, setup, source, package, and memory commands', () {
+      expect(commandRunner.usage, contains('init'));
       expect(commandRunner.usage, contains('setup'));
       expect(commandRunner.usage, contains('source'));
       expect(commandRunner.usage, contains('package'));
       expect(commandRunner.usage, contains('memory'));
+    });
+
+    test('documents the init command group', () async {
+      final result = await commandRunner.run(['init', '--help']);
+      final init = commandRunner.commands['init']!;
+
+      expect(result, ExitCode.success.code);
+      expect(init.subcommands.keys, contains('source'));
     });
 
     test('documents the memory command group', () async {
