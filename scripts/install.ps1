@@ -18,10 +18,11 @@ if ($architecture -ne "X64") {
 
 $asset = "alfredo-windows-x64.zip"
 $baseUrl = if ($env:ALFREDO_DOWNLOAD_BASE_URL) {
-    $env:ALFREDO_DOWNLOAD_BASE_URL.TrimEnd("/")
+    $env:ALFREDO_DOWNLOAD_BASE_URL
 } else {
     "https://github.com/$repository/releases/latest/download"
 }
+$baseUrl = $baseUrl.TrimEnd("/")
 $temporaryDir = Join-Path ([System.IO.Path]::GetTempPath()) ("alfredo-" + [guid]::NewGuid())
 
 try {
@@ -48,12 +49,40 @@ try {
     Copy-Item -Path (Join-Path $temporaryDir "alfredo.exe") -Destination (Join-Path $installDir "alfredo.exe") -Force
 
     $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    $pathEntries = @($userPath -split ";" | Where-Object { $_ })
-    if (-not ($pathEntries | Where-Object { $_.TrimEnd("\") -ieq $installDir.TrimEnd("\") })) {
-        $newUserPath = (@($pathEntries) + $installDir) -join ";"
+    $normalizedInstallDir = $installDir.TrimEnd("\")
+    $userPathContainsInstallDir = $false
+    if (-not [string]::IsNullOrWhiteSpace($userPath)) {
+        foreach ($entry in @($userPath -split ";")) {
+            if ([string]::IsNullOrWhiteSpace($entry)) {
+                continue
+            }
+            if ($entry.TrimEnd("\") -ieq $normalizedInstallDir) {
+                $userPathContainsInstallDir = $true
+                break
+            }
+        }
+    }
+    if (-not $userPathContainsInstallDir) {
+        $newUserPath = if ([string]::IsNullOrWhiteSpace($userPath)) {
+            $installDir
+        } else {
+            "$($userPath.TrimEnd(';'));$installDir"
+        }
         [Environment]::SetEnvironmentVariable("Path", $newUserPath, "User")
     }
-    if (-not (($env:Path -split ";") | Where-Object { $_.TrimEnd("\") -ieq $installDir.TrimEnd("\") })) {
+    $processPathContainsInstallDir = $false
+    if (-not [string]::IsNullOrWhiteSpace($env:Path)) {
+        foreach ($entry in @($env:Path -split ";")) {
+            if ([string]::IsNullOrWhiteSpace($entry)) {
+                continue
+            }
+            if ($entry.TrimEnd("\") -ieq $normalizedInstallDir) {
+                $processPathContainsInstallDir = $true
+                break
+            }
+        }
+    }
+    if (-not $processPathContainsInstallDir) {
         $env:Path = "$installDir;$env:Path"
     }
 

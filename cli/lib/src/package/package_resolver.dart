@@ -13,8 +13,14 @@ class PackageResolver {
   Future<PackageResolution> resolve({
     required Iterable<String> packageIds,
     required String target,
+    String? sourceName,
   }) async {
-    final candidates = await catalog.discover();
+    final candidates = (await catalog.discover())
+        .where(
+          (candidate) =>
+              sourceName == null || candidate.sourceName == sourceName,
+        )
+        .toList();
     final byIdentity = <String, List<PackageCandidate>>{};
     for (final candidate in candidates) {
       final identity = '${candidate.manifest.id}@${candidate.manifest.version}';

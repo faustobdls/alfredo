@@ -193,7 +193,12 @@ abstract class _TargetCommand extends Command<int> {
   final AgentTargetRoots roots;
   final Logger logger;
 
-  String get target => argResults!['target'] as String;
+  String get target {
+    if (!argResults!.wasParsed('target')) {
+      throw UsageException('Missing required option --target.', usage);
+    }
+    return argResults!['target'] as String;
+  }
 
   InstallationScope get scope => switch (argResults!['scope'] as String) {
     'project' => InstallationScope.project,

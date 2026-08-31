@@ -145,4 +145,14 @@ void main() {
     );
     verify(() => logger.err(any(that: contains('not available')))).called(1);
   });
+
+  test('reports a usage error when target is missing', () async {
+    expect(
+      await runner.run(['package', 'status']),
+      ExitCode.usage.code,
+    );
+    verify(
+      () => logger.err(any(that: contains('Missing required option --target'))),
+    ).called(1);
+  });
 }

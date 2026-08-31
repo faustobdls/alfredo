@@ -1,4 +1,5 @@
 import 'package:alfredo_cli/src/commands/package_command.dart';
+import 'package:alfredo_cli/src/commands/setup_command.dart';
 import 'package:alfredo_cli/src/commands/source_command.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
@@ -44,13 +45,26 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     final registry =
         sourceRegistry ?? SourceRegistry(file: defaultSourceRegistryFile());
     final catalog = packageCatalog ?? PackageCatalog(registry: registry);
+    final resolver = packageResolver ?? PackageResolver(catalog);
+    final installer = packageInstaller ?? const PackageInstaller();
+    final roots = targetRoots ?? defaultAgentTargetRoots();
     addCommand(SourceCommand(registry: registry, logger: _logger));
+    addCommand(
+      SetupCommand(
+        registry: registry,
+        catalog: catalog,
+        resolver: resolver,
+        installer: installer,
+        roots: roots,
+        logger: _logger,
+      ),
+    );
     addCommand(
       PackageCommand(
         catalog: catalog,
-        resolver: packageResolver ?? PackageResolver(catalog),
-        installer: packageInstaller ?? const PackageInstaller(),
-        roots: targetRoots ?? defaultAgentTargetRoots(),
+        resolver: resolver,
+        installer: installer,
+        roots: roots,
         logger: _logger,
       ),
     );

@@ -50,12 +50,31 @@ seu checksum SHA-256, instala em `~/.alfredo/bin` e inclui esse diretório no PA
 do usuário para o shell atual. Defina `ALFREDO_INSTALL_DIR` para escolher outro
 destino.
 
+Instale os pacotes oficiais em todos os agentes suportados:
+
+```sh
+alfredo setup --all
+```
+
+Ou selecione um ou mais agentes:
+
+```sh
+alfredo setup --cursor
+alfredo setup --codex --claude
+alfredo setup --antigravity
+```
+
+O comando `setup` configura automaticamente a fonte oficial correspondente à
+release da CLI instalada e usa o escopo do usuário por padrão. Passe
+`--scope project` para instalar no projeto atual.
+
 Para criar uma release, o mantenedor atualiza `cli/pubspec.yaml`, executa
 `dart run build_runner build` dentro de `cli/`,
-atualiza este changelog e então envia uma tag anotada `vX.Y.Z`. O workflow valida
-a versão, executa as verificações da CLI, compila todos os artefatos suportados,
-gera as notas com Conventional Commits e publica binários e checksums no GitHub
-Releases.
+atualiza este changelog e faz o merge em `main`. O workflow valida a versão,
+executa as verificações da CLI, compila todos os artefatos suportados, cria a tag
+anotada `vX.Y.Z`, gera as notas com Conventional Commits e publica binários e
+checksums no GitHub Releases. O envio manual de uma tag correspondente continua
+suportado.
 
 ## Estrutura do repositório
 
