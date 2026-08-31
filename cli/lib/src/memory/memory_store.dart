@@ -120,7 +120,12 @@ class MemoryStore {
   /// Loads every searchable note and journal file.
   Future<List<MemoryDocument>> loadAll() async {
     final documents = <MemoryDocument>[];
-    for (final root in [notesDirectory, journalDirectory]) {
+    final roots = <MemoryEntryKind, Directory>{
+      MemoryEntryKind.note: notesDirectory,
+      MemoryEntryKind.activity: journalDirectory,
+    };
+    for (final entry in roots.entries) {
+      final root = entry.value;
       if (!root.existsSync()) continue;
       final files =
           (await root.list(recursive: true, followLinks: false).toList())
@@ -137,9 +142,7 @@ class MemoryStore {
         documents.add(
           MemoryDocument(
             path: relative,
-            kind: root == notesDirectory
-                ? MemoryEntryKind.note
-                : MemoryEntryKind.activity,
+            kind: entry.key,
             title: _title(text, p.basenameWithoutExtension(file.path)),
             text: text,
             at: _dateFromName(p.basenameWithoutExtension(file.path)),

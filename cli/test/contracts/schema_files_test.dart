@@ -16,6 +16,7 @@ void main() {
         'profile',
         'lockfile',
         'installed-state',
+        'memory-config',
       ])
         name: await _loadSchema(name),
     };
@@ -161,6 +162,88 @@ void main() {
           },
         ],
       }).isValid,
+      isFalse,
+    );
+  });
+
+  test('memory-config schema executes positive and adversarial fixtures', () {
+    final schema = schemas['memory-config']!;
+    final valid = <String, Object?>{
+      'version': 1,
+      'embeddings': <String, Object?>{
+        'enabled': true,
+        'provider': 'ollama',
+        'baseUrl': 'http://127.0.0.1:11434',
+        'model': 'nomic-embed-text',
+        'dimensions': 768,
+      },
+      'capture': <String, Object?>{
+        'sessionEndHook': true,
+        'gitDiffStat': true,
+        'targets': ['claude-code'],
+      },
+      'defaultScope': 'user',
+    };
+
+    expect(schema.validate(valid).isValid, isTrue);
+    expect(
+      schema.validate({
+        'version': 1,
+        'embeddings': {'enabled': false},
+        'capture': {'sessionEndHook': false},
+        'defaultScope': 'project',
+      }).isValid,
+      isTrue,
+    );
+    expect(schema.validate({...valid, 'version': 2}).isValid, isFalse);
+    expect(
+      schema.validate({...valid, 'defaultScope': 'global'}).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'embeddings': {'enabled': true, 'provider': 'openai'},
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'embeddings': {'enabled': true, 'baseUrl': 'ftp://example.com'},
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'embeddings': {'enabled': true, 'dimensions': 0},
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'capture': {
+          'sessionEndHook': true,
+          'targets': ['codex', 'codex'],
+        },
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'capture': {
+          'sessionEndHook': true,
+          'targets': ['emacs'],
+        },
+      }).isValid,
+      isFalse,
+    );
+    expect(schema.validate({...valid, 'unknown': true}).isValid, isFalse);
+    expect(
+      schema.validate({...valid, 'capture': <String, Object?>{}}).isValid,
       isFalse,
     );
   });
