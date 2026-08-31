@@ -6,6 +6,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-08-31
+
 ### Added
 
 - `alfredo upgrade` self-updates the CLI from the latest checksum-verified release,
@@ -13,6 +15,11 @@ All notable changes to Alfredo are documented in this file. The format follows
 - `alfredo update` re-resolves installed packages across every target and scope,
   advances Git sources to newer revisions, and reinstalls changed content, with
   `--target`, `--scope`, `--package`, `--dry-run`, and `--no-refresh-sources`.
+- `alfredo memory` subsystem with an append-only, offline-first local store in
+  `.alfredo/memory/`, separate user and repository scopes, keyword recall with
+  optional local Ollama embedding ranking, and the `memory-core` package.
+  Includes `memory setup`, `add`, `search`, `list`, `digest`, `index`, and
+  `capture` subcommands.
 
 ### Fixed
 
@@ -44,6 +51,7 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/faustobdls/alfredo/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/faustobdls/alfredo/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/faustobdls/alfredo/releases/tag/v0.0.1
