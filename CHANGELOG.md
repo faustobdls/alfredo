@@ -11,6 +11,14 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Discovery `tags` in the frontmatter of the five `android-core` skills so agents
   can filter and route them by domain, discipline, topic, and tool.
 
+### Changed
+
+- `alfredo memory setup` recognizes several known embedding models
+  (`nomic-embed-text`, `mxbai-embed-large`, `bge-m3`, `snowflake-arctic-embed2`,
+  `snowflake-arctic-embed`, `embeddinggemma`, `all-minilm`,
+  `paraphrase-multilingual`) and reuses whichever one is already installed
+  instead of only ever downloading `nomic-embed-text`.
+
 ### Fixed
 
 - `alfredo memory setup --all` now recognizes an already-installed embedding model

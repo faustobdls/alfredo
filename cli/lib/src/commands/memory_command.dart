@@ -9,6 +9,22 @@ import 'package:path/path.dart' as p;
 /// Package identifier that teaches an agent how to use Alfredo memory.
 const memoryPackageId = 'memory-core';
 
+/// Ollama embedding models the CLI can rank with, most preferred first.
+///
+/// `alfredo memory setup` reuses whichever of these is already installed before
+/// offering to download one, so an operator who already pulled an embedding
+/// model never waits for a second one.
+const knownEmbeddingModels = <String>[
+  'nomic-embed-text',
+  'mxbai-embed-large',
+  'bge-m3',
+  'snowflake-arctic-embed2',
+  'snowflake-arctic-embed',
+  'embeddinggemma',
+  'all-minilm',
+  'paraphrase-multilingual',
+];
+
 final _sincePattern = RegExp(r'^(\d+)([dwm])$');
 
 /// Records and recalls append-only project and user memory.
@@ -285,44 +301,50 @@ class _SetupMemory extends _MemorySubcommand {
     required bool unattended,
   }) async {
     const disabled = EmbeddingsConfig();
-    final client = embeddingsFactory(const MemoryConfig.defaults());
-    if (!await client.probe()) {
+    final probeClient = embeddingsFactory(const MemoryConfig.defaults());
+    if (!await probeClient.probe()) {
       logger.info(
         'Ollama not reachable at ${EmbeddingsConfig.defaultBaseUrl}; '
         'memory will use keyword search.',
       );
       return disabled;
     }
-    var available = false;
+    List<String> installed;
     try {
-      available = _modelInstalled(await client.listModels(), client.model);
+      installed = await probeClient.listModels();
     } on Exception {
       return disabled;
     }
-    if (!available) {
+    var model = _installedKnownModel(installed);
+    if (model == null) {
+      final fallback = knownEmbeddingModels.first;
       if (unattended) {
         logger.info(
-          'Embedding model ${client.model} is not installed; '
-          'memory will use keyword search.',
+          'No known embedding model is installed '
+          '(${knownEmbeddingModels.join(', ')}); memory will use keyword '
+          'search. Run `ollama pull $fallback` and re-run setup to enable it.',
         );
         return disabled;
       }
       final download = logger.confirm(
-        'Download embedding model "${client.model}" (~274 MB) now?',
+        'Download embedding model "$fallback" (~274 MB) now?',
       );
       if (!download) return disabled;
       try {
-        await client.pull(client.model, onProgress: logger.detail);
+        await probeClient.pull(fallback, onProgress: logger.detail);
       } on Exception catch (error) {
-        logger.info('Could not download ${client.model}: $error');
+        logger.info('Could not download $fallback: $error');
         return disabled;
       }
+      model = fallback;
+    } else {
+      logger.info('Using installed embedding model "$model".');
     }
     try {
-      final probe = await client.embed(['alfredo']);
+      final probe = await _clientForModel(model).embed(['alfredo']);
       return EmbeddingsConfig(
         enabled: true,
-        model: client.model,
+        model: model,
         dimensions: probe.isEmpty ? null : probe.first.length,
       );
     } on Exception {
@@ -332,6 +354,14 @@ class _SetupMemory extends _MemorySubcommand {
       );
       return disabled;
     }
+  }
+
+  /// The first [knownEmbeddingModels] entry present in [installed], or null.
+  static String? _installedKnownModel(Iterable<String> installed) {
+    for (final candidate in knownEmbeddingModels) {
+      if (_modelInstalled(installed, candidate)) return candidate;
+    }
+    return null;
   }
 
   /// Whether [requested] is already present in [installed].
@@ -344,6 +374,15 @@ class _SetupMemory extends _MemorySubcommand {
     final target = withTag(requested);
     return installed.map(withTag).contains(target);
   }
+
+  /// Builds an embeddings client bound to [model] for a one-off probe.
+  EmbeddingsClient _clientForModel(String model) => embeddingsFactory(
+    MemoryConfig(
+      embeddings: EmbeddingsConfig(model: model),
+      capture: const CaptureConfig(),
+      defaultScope: MemoryScope.user,
+    ),
+  );
 
   Future<void> _install(List<String> targets, MemoryScope scope) async {
     if (targets.isEmpty) return;

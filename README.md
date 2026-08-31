@@ -173,7 +173,7 @@ Alfredo keeps a durable, local record of what was decided and what was done, so 
 
 Memory lives in `.alfredo/memory/` and exists in two independent scopes: `~/.alfredo/memory/` for cross-project practice and `<repo>/.alfredo/memory/` for facts that only make sense inside one repository. Each store contains an append-only `journal/` of dated session files, a `notes/` directory holding one durable fact per file, a generated `index/`, and a derived `MEMORY.md`. Only `MEMORY.md` is ever regenerated; journals grow by concatenation and notes are never overwritten.
 
-Recall works without a network. Keyword ranking is always available. When a local Ollama daemon is reachable, `alfredo memory setup` can enable embedding ranking, and search silently falls back to keywords whenever the provider is unavailable. A model is downloaded only when the operator explicitly confirms it.
+Recall works without a network. Keyword ranking is always available. When a local Ollama daemon is reachable, `alfredo memory setup` can enable embedding ranking, and search silently falls back to keywords whenever the provider is unavailable. Setup reuses any known embedding model you have already pulled (`nomic-embed-text`, `mxbai-embed-large`, `bge-m3`, `snowflake-arctic-embed2`, `embeddinggemma`, and more); a model is downloaded only when the operator explicitly confirms it.
 
 | Command | Effect |
 | --- | --- |
