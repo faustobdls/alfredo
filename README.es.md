@@ -25,6 +25,7 @@ El repositorio contiene actualmente:
 - Instalación transaccional, status, diff y desinstalación segura en ámbitos de usuario y proyecto.
 - Adaptadores para Codex, Claude Code, Cursor, Antigravity y un destino genérico.
 - El paquete `android-core` con cinco skills Android validadas.
+- El subsistema `alfredo memory`, append-only, con búsqueda por palabra clave, embeddings locales opcionales y el paquete `memory-core`.
 - El HUD FastAPI existente, aislado en `apps/hud/`.
 - Raíces versionadas para skills, paquetes, reglas, adaptadores, schemas y perfiles.
 - CI de la CLI Dart en macOS, Linux y Windows, además de la suite de pruebas Python del HUD.
@@ -121,6 +122,26 @@ Las fuentes de Alfredo son de solo lectura desde la perspectiva de la CLI:
 
 Los repositorios de origen se mantienen y publican mediante sus propios flujos. Alfredo solamente los consume.
 
+## Memoria
+
+Alfredo mantiene un registro local y duradero de lo que se decidió y de lo que se hizo, para que el agente recupere el contexto en una sesión posterior en lugar de deducirlo otra vez.
+
+La memoria vive en `.alfredo/memory/` y existe en dos ámbitos independientes: `~/.alfredo/memory/` para prácticas que valen en cualquier proyecto y `<repo>/.alfredo/memory/` para hechos que solo tienen sentido dentro de un repositorio. Cada store contiene un `journal/` append-only con archivos diarios, un directorio `notes/` con un hecho duradero por archivo, un `index/` generado y un `MEMORY.md` derivado. Solo `MEMORY.md` se regenera; los journals crecen por concatenación y las notas nunca se sobrescriben.
+
+La recuperación funciona sin red. La búsqueda por palabra clave siempre está disponible. Cuando hay un Ollama local accesible, `alfredo memory setup` puede habilitar la búsqueda por embeddings, y la búsqueda vuelve silenciosamente a palabras clave siempre que el proveedor no esté disponible. Un modelo solo se descarga con confirmación explícita del operador.
+
+| Comando | Efecto |
+| --- | --- |
+| `alfredo memory setup` | Crea el store, configura la recuperación e instala `memory-core` |
+| `alfredo memory add <mensaje>` | Registra una entrada en el journal, o una nota con `--kind note --title` |
+| `alfredo memory search <consulta>` | Ordena los documentos de memoria, con reserva por palabra clave |
+| `alfredo memory list --since 7d` | Muestra las entradas recientes del journal, de la más nueva a la más antigua |
+| `alfredo memory digest --since 14d` | Genera un resumen compacto agrupado por día |
+| `alfredo memory index` | Genera embeddings de los documentos nuevos y modificados y elimina los borrados |
+| `alfredo memory capture` | Registra el final de una sesión de trabajo |
+
+Define `ALFREDO_MEMORY_HOME` para mover el store del usuario. Consulta [docs/architecture/memory.md](docs/architecture/memory.md) para el contrato en disco y las invariantes de seguridad.
+
 ## Desarrollo
 
 ### Requisitos
@@ -144,6 +165,9 @@ dart run bin/alfredo.dart package install android-core --target codex --scope us
 dart run bin/alfredo.dart update --dry-run
 dart run bin/alfredo.dart update
 dart run bin/alfredo.dart upgrade --check
+dart run bin/alfredo.dart memory setup --all --source canonical
+dart run bin/alfredo.dart memory add "exploré el registro de fuentes"
+dart run bin/alfredo.dart memory digest --since 14d
 ```
 
 Compila un ejecutable nativo en el sistema actual:

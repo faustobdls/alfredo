@@ -25,6 +25,7 @@ The repository currently contains:
 - Transactional install, status, diff, and safe uninstall commands for user and project scopes.
 - Adapters for Codex, Claude Code, Cursor, Antigravity, and a generic target.
 - An `android-core` package containing five validated Android engineering skills.
+- An append-only `alfredo memory` subsystem with keyword recall, optional local embeddings, and a `memory-core` package.
 - The existing FastAPI HUD, moved into its own application boundary under `apps/hud/`.
 - Versioned roots for skills, packages, rules, adapters, schemas, and profiles.
 - CI workflows for the Dart CLI on macOS, Linux, and Windows, plus the Python HUD test suite.
@@ -166,6 +167,26 @@ Alfredo sources are designed to be read-only from the CLI's perspective:
 
 Source repositories are maintained and published through their own workflows. Alfredo only consumes them.
 
+## Memory
+
+Alfredo keeps a durable, local record of what was decided and what was done, so an agent can reload context in a later session instead of re-deriving it.
+
+Memory lives in `.alfredo/memory/` and exists in two independent scopes: `~/.alfredo/memory/` for cross-project practice and `<repo>/.alfredo/memory/` for facts that only make sense inside one repository. Each store contains an append-only `journal/` of dated session files, a `notes/` directory holding one durable fact per file, a generated `index/`, and a derived `MEMORY.md`. Only `MEMORY.md` is ever regenerated; journals grow by concatenation and notes are never overwritten.
+
+Recall works without a network. Keyword ranking is always available. When a local Ollama daemon is reachable, `alfredo memory setup` can enable embedding ranking, and search silently falls back to keywords whenever the provider is unavailable. A model is downloaded only when the operator explicitly confirms it.
+
+| Command | Effect |
+| --- | --- |
+| `alfredo memory setup` | Create the store, configure recall, and install `memory-core` |
+| `alfredo memory add <message>` | Append a journal entry, or write a note with `--kind note --title` |
+| `alfredo memory search <query>` | Rank memory documents, falling back to keyword search |
+| `alfredo memory list --since 7d` | Show recent journal entries, newest first |
+| `alfredo memory digest --since 14d` | Render a compact, day-grouped briefing |
+| `alfredo memory index` | Embed new and changed documents and prune deleted ones |
+| `alfredo memory capture` | Record the end of a working session |
+
+Set `ALFREDO_MEMORY_HOME` to relocate the user store. See [docs/architecture/memory.md](docs/architecture/memory.md) for the on-disk contract and safety invariants.
+
 ## Development
 
 ### Requirements
@@ -191,6 +212,9 @@ dart run bin/alfredo.dart package status --target codex --scope user
 dart run bin/alfredo.dart update --dry-run
 dart run bin/alfredo.dart update
 dart run bin/alfredo.dart upgrade --check
+dart run bin/alfredo.dart memory setup --all --source canonical
+dart run bin/alfredo.dart memory add "explored the source registry"
+dart run bin/alfredo.dart memory digest --since 14d
 ```
 
 Compile a native executable on the current platform:
