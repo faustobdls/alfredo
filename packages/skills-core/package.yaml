@@ -1,0 +1,26 @@
+schema_version: 1
+id: skills-core
+name: Skills Core
+version: 0.1.0
+description: Alfredo's workflow skills — orchestration methods, in Alfredo's voice.
+license: MIT
+targets:
+  - codex
+  - claude-code
+  - cursor
+  - antigravity
+  - generic
+contents:
+  skills:
+    - skills/autopilot
+    - skills/ralph
+    - skills/ralplan
+    - skills/ultrawork
+    - skills/ultraqa
+    - skills/team
+    - skills/plan
+    - skills/deep-interview
+    - skills/trace
+    - skills/deslop
+dependencies: []
+conflicts: []

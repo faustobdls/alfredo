@@ -69,7 +69,7 @@ La CLI no depende del runtime de Flutter. Los binarios nativos se compilarán en
 
 ### `skills/`
 
-Es la fuente canónica de las skills reutilizables. Cada skill tiene un `SKILL.md` obligatorio. El conjunto inicial cubre kernel Android/Linux, internos de la plataforma, desarrollo nativo, seguridad de aplicaciones y operación paralela de flotas ADB.
+La fuente canónica de las skills reutilizables — guías de capacidad bajo demanda, cada una un directorio con `SKILL.md` obligatorio. Dos familias: **skills de dominio** (`android-core`: kernel, internos de la plataforma, desarrollo nativo, seguridad de apps, flotas ADB) y **skills de flujo** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop` — métodos de orquestación por fases y verificados en la voz de Alfredo). Ver [docs/architecture/skills.md](docs/architecture/skills.md).
 
 Las versiones específicas para cada agente deben generarse desde este contenido canónico y no mantenerse como copias independientes.
 
@@ -81,7 +81,7 @@ Los paquetes declararán dependencias, conflictos, targets compatibles y version
 
 ### `rules/`
 
-Contiene instrucciones canónicas sobre cómo debe trabajar un agente: estándares de código, requisitos de seguridad, límites de autorización, recolección de evidencias y convenciones del proyecto. Los adaptadores convierten estas reglas al formato nativo de cada agente.
+Restricciones y estándares siempre activos — un archivo Markdown por regla, pensados para estar en el contexto del agente en cada tarea. El paquete `rules-core` distribuye nueve en la voz de Alfredo (cambio mínimo, verificar antes de afirmar, seguir el estilo de la casa, commits atómicos, límites de autorización, reporte fiel, preguntar solo cuando se está bloqueado, secretos y exfiltración, separar autoría de revisión); `memory-core` añade dos del subsistema de memoria. Los adaptadores las convierten al formato nativo de cada agente. Ver [docs/architecture/rules.md](docs/architecture/rules.md).
 
 ### `adapters/`
 

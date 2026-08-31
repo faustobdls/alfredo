@@ -17,6 +17,14 @@ All notable changes to Alfredo are documented in this file. The format follows
 - `alfredo init source <path>` scaffolds a new Alfredo source repository —
   manifest, content roots (`skills/`, `rules/`, `agents/`, `profiles/`), a
   sample package, README, and CHANGELOG — with `--id`, `--name`, and `--force`.
+- `rules-core` package: nine always-on working rules in Alfredo's voice
+  (smallest change, verify before claiming, match the house style, atomic
+  commits, authorization boundaries, faithful reporting, ask only when blocked,
+  secrets and exfiltration, separate authoring from review).
+- `skills-core` package: ten workflow skills in Alfredo's voice (`autopilot`,
+  `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`,
+  `trace`, `deslop`) that orchestrate the agent catalogue through phased,
+  verified processes.
 
 ## [0.0.4] - 2026-08-31
 

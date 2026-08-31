@@ -1,0 +1,25 @@
+schema_version: 1
+id: rules-core
+name: Rules Core
+version: 0.1.0
+description: Alfredo's always-on working rules — the standards every agent keeps.
+license: MIT
+targets:
+  - codex
+  - claude-code
+  - cursor
+  - antigravity
+  - generic
+contents:
+  rules:
+    - rules/smallest-change.md
+    - rules/verify-before-claiming.md
+    - rules/match-the-house-style.md
+    - rules/atomic-commits.md
+    - rules/authorization-boundaries.md
+    - rules/report-outcomes-faithfully.md
+    - rules/ask-only-when-blocked.md
+    - rules/secrets-and-exfiltration.md
+    - rules/separate-authoring-from-review.md
+dependencies: []
+conflicts: []

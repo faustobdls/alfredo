@@ -114,7 +114,7 @@ A CLI não depende do runtime Flutter. Os binários nativos serão compilados no
 
 ### `skills/`
 
-É a fonte canônica das skills reutilizáveis. Cada skill possui um `SKILL.md` obrigatório. O conjunto inicial cobre kernel Android/Linux, internos da plataforma Android, desenvolvimento nativo, segurança de aplicações e operação paralela de frotas ADB.
+A fonte canônica das skills reutilizáveis — guias de capacidade sob demanda, cada uma um diretório com `SKILL.md` obrigatório. Duas famílias: **skills de domínio** (`android-core`: kernel, internos da plataforma, desenvolvimento nativo, segurança de apps, frotas ADB) e **skills de workflow** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop` — métodos de orquestração faseados e verificados na voz do Alfredo). Veja [docs/architecture/skills.md](docs/architecture/skills.md).
 
 As versões específicas para cada agente devem ser geradas desse conteúdo canônico, e não mantidas como cópias independentes.
 
@@ -130,7 +130,7 @@ Pacotes declararão dependências, conflitos, targets suportados e versões sem�
 
 ### `rules/`
 
-Contém instruções canônicas sobre como o agente deve trabalhar: padrões de código, requisitos de segurança, limites de autorização, coleta de evidências e convenções do projeto. Os adaptadores convertem essas regras para o formato nativo de cada agente.
+Restrições e padrões sempre-ativos — um arquivo Markdown por regra, para ficar no contexto do agente em toda tarefa. O pacote `rules-core` distribui nove na voz do Alfredo (menor mudança, verificar antes de afirmar, seguir o estilo da casa, commits atômicos, limites de autorização, relato fiel, perguntar só quando travado, segredos e exfiltração, separar autoria de revisão); o `memory-core` adiciona duas do subsistema de memória. Os adaptadores as convertem para o formato nativo de cada agente. Veja [docs/architecture/rules.md](docs/architecture/rules.md).
 
 ### `adapters/`
 
