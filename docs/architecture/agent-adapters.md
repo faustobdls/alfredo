@@ -12,6 +12,13 @@ they never mutate package sources.
 | Antigravity | `.gemini/config/` | `.agents/` | canonical `skills/` tree |
 | Generic | `.alfredo/` | `.alfredo/` | canonical content tree |
 
+Installation preserves each canonical content path verbatim under the target
+root, so `skills/<name>/SKILL.md` lands at `<target>/skills/<name>/SKILL.md`,
+`rules/<name>.md` at `<target>/rules/<name>.md`, and `agents/<name>.md` at
+`<target>/agents/<name>.md`. For Claude Code that last path is
+`~/.claude/agents/<name>.md`, the native sub-agent location. See
+[agents.md](agents.md) for the agent catalog contract.
+
 The implementation accepts injectable user and project roots. Normal execution
 uses the user's home and current working directory; CI and isolated environments
 may set `ALFREDO_USER_ROOT` and `ALFREDO_PROJECT_ROOT`.
