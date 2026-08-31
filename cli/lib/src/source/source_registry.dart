@@ -158,6 +158,63 @@ class SourceRegistry {
     return catalog;
   }
 
+  /// Revalidates [name] and advances remote sources to the newest revision.
+  ///
+  /// Local sources are read live and never change here. Archive sources are
+  /// pinned by checksum and cannot move. Git sources re-resolve their
+  /// requested revision; when the resolved commit advances, the registration
+  /// is rewritten to point at the new immutable snapshot.
+  Future<SourceRefresh> refresh(String name) async {
+    final source = await get(name);
+    switch (source.kind) {
+      case SourceKind.local:
+        return SourceRefresh(kind: SourceRefreshKind.live, source: source);
+      case SourceKind.archive:
+        return SourceRefresh(kind: SourceRefreshKind.pinned, source: source);
+      case SourceKind.git:
+        final transport = source.transport!;
+        final snapshot = await _snapshotCache.fetchGit(
+          url: Uri.parse(transport.url),
+          revision: transport.revision!,
+        );
+        final catalog = await loader.load(snapshot.root);
+        if (catalog.id != source.sourceId) {
+          throw SourceException(
+            'Source identity changed from ${source.sourceId} '
+            'to ${catalog.id}.',
+          );
+        }
+        final previous = transport.resolvedRevision;
+        final next = snapshot.transport.resolvedRevision;
+        if (previous == next && source.location == catalog.root) {
+          return SourceRefresh(
+            kind: SourceRefreshKind.unchanged,
+            source: source,
+            previousRevision: previous,
+            newRevision: next,
+          );
+        }
+        final updated = RegisteredSource(
+          name: source.name,
+          kind: SourceKind.git,
+          location: catalog.root,
+          sourceId: source.sourceId,
+          sourceName: catalog.name,
+          transport: snapshot.transport,
+        );
+        await _write([
+          for (final entry in await list())
+            if (entry.name == name) updated else entry,
+        ]);
+        return SourceRefresh(
+          kind: SourceRefreshKind.updated,
+          source: updated,
+          previousRevision: previous,
+          newRevision: next,
+        );
+    }
+  }
+
   /// Removes a registration without modifying the source directory.
   Future<RegisteredSource> remove(String name) async {
     final sources = [...await list()];

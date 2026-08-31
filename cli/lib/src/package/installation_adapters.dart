@@ -145,6 +145,15 @@ class TargetAdapters {
     projectDirectoryName: '.alfredo',
   );
 
+  /// Every built-in adapter, in stable identifier order.
+  static const List<TargetAdapter> all = [
+    codex,
+    claudeCode,
+    cursor,
+    antigravity,
+    generic,
+  ];
+
   /// Returns an adapter by its package target identifier.
   static TargetAdapter forId(String id) {
     return switch (id) {

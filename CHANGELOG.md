@@ -6,6 +6,14 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `alfredo upgrade` self-updates the CLI from the latest checksum-verified release,
+  with `--check` and `--force`.
+- `alfredo update` re-resolves installed packages across every target and scope,
+  advances Git sources to newer revisions, and reinstalls changed content, with
+  `--target`, `--scope`, `--package`, `--dry-run`, and `--no-refresh-sources`.
+
 ### Fixed
 
 - Materialize Git source snapshots without exceeding the Windows path limit by
