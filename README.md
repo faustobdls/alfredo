@@ -114,7 +114,7 @@ The CLI has no Flutter runtime dependency. Native binaries will be compiled on e
 
 ### `skills/`
 
-The canonical home for reusable agent skills. Every skill has a required `SKILL.md`. The initial set covers Android/Linux kernel internals, Android platform internals, native development, application security, and parallel ADB device-fleet operation.
+The canonical home for reusable agent skills — on-demand capability guides, each a directory with a required `SKILL.md`. Two families: **domain skills** (`android-core`: kernel internals, platform internals, native development, app security, ADB device-fleet operation) and **workflow skills** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop` — phased, verified orchestration methods in Alfredo's voice). See [docs/architecture/skills.md](docs/architecture/skills.md).
 
 Agent-specific copies must be generated from this canonical content instead of being maintained independently.
 
@@ -130,7 +130,7 @@ Packages will declare dependencies, conflicts, supported targets, and semantic v
 
 ### `rules/`
 
-Contains canonical instructions that shape how an agent works across tasks: coding standards, safety requirements, authorization boundaries, evidence collection, and project conventions. Rules are transformed into each agent's native format by adapters.
+Always-on constraints and standards — one Markdown file per rule, meant to be in an agent's context for every task. The `rules-core` package ships nine in Alfredo's voice (smallest change, verify before claiming, match the house style, atomic commits, authorization boundaries, faithful reporting, ask only when blocked, secrets and exfiltration, separate authoring from review); `memory-core` adds two scoped to the memory subsystem. Adapters transform them into each agent's native format. See [docs/architecture/rules.md](docs/architecture/rules.md).
 
 ### `adapters/`
 
