@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/package.schema.json",
+  "title": "Alfredo package manifest",
+  "description": "A versioned, installable bundle of canonical Alfredo content.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "version",
+    "description",
+    "targets",
+    "contents"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "$ref": "#/$defs/id" },
+    "name": { "$ref": "#/$defs/nonEmptyString" },
+    "version": { "$ref": "#/$defs/semver" },
+    "description": { "$ref": "#/$defs/nonEmptyString" },
+    "license": { "$ref": "#/$defs/nonEmptyString" },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "generic"] }
+    },
+    "contents": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "skills": { "$ref": "#/$defs/pathList" },
+        "rules": { "$ref": "#/$defs/pathList" },
+        "scripts": { "$ref": "#/$defs/pathList" },
+        "assets": { "$ref": "#/$defs/pathList" },
+        "references": { "$ref": "#/$defs/pathList" }
+      }
+    },
+    "dependencies": { "$ref": "#/$defs/dependencyList" },
+    "conflicts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "nonEmptyString": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "semver": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9][A-Za-z0-9._/-]*$",
+      "maxLength": 512
+    },
+    "pathList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/safeRelativePath" }
+    },
+    "dependencyList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "version": { "$ref": "#/$defs/semver" }
+        }
+      }
+    }
+  }
+}

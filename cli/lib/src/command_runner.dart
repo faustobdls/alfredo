@@ -1,3 +1,5 @@
+import 'package:alfredo_cli/src/commands/source_command.dart';
+import 'package:alfredo_cli/src/source/source.dart';
 import 'package:alfredo_cli/src/version.dart';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
@@ -17,7 +19,7 @@ const description =
 /// {@endtemplate}
 class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro alfredo_cli_command_runner}
-  AlfredoCliCommandRunner({Logger? logger})
+  AlfredoCliCommandRunner({Logger? logger, SourceRegistry? sourceRegistry})
     : _logger = logger ?? Logger(),
       super(executableName, description) {
     argParser
@@ -31,6 +33,13 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         'verbose',
         help: 'Show detailed command information.',
       );
+    addCommand(
+      SourceCommand(
+        registry:
+            sourceRegistry ?? SourceRegistry(file: defaultSourceRegistryFile()),
+        logger: _logger,
+      ),
+    );
   }
 
   final Logger _logger;
@@ -55,6 +64,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         ..info('')
         ..info(error.usage);
       return ExitCode.usage.code;
+    } on SourceException catch (error) {
+      _logger.err(error.message);
+      return ExitCode.config.code;
     }
   }
 

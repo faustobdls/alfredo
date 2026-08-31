@@ -8,13 +8,19 @@ on:
   pull_request:
     paths:
       - ".github/workflows/alfredo_cli.yaml"
+      - "alfredo-source.yaml"
       - "cli/**"
+      - "packages/**"
+      - "schemas/**"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/alfredo_cli.yaml"
+      - "alfredo-source.yaml"
       - "cli/**"
+      - "packages/**"
+      - "schemas/**"
 
 jobs:
   verify:
@@ -47,6 +53,13 @@ jobs:
 
       - name: Test
         run: dart test
+
+      - name: Validate canonical catalog
+        env:
+          ALFREDO_CONFIG_HOME: ${{ runner.temp }}/alfredo-config
+        run: |
+          dart run bin/alfredo.dart source add canonical --local ..
+          dart run bin/alfredo.dart source test canonical
 
       - name: Compile native executable
         run: dart compile exe bin/alfredo.dart -o alfredo

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/source.schema.json",
+  "title": "Alfredo source manifest",
+  "description": "A read-only source of Alfredo packages and profiles.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "kind",
+    "read_only",
+    "packages_path"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "$ref": "#/$defs/id" },
+    "name": { "$ref": "#/$defs/nonEmptyString" },
+    "description": { "$ref": "#/$defs/nonEmptyString" },
+    "kind": { "enum": ["git", "archive", "local"] },
+    "url": { "type": "string", "format": "uri", "minLength": 1 },
+    "path": { "$ref": "#/$defs/safeRelativePath" },
+    "revision": {
+      "description": "A Git branch, tag, or immutable commit identifier to resolve.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sha256": {
+      "description": "Required integrity digest for an archive source.",
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$"
+    },
+    "read_only": { "const": true },
+    "packages_path": { "$ref": "#/$defs/safeRelativePath" },
+    "profiles_path": { "$ref": "#/$defs/safeRelativePath" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "git" } }, "required": ["kind"] },
+      "then": { "required": ["url", "revision"] }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "archive" } }, "required": ["kind"] },
+      "then": { "required": ["url", "sha256"] }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "local" } }, "required": ["kind"] },
+      "then": { "required": ["path"] }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "nonEmptyString": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "safeRelativePath": {
+      "type": "string",
+      "pattern": "^(?:\\.|(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9][A-Za-z0-9._/-]*)$",
+      "maxLength": 512
+    }
+  }
+}

@@ -1,0 +1,9 @@
+schema_version: 1
+id: alfredo
+name: Alfredo
+description: Canonical local source for the Alfredo ecosystem.
+kind: local
+path: .
+read_only: true
+packages_path: packages
+profiles_path: profiles

@@ -19,11 +19,14 @@ El repositorio contiene actualmente:
 
 - La CLI Dart inicial, generada con la plantilla Dart CLI de Very Good Ventures.
 - El punto de entrada nativo `alfredo`, con ayuda, versión y soporte de autocompletado del shell.
+- Contratos v1 versionados para manifiestos de fuente, paquete y perfil.
+- Registro validado de fuentes locales de solo lectura mediante `source add`, `list`, `show`, `test` y `remove`.
+- Un paquete mínimo `android-core` que ejercita el contrato del catálogo.
 - El HUD FastAPI existente, aislado en `apps/hud/`.
-- Raíces vacías y versionadas para las futuras skills, paquetes, reglas, adaptadores, schemas y perfiles.
+- Raíces versionadas para skills, paquetes, reglas, adaptadores, schemas y perfiles.
 - CI de la CLI Dart en macOS, Linux y Windows, además de la suite de pruebas Python del HUD.
 
-La gestión de fuentes, instalación de paquetes, adaptadores de agentes y comandos Android son los próximos pasos y todavía no están implementados.
+Las fuentes Git/archive, la instalación de paquetes, los adaptadores de agentes y los comandos Android son las próximas etapas de implementación.
 
 ## Estructura del repositorio
 
@@ -48,9 +51,8 @@ Contiene las automatizaciones del repositorio. `alfredo_cli.yaml` formatea, anal
 
 ### `cli/`
 
-Contiene el paquete Dart puro `alfredo_cli` y el ejecutable `alfredo`. Este componente será responsable de:
+Contiene el paquete Dart puro `alfredo_cli` y el ejecutable `alfredo`. Ya implementa la validación de fuentes locales y el CRUD del registro. Sus próximas responsabilidades son:
 
-- Registro y CRUD local de fuentes.
 - Descargas de solo lectura y snapshots inmutables.
 - Búsqueda en el catálogo y resolución de paquetes.
 - Instalación, actualización, diff, rollback y eliminación.
@@ -82,7 +84,7 @@ Contiene lógica y plantillas de instalación para Codex, Claude Code, Cursor, A
 
 ### `schemas/`
 
-Contendrá contratos versionados y legibles por máquina para manifiestos de fuentes, paquetes, perfiles, estado instalado y lockfiles. La validación debe ocurrir antes de escribir en el entorno de un agente.
+Contiene contratos v1 legibles por máquina para manifiestos de fuentes, paquetes y perfiles. Los contratos de estado instalado y lockfile vendrán después. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
 
 ### `profiles/`
 
@@ -178,8 +180,8 @@ Abre `http://127.0.0.1:8765` después de iniciar el servidor.
 
 ## Roadmap
 
-1. Definir schemas de fuentes, paquetes, perfiles y lockfiles.
-2. Implementar registro y descarga de solo lectura para fuentes locales y Git.
+1. Completar los schemas de lockfile y estado instalado.
+2. Extender el registro local ya implementado con descargas Git/archive y caché inmutable.
 3. Añadir resolución determinista e instalación transaccional.
 4. Implementar adaptadores para Codex, Claude Code, Cursor y Antigravity.
 5. Añadir update, diff, rollback, perfiles y bundles offline.

@@ -1,0 +1,16 @@
+schema_version: 1
+id: android-core
+name: Android Core
+version: 0.1.0
+description: Foundation package for Android engineering workflows.
+license: MIT
+targets:
+  - codex
+  - claude-code
+  - cursor
+  - antigravity
+contents:
+  skills: []
+  rules: []
+dependencies: []
+conflicts: []

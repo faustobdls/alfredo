@@ -19,11 +19,14 @@ O repositório contém atualmente:
 
 - A CLI Dart inicial, gerada com o template Dart CLI da Very Good Ventures.
 - O ponto de entrada nativo `alfredo`, com ajuda, versão e suporte a completion do shell.
+- Contratos v1 versionados para manifestos de fonte, pacote e perfil.
+- Cadastro validado de fontes locais somente leitura por `source add`, `list`, `show`, `test` e `remove`.
+- Um pacote mínimo `android-core` que exercita o contrato do catálogo.
 - O HUD FastAPI existente, isolado em `apps/hud/`.
-- Raízes vazias e versionadas para as futuras skills, pacotes, regras, adaptadores, schemas e perfis.
+- Raízes versionadas para skills, pacotes, regras, adaptadores, schemas e perfis.
 - CI da CLI Dart em macOS, Linux e Windows, além da suíte de testes Python do HUD.
 
-Gerenciamento de fontes, instalação de pacotes, adaptadores de agentes e comandos Android são as próximas etapas e ainda não estão implementados.
+Fontes Git/archive, instalação de pacotes, adaptadores de agentes e comandos Android são as próximas etapas de implementação.
 
 ## Estrutura do repositório
 
@@ -48,9 +51,8 @@ Contém as automações do repositório. `alfredo_cli.yaml` formata, analisa, te
 
 ### `cli/`
 
-Contém o pacote Dart puro `alfredo_cli` e o executável `alfredo`. Esse componente será responsável por:
+Contém o pacote Dart puro `alfredo_cli` e o executável `alfredo`. Ele já implementa validação de fontes locais e CRUD do registro. Suas próximas responsabilidades são:
 
-- Cadastro e CRUD local de fontes.
 - Download somente leitura e snapshots imutáveis.
 - Busca no catálogo e resolução de pacotes.
 - Instalação, atualização, diff, rollback e remoção.
@@ -82,7 +84,7 @@ Contém lógica e templates de instalação para Codex, Claude Code, Cursor, Ant
 
 ### `schemas/`
 
-Conterá contratos versionados e legíveis por máquina para manifestos de fontes, pacotes, perfis, estado instalado e lockfiles. A validação deve acontecer antes de qualquer escrita no ambiente de um agente.
+Contém contratos v1 legíveis por máquina para manifestos de fontes, pacotes e perfis. Os contratos de estado instalado e lockfile virão em seguida. A validação acontece antes de persistir uma fonte ou escrever no ambiente de um agente.
 
 ### `profiles/`
 
@@ -178,8 +180,8 @@ Abra `http://127.0.0.1:8765` depois que o servidor iniciar.
 
 ## Roadmap
 
-1. Definir schemas de fontes, pacotes, perfis e lockfiles.
-2. Implementar cadastro e download somente leitura de fontes locais e Git.
+1. Completar os schemas de lockfile e estado instalado.
+2. Estender o registro local já implementado com downloads Git/archive e cache imutável.
 3. Adicionar resolução determinística e instalação transacional.
 4. Implementar adaptadores para Codex, Claude Code, Cursor e Antigravity.
 5. Adicionar update, diff, rollback, perfis e bundles offline.

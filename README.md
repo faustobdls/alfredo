@@ -19,11 +19,14 @@ The repository currently contains:
 
 - The initial Dart CLI generated from the Very Good Ventures Dart CLI template.
 - A native `alfredo` executable entry point with help, version, and shell-completion support.
+- Versioned v1 contracts for source, package, and profile manifests.
+- Validated, read-only local source registration through `source add`, `list`, `show`, `test`, and `remove`.
+- A minimal `android-core` package that exercises the catalog contract.
 - The existing FastAPI HUD, moved into its own application boundary under `apps/hud/`.
-- Empty, versioned roots for the upcoming skills, packages, rules, adapters, schemas, and profiles.
+- Versioned roots for skills, packages, rules, adapters, schemas, and profiles.
 - CI workflows for the Dart CLI on macOS, Linux, and Windows, plus the Python HUD test suite.
 
-Source management, package installation, agent adapters, and Android commands are planned next and are not implemented yet.
+Git/archive sources, package installation, agent adapters, and Android commands are the next implementation stages.
 
 ## Repository structure
 
@@ -48,9 +51,8 @@ Contains repository automation. `alfredo_cli.yaml` formats, analyzes, tests, and
 
 ### `cli/`
 
-Contains the pure-Dart `alfredo_cli` package and the `alfredo` executable. This component will own:
+Contains the pure-Dart `alfredo_cli` package and the `alfredo` executable. It already owns local source validation and registry CRUD. Its next responsibilities are:
 
-- Source registration and local source CRUD.
 - Read-only source downloads and immutable snapshots.
 - Catalog search and package resolution.
 - Installation, update, diff, rollback, and removal.
@@ -82,7 +84,7 @@ Contains target-specific installation logic and templates for Codex, Claude Code
 
 ### `schemas/`
 
-Will contain machine-readable, versioned contracts for source manifests, packages, profiles, installed-state manifests, and lockfiles. Validation must happen before the CLI writes into any agent environment.
+Contains machine-readable v1 contracts for source, package, and profile manifests. Installed-state and lockfile contracts will follow. Validation happens before the CLI persists a source registration or writes into an agent environment.
 
 ### `profiles/`
 
@@ -134,6 +136,8 @@ dart format --output=none --set-exit-if-changed .
 dart analyze --fatal-infos --fatal-warnings
 dart test
 dart run bin/alfredo.dart --help
+dart run bin/alfredo.dart source add canonical --local ..
+dart run bin/alfredo.dart source test canonical
 ```
 
 Compile a native executable on the current platform:
@@ -178,8 +182,8 @@ Open `http://127.0.0.1:8765` after the server starts.
 
 ## Roadmap
 
-1. Define source, package, profile, and lockfile schemas.
-2. Implement local and Git source registration and read-only downloads.
+1. Complete the remaining lockfile and installed-state schemas.
+2. Extend the implemented local source registry with Git/archive downloads and immutable caching.
 3. Add deterministic package resolution and transactional installation.
 4. Implement Codex, Claude Code, Cursor, and Antigravity adapters.
 5. Add update, diff, rollback, profiles, and offline bundles.
