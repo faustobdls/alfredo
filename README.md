@@ -227,6 +227,22 @@ Alfredo sources are read-only from the CLI's perspective:
 - Package installs produce deterministic lockfiles and installed-state records.
 - Adapters render canonical content into each agent environment.
 
+### Consuming a third-party skill
+
+A skill written for another agent — for example the `nidhinjs/prompt-master`
+Claude skill — is consumed as an Alfredo source, not vendored into this repo. The
+upstream repo must expose an `alfredo-source.yaml` and a package; if it does not,
+maintain a thin wrapper source that packages its `skills/<name>` directory.
+
+```sh
+alfredo source add prompt-master --git <wrapper-repo-url> --revision <commit>
+alfredo package install prompt-master --target claude-code --scope user
+```
+
+The Git origin resolves to that immutable commit, and `alfredo update` is the
+only thing that moves it. A third-party skill that drifts stays pinned until you
+choose to pull the change.
+
 ## Development
 
 Requirements:

@@ -48,7 +48,7 @@ and ADB device-fleet operation.
 
 **Workflow skills** teach an orchestration method — how to run a phased,
 verified process using Alfredo's [agent catalogue](agents.md). The `skills-core`
-package ships eleven, in Alfredo's voice:
+package ships twelve, in Alfredo's voice:
 
 | Skill | Method |
 | --- | --- |
@@ -63,6 +63,7 @@ package ships eleven, in Alfredo's voice:
 | `trace` | Evidence-driven causal investigation with competing hypotheses |
 | `deslop` | Deletion-first, regression-safe cleanup of generated slop |
 | `map-project` | First-contact repo survey into a structured, reusable `docs/` map |
+| `web-research` | Fetch external content, record provenance, fold it into memory or a context topic |
 
 Workflow skills historically wrote working state under `.alfredo/work/<skill>/`
 so a run could resume after interruption. New workflow work should use Task
@@ -82,6 +83,18 @@ Each package declares `contents.skills: [skills/<name>, ...]`. Installation
 preserves the canonical path, so `skills/autopilot/SKILL.md` lands at
 `<target>/skills/autopilot/SKILL.md`. `alfredo setup` installs every official
 package that supports the target.
+
+## Self-contained skills
+
+A canonical skill must carry everything it needs to run. Its references are local
+files under the skill directory, and following the method must not require a
+runtime model call or a network request to do the skill's own job. A skill may
+*direct* an agent to use a fetch tool (see `web-research`), but the skill text
+itself stays inert and readable offline.
+
+This keeps skills deterministic, portable across adapters, and cheap to audit.
+The third-party `nidhinjs/prompt-master` skill is prior art for the pattern: it
+produces its output from bundled reference material with no API round-trip.
 
 ## Adding a skill
 
