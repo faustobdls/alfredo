@@ -7,6 +7,20 @@ import 'package:alfredo_cli/src/package/package_models.dart';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 
+/// What to do with a locally modified managed file during an install.
+enum ManagedFileConflict {
+  /// Replace the modified file with the package version.
+  overwrite,
+
+  /// Keep the modified file and leave its ownership record unchanged.
+  skip,
+}
+
+/// Resolves a locally modified managed file at `path`. Callers that want the
+/// historical hard failure pass no resolver at all.
+typedef ManagedFileConflictResolver =
+    Future<ManagedFileConflict> Function(String path);
+
 /// Installs resolved packages with staging, collision checks, and rollback.
 class PackageInstaller {
   /// Creates a package installer.
@@ -18,12 +32,17 @@ class PackageInstaller {
   final PackageManifestLoader packageLoader;
 
   /// Stages and installs [resolution] into an adapter root.
+  ///
+  /// When [onModifiedFile] is supplied it decides, per path, whether a locally
+  /// modified managed file is overwritten or kept. With no resolver a modified
+  /// managed file aborts the transaction, as before.
   Future<InstallationResult> install({
     required PackageResolution resolution,
     required AgentTargetRoots roots,
     required InstallationScope scope,
     InstalledStateStore? stateStore,
     PackageLockfileStore? lockfileStore,
+    ManagedFileConflictResolver? onModifiedFile,
   }) async {
     final adapter = TargetAdapters.forId(resolution.target);
     final safeRoots = await _safeRoots(roots, scope, create: true);
@@ -44,12 +63,21 @@ class PackageInstaller {
     final replacingPackageIds = resolution.packages
         .map((package) => package.manifest.id)
         .toSet();
-    final removals = await _validatePlan(
+    final validation = await _validatePlan(
       plan,
       currentState,
       targetRoot,
       replacingPackageIds,
+      onModifiedFile,
     );
+    final removals = validation.removals;
+    final skipped = validation.skipped;
+    final effectivePlan = skipped.isEmpty
+        ? plan
+        : [
+            for (final file in plan)
+              if (!skipped.contains(file.path)) file,
+          ];
 
     final stage = await Directory(
       p.join(
@@ -58,19 +86,20 @@ class PackageInstaller {
       ),
     ).create();
     try {
-      await _stage(plan, stage);
+      await _stage(effectivePlan, stage);
       final nextState = _nextState(
         currentState,
-        plan,
+        effectivePlan,
         adapter.id,
         replacingPackageIds,
+        skipped,
       );
       final lockfile = PackageLockfile.fromResolution(resolution);
       final previousLock = await _FileSnapshot.capture(locks.file);
       await locks.write(lockfile);
       try {
         await _commit(
-          plan: plan,
+          plan: effectivePlan,
           removals: removals,
           stage: stage,
           targetRoot: targetRoot,
@@ -84,8 +113,10 @@ class PackageInstaller {
       return InstallationResult(
         lockfile: lockfile,
         installedFiles: [
-          for (final file in plan) File(p.join(targetRoot.path, file.path)),
+          for (final file in effectivePlan)
+            File(p.join(targetRoot.path, file.path)),
         ],
+        skippedFiles: skipped.toList()..sort(),
       );
     } finally {
       if (stage.existsSync()) await stage.delete(recursive: true);
@@ -224,13 +255,16 @@ class PackageInstaller {
     return plan;
   }
 
-  static Future<List<ManagedFile>> _validatePlan(
+  static Future<({List<ManagedFile> removals, Set<String> skipped})>
+  _validatePlan(
     List<_PlannedFile> plan,
     InstalledState state,
     Directory targetRoot,
     Set<String> replacingPackageIds,
+    ManagedFileConflictResolver? onModifiedFile,
   ) async {
     final planned = <String>{};
+    final skipped = <String>{};
     final managed = {for (final file in state.files) file.path: file};
     for (final file in plan) {
       _assertContainedPath(targetRoot, p.join(targetRoot.path, file.path));
@@ -254,9 +288,14 @@ class PackageInstaller {
           throw PackageException('Installation collision at ${file.path}.');
         }
         if (await _digestFile(destination) != record.digest) {
-          throw PackageException(
-            'Refusing to overwrite modified managed file: ${file.path}',
-          );
+          if (onModifiedFile == null) {
+            throw PackageException(
+              'Refusing to overwrite modified managed file: ${file.path}',
+            );
+          }
+          if (await onModifiedFile(file.path) == ManagedFileConflict.skip) {
+            skipped.add(file.path);
+          }
         }
       } else if (Directory(destination.path).existsSync()) {
         throw PackageException('Installation collision at ${file.path}.');
@@ -279,7 +318,7 @@ class PackageInstaller {
       }
       removals.add(file);
     }
-    return removals;
+    return (removals: removals, skipped: skipped);
   }
 
   static InstalledState _nextState(
@@ -287,10 +326,16 @@ class PackageInstaller {
     List<_PlannedFile> plan,
     String target,
     Set<String> replacingPackageIds,
+    Set<String> skipped,
   ) {
     final files = <ManagedFile>[
+      // Keep records from packages we are not replacing, plus the original
+      // record of any file we skipped so it stays managed and still reports as
+      // modified against its installed digest.
       for (final file in current.files)
-        if (!replacingPackageIds.contains(file.packageId)) file,
+        if (!replacingPackageIds.contains(file.packageId) ||
+            skipped.contains(file.path))
+          file,
       for (final file in plan)
         ManagedFile(
           path: file.path,

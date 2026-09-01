@@ -48,6 +48,10 @@ void main() {
       File(p.join(target, 'skills', 'hello', 'SKILL.md')).existsSync(),
       isTrue,
     );
+    expect(
+      File(p.join(target, 'skills', 'map-project', 'SKILL.md')).existsSync(),
+      isTrue,
+    );
     expect(File(p.join(target, 'agents', '.gitkeep')).existsSync(), isTrue);
     expect(File(p.join(target, 'AGENTS.md')).existsSync(), isTrue);
     expect(

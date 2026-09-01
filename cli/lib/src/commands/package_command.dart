@@ -1,3 +1,4 @@
+import 'package:alfredo_cli/src/commands/install_conflicts.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
@@ -212,7 +213,13 @@ class _InstallPackage extends _TargetCommand {
     required super.installer,
     required super.roots,
     required super.logger,
-  });
+  }) {
+    argParser.addFlag(
+      'force',
+      negatable: false,
+      help: 'Overwrite locally modified managed files without asking.',
+    );
+  }
 
   final PackageResolver resolver;
 
@@ -235,11 +242,16 @@ class _InstallPackage extends _TargetCommand {
       resolution: resolution,
       roots: roots,
       scope: scope,
+      onModifiedFile: managedFileConflictResolver(
+        logger: logger,
+        force: argResults!['force'] as bool,
+      ),
     );
     logger.success(
       'Installed ${result.lockfile.packages.length} package(s) for '
       '$target (${scope.name}).',
     );
+    reportSkippedManagedFiles(logger, result.skippedFiles);
     return ExitCode.success.code;
   }
 }

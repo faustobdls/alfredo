@@ -251,6 +251,7 @@ class InstallationResult {
   const InstallationResult({
     required this.lockfile,
     required this.installedFiles,
+    this.skippedFiles = const [],
   });
 
   /// Reproducible lock state after the install.
@@ -258,4 +259,8 @@ class InstallationResult {
 
   /// Files written or replaced by the transaction.
   final List<File> installedFiles;
+
+  /// Managed paths left untouched because they were modified locally and the
+  /// conflict resolver chose to keep them.
+  final List<String> skippedFiles;
 }

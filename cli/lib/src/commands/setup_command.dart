@@ -1,3 +1,4 @@
+import 'package:alfredo_cli/src/commands/install_conflicts.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
 import 'package:alfredo_cli/src/version.dart';
@@ -44,6 +45,11 @@ class SetupCommand extends Command<int> {
         defaultsTo: 'user',
         allowed: const ['user', 'project'],
         help: 'Install for the user or current project.',
+      )
+      ..addFlag(
+        'force',
+        negatable: false,
+        help: 'Overwrite locally modified managed files without asking.',
       );
   }
 
@@ -101,6 +107,10 @@ class SetupCommand extends Command<int> {
       'project' => InstallationScope.project,
       _ => InstallationScope.user,
     };
+    final onModifiedFile = managedFileConflictResolver(
+      logger: logger,
+      force: argResults!['force'] as bool,
+    );
     for (final target in targets) {
       final packageIds =
           candidates
@@ -122,11 +132,13 @@ class SetupCommand extends Command<int> {
         resolution: resolution,
         roots: roots,
         scope: scope,
+        onModifiedFile: onModifiedFile,
       );
       logger.success(
         'Installed ${result.lockfile.packages.length} package(s) for '
         '$target (${scope.name}).',
       );
+      reportSkippedManagedFiles(logger, result.skippedFiles);
     }
     return ExitCode.success.code;
   }

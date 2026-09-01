@@ -69,7 +69,7 @@ La CLI no depende del runtime de Flutter. Los binarios nativos se compilarán en
 
 ### `skills/`
 
-La fuente canónica de las skills reutilizables — guías de capacidad bajo demanda, cada una un directorio con `SKILL.md` obligatorio. Dos familias: **skills de dominio** (`android-core`: kernel, internos de la plataforma, desarrollo nativo, seguridad de apps, flotas ADB) y **skills de flujo** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop` — métodos de orquestación por fases y verificados en la voz de Alfredo). Ver [docs/architecture/skills.md](docs/architecture/skills.md).
+La fuente canónica de las skills reutilizables — guías de capacidad bajo demanda, cada una un directorio con `SKILL.md` obligatorio. Dos familias: **skills de dominio** (`android-core`: kernel, internos de la plataforma, desarrollo nativo, seguridad de apps, flotas ADB) y **skills de flujo** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop`, `map-project` — métodos de orquestación por fases y verificados en la voz de Alfredo). Ver [docs/architecture/skills.md](docs/architecture/skills.md).
 
 Las versiones específicas para cada agente deben generarse desde este contenido canónico y no mantenerse como copias independientes.
 
