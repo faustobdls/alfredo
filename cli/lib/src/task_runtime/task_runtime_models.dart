@@ -210,13 +210,19 @@ class TaskEvent {
 /// Task context hints.
 class TaskContextHints {
   /// Creates context hints.
-  const TaskContextHints({this.topics = const [], this.files = const []});
+  const TaskContextHints({
+    this.topics = const [],
+    this.files = const [],
+    this.template,
+  });
 
   /// Creates hints from JSON.
   factory TaskContextHints.fromJson(Map<String, Object?> json) {
+    final template = json['template'];
     return TaskContextHints(
       topics: _stringList(json, 'topics'),
       files: _stringList(json, 'files'),
+      template: template is String && template.isNotEmpty ? template : null,
     );
   }
 
@@ -226,8 +232,15 @@ class TaskContextHints {
   /// Explicit file references.
   final List<String> files;
 
+  /// An output template name or kind to fold into the context package.
+  final String? template;
+
   /// JSON representation.
-  Map<String, Object?> toJson() => {'topics': topics, 'files': files};
+  Map<String, Object?> toJson() => {
+    'topics': topics,
+    'files': files,
+    if (template != null) 'template': template,
+  };
 }
 
 /// A durable Alfredo task.

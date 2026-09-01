@@ -25,6 +25,7 @@ class CatalogContractValidator {
     'rules',
     'agents',
     'personas',
+    'templates',
     'scripts',
     'assets',
     'references',

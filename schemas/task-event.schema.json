@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/task-event.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/task-event.schema.json",
   "title": "Alfredo task event",
   "type": "object",
   "additionalProperties": false,

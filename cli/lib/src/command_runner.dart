@@ -7,12 +7,14 @@ import 'package:alfredo_cli/src/commands/session_command.dart';
 import 'package:alfredo_cli/src/commands/setup_command.dart';
 import 'package:alfredo_cli/src/commands/source_command.dart';
 import 'package:alfredo_cli/src/commands/task_command.dart';
+import 'package:alfredo_cli/src/commands/template_command.dart';
 import 'package:alfredo_cli/src/commands/update_command.dart';
 import 'package:alfredo_cli/src/commands/upgrade_command.dart';
 import 'package:alfredo_cli/src/memory/memory.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
 import 'package:alfredo_cli/src/task_runtime/task_runtime.dart';
+import 'package:alfredo_cli/src/template/template.dart';
 import 'package:alfredo_cli/src/upgrade/upgrade.dart';
 import 'package:alfredo_cli/src/version.dart';
 import 'package:args/args.dart';
@@ -43,6 +45,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     SelfUpdater? selfUpdater,
     MemoryRoots? memoryRoots,
     TaskRuntimeStore? taskRuntime,
+    TemplateRoots? templateRoots,
     EmbeddingsClient Function(MemoryConfig config)? embeddingsFactory,
   }) : _logger = logger ?? Logger(),
        super(executableName, description) {
@@ -126,6 +129,12 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     );
     addCommand(RunCommand(store: runtime, logger: _logger));
     addCommand(ContextCommand(store: runtime, logger: _logger));
+    addCommand(
+      TemplateCommand(
+        logger: _logger,
+        roots: templateRoots ?? defaultTemplateRoots(),
+      ),
+    );
   }
 
   final Logger _logger;
@@ -163,6 +172,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
       _logger.err(error.message);
       return ExitCode.config.code;
     } on TaskRuntimeException catch (error) {
+      _logger.err(error.message);
+      return ExitCode.config.code;
+    } on TemplateException catch (error) {
       _logger.err(error.message);
       return ExitCode.config.code;
     }

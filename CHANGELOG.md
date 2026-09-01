@@ -14,6 +14,22 @@ All notable changes to Alfredo are documented in this file. The format follows
 - `personas` package content kind, installed-state seed mode, and context
   package `personas` sources so persona files are created when absent and
   preserved across updates.
+- Templates subsystem: a new canonical content type `templates/` for output
+  contracts — the voice, structure, length, format, and constraints of an
+  authored artifact (email, slide deck, memo). Adds `schemas/template.schema.json`,
+  a `templates` key to the package `contents` contract, and an `alfredo template`
+  command group (`list`, `show`, `new`, `validate`, `match`). `alfredo context
+  build` folds a resolved template into `sources.templates` when a task sets
+  `context.template`. Alfredo ships no templates; teams author and distribute
+  their own. See `docs/architecture/templates.md`.
+- `use-templates` rule in `rules-core`: resolve a template with
+  `alfredo template match <kind>` before producing an authored artifact and
+  follow its contract; never invent one. Loaded conditionally.
+- `compose-from-template` workflow skill in `skills-core`: shape existing source
+  material — an outline, a roteiro, notes — into the finished artifact under a
+  resolved template, then verify the result against the contract in a separate
+  pass. Renderer-agnostic: the template names the target, the agent uses
+  whatever tool the session has.
 - `web-research` workflow skill in `skills-core`: fetch external content through
   whatever tool tier the session has, record provenance (URL, date, content
   hash), and fold the findings into memory or a context topic. Names scrapers

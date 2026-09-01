@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/memory-config.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/memory-config.schema.json",
   "title": "Alfredo memory configuration",
   "description": "Durable settings for one Alfredo memory scope.",
   "type": "object",

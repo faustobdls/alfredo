@@ -21,6 +21,8 @@ agents, and context references under developer-controlled local files.
 - Agent portability: canonical skills, rules, personas, and sub-agents rendered
   through adapters for Codex, Claude Code, Cursor, Antigravity, and generic
   targets.
+- Output templates: team-authored contracts for how an artifact should come out
+  — the voice, structure, and format of an email, a slide deck, a memo.
 - Durable memory: project and user knowledge outside the current chat.
 - Durable task state: tasks, dependencies, owners, sessions, checkpoints,
   blockers, validations, and next actions outside the current chat.
@@ -230,6 +232,8 @@ Alfredo distributes reusable agent capability through canonical catalogs:
   communication preferences. Installed personas are created when absent and
   preserved across future updates.
 - `agents/`: sub-agent personas in Alfredo's voice.
+- `templates/`: output contracts for authored artifacts (email, slides, memo).
+  Alfredo ships none; teams author and distribute their own.
 - `packages/`: installable bundles such as `android-core`, `skills-core`,
   `rules-core`, `personas-core`, `agents-core`, and `memory-core`.
 
@@ -251,7 +255,8 @@ alfredo/
 ├── profiles/            # Reproducible environment definitions
 ├── rules/               # Canonical behavioral and engineering rules
 ├── schemas/             # Versioned source, package, profile, runtime, and event schemas
-└── skills/              # Canonical portable AI-agent skills
+├── skills/              # Canonical portable AI-agent skills
+└── templates/           # Output contracts for authored artifacts (team-authored)
 ```
 
 ## Source Model

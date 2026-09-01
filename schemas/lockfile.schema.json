@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/lockfile.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/lockfile.schema.json",
   "title": "Alfredo package lockfile",
   "type": "object",
   "additionalProperties": false,

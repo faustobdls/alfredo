@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/profile.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/profile.schema.json",
   "title": "Alfredo profile manifest",
   "description": "A reproducible selection of sources and package versions for one installation scope.",
   "type": "object",

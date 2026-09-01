@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/context.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/context.schema.json",
   "title": "Alfredo context package",
   "type": "object",
   "additionalProperties": false,
@@ -22,11 +22,12 @@
     "sources": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["rules", "skills", "personas", "memory", "files", "decisions"],
+      "required": ["rules", "skills", "personas", "templates", "memory", "files", "decisions"],
       "properties": {
         "rules": { "$ref": "#/$defs/stringList" },
         "skills": { "$ref": "#/$defs/stringList" },
         "personas": { "$ref": "#/$defs/stringList" },
+        "templates": { "$ref": "#/$defs/stringList" },
         "memory": { "$ref": "#/$defs/stringList" },
         "files": { "$ref": "#/$defs/stringList" },
         "decisions": { "$ref": "#/$defs/stringList" }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/installed-state.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/installed-state.schema.json",
   "title": "Alfredo installed package state",
   "type": "object",
   "additionalProperties": false,

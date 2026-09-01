@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/run.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/run.schema.json",
   "title": "Alfredo run",
   "type": "object",
   "additionalProperties": false,

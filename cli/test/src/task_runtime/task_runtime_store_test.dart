@@ -317,6 +317,43 @@ void main() {
     expect(context.missing, isEmpty);
   });
 
+  test('folds a matched template into the context package', () async {
+    await File(
+          p.join(temporary.path, 'templates', 'bank-email', 'TEMPLATE.md'),
+        )
+        .create(recursive: true)
+        .then(
+          (file) => file.writeAsString(
+            '---\n'
+            'schema_version: 1\n'
+            'name: bank-email\n'
+            'kind: email\n'
+            'description: Use for client email. Not for Slack.\n'
+            '---\n\n'
+            'Contract prose.\n',
+          ),
+        );
+
+    final matched = await store.createTask(
+      title: 'Draft the email',
+      context: const TaskContextHints(template: 'email'),
+    );
+    final missing = await store.createTask(
+      title: 'Draft the deck',
+      context: const TaskContextHints(template: 'no-such-template'),
+    );
+
+    final withTemplate = await store.buildContext(matched.id);
+    expect(withTemplate.sources['templates'], [
+      'templates/bank-email/TEMPLATE.md',
+    ]);
+    expect(withTemplate.missing, isEmpty);
+
+    final withoutTemplate = await store.buildContext(missing.id);
+    expect(withoutTemplate.sources['templates'], isEmpty);
+    expect(withoutTemplate.missing, contains('template:no-such-template'));
+  });
+
   test('rejects unsafe context file paths', () async {
     await expectLater(
       store.createTask(

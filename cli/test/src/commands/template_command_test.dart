@@ -1,0 +1,119 @@
+import 'dart:io';
+
+import 'package:alfredo_cli/src/command_runner.dart';
+import 'package:alfredo_cli/src/template/template.dart';
+import 'package:mason_logger/mason_logger.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as p;
+import 'package:test/test.dart';
+
+class _MockLogger extends Mock implements Logger {}
+
+void main() {
+  late Directory temporary;
+  late Logger logger;
+  late AlfredoCliCommandRunner runner;
+  final printed = <String>[];
+
+  setUp(() async {
+    temporary = await Directory.systemTemp.createTemp('alfredo-template-cmd-');
+    logger = _MockLogger();
+    printed.clear();
+    when(() => logger.info(any())).thenAnswer((invocation) {
+      printed.add(invocation.positionalArguments.first as String);
+    });
+    runner = AlfredoCliCommandRunner(
+      logger: logger,
+      templateRoots: TemplateRoots(
+        projectRoot: temporary,
+        userRoot: temporary,
+      ),
+    );
+  });
+
+  tearDown(() async {
+    await temporary.delete(recursive: true);
+  });
+
+  File templateFile(String name) =>
+      File(p.join(temporary.path, 'templates', name, 'TEMPLATE.md'));
+
+  test('new scaffolds a valid template that validate accepts', () async {
+    expect(
+      await runner.run(['template', 'new', 'bank-email', '--kind', 'email']),
+      ExitCode.success.code,
+    );
+    expect(templateFile('bank-email').existsSync(), isTrue);
+    expect(
+      templateFile('bank-email').readAsStringSync(),
+      contains('kind: email'),
+    );
+
+    expect(
+      await runner.run(['template', 'validate', 'bank-email']),
+      ExitCode.success.code,
+    );
+  });
+
+  test('new refuses an existing template without --force', () async {
+    templateFile('bank-email')
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync('keep me');
+
+    expect(
+      await runner.run(['template', 'new', 'bank-email', '--kind', 'email']),
+      ExitCode.usage.code,
+    );
+    expect(templateFile('bank-email').readAsStringSync(), 'keep me');
+  });
+
+  test('new rejects an invalid kind', () async {
+    expect(
+      await runner.run(['template', 'new', 'bank-email', '--kind', 'Email!']),
+      ExitCode.usage.code,
+    );
+  });
+
+  test('list and match resolve an authored template', () async {
+    await runner.run(['template', 'new', 'bank-email', '--kind', 'email']);
+
+    expect(
+      await runner.run(['template', 'list', '--json']),
+      ExitCode.success.code,
+    );
+    expect(printed.join(), contains('"name": "bank-email"'));
+
+    printed.clear();
+    expect(
+      await runner.run(['template', 'match', 'email', '--json']),
+      ExitCode.success.code,
+    );
+    expect(printed.join(), contains('"reason": "exact-kind"'));
+    expect(printed.join(), contains('"name": "bank-email"'));
+  });
+
+  test('validate fails when a template is malformed', () async {
+    templateFile('broken')
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync('''
+---
+schema_version: 1
+name: broken
+kind: email
+description: missing closing fence
+''');
+
+    expect(
+      await runner.run(['template', 'validate']),
+      ExitCode.config.code,
+    );
+  });
+
+  test('match reports no result cleanly', () async {
+    expect(
+      await runner.run(['template', 'match', 'nothing-here']),
+      ExitCode.success.code,
+    );
+    expect(printed.join(), contains('No template matches'));
+  });
+}

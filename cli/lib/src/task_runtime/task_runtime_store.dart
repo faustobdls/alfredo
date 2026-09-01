@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:alfredo_cli/src/task_runtime/task_runtime_models.dart';
+import 'package:alfredo_cli/src/template/template.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
@@ -513,6 +514,24 @@ class TaskRuntimeStore {
       }
     }
     final sortedFiles = _sortedUnique(files);
+
+    final templates = <String>[];
+    final templateHint = task.context.template;
+    if (templateHint != null && templateHint.isNotEmpty) {
+      final match = await TemplateStore(
+        roots: TemplateRoots(projectRoot: projectRoot, userRoot: projectRoot),
+      ).match(templateHint, fuzzy: false);
+      if (match == null) {
+        missing.add('template:$templateHint');
+      } else {
+        templates.add(match.template.path);
+        final file = File(p.join(projectRoot.path, match.template.path));
+        if (file.existsSync()) {
+          estimated += _estimateTokens(await file.readAsString());
+        }
+      }
+    }
+
     return AlfredoContextPackage(
       task: task.id,
       targetTokens: targetTokens,
@@ -522,6 +541,7 @@ class TaskRuntimeStore {
         'rules': const [],
         'skills': const [],
         'personas': personas,
+        'templates': _sortedUnique(templates),
         'memory': const [],
         'files': sortedFiles,
         'decisions': const [],

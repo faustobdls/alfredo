@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.faustobdls.dev/schemas/template.schema.json",
+  "title": "Alfredo output template",
+  "description": "An output contract for one artifact kind: voice, structure, format, and constraints an agent follows when producing that artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "name", "kind", "description"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "name": { "$ref": "#/$defs/id" },
+    "kind": { "$ref": "#/$defs/id" },
+    "description": { "$ref": "#/$defs/nonEmptyString" },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "temperature": { "enum": ["formal", "neutral", "warm", "casual"] },
+        "person": { "$ref": "#/$defs/shortString" },
+        "greeting": { "$ref": "#/$defs/shortString" },
+        "signoff": { "$ref": "#/$defs/shortString" }
+      }
+    },
+    "structure": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/nonEmptyString" },
+          {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        ]
+      }
+    },
+    "length": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_words": { "type": "integer", "minimum": 0 },
+        "max_words": { "type": "integer", "minimum": 1 },
+        "max_chars": { "type": "integer", "minimum": 1 },
+        "max_slides": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "format": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "enum": [
+            "markdown",
+            "plain",
+            "email",
+            "pptx",
+            "marp",
+            "gamma",
+            "figma-slides",
+            "docx",
+            "html"
+          ]
+        },
+        "theme": { "$ref": "#/$defs/safeRelativePath" }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "always": { "$ref": "#/$defs/stringList" },
+        "never": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/safeRelativePath" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "shortString": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "nonEmptyString": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "safeRelativePath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9][A-Za-z0-9._/-]*$",
+      "maxLength": 512
+    },
+    "stringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonEmptyString" }
+    }
+  }
+}
