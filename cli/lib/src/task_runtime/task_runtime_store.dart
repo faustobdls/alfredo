@@ -6,6 +6,26 @@ import 'package:alfredo_cli/src/task_runtime/task_runtime_models.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
+/// Finds the project root that should own `.alfredo` runtime state.
+Directory defaultTaskRuntimeProjectRoot({Directory? start}) {
+  var current = start ?? Directory.current;
+  Directory? nearestRuntimeRoot;
+  while (true) {
+    if (nearestRuntimeRoot == null &&
+        Directory(p.join(current.path, '.alfredo')).existsSync()) {
+      nearestRuntimeRoot = current;
+    }
+    if (Directory(p.join(current.path, '.git')).existsSync()) {
+      return current;
+    }
+    final parent = current.parent;
+    if (parent.path == current.path) {
+      return nearestRuntimeRoot ?? start ?? Directory.current;
+    }
+    current = parent;
+  }
+}
+
 /// Durable local-first task runtime store.
 class TaskRuntimeStore {
   /// Creates a store under an Alfredo project root.

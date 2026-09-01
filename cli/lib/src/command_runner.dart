@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:alfredo_cli/src/commands/context_command.dart';
 import 'package:alfredo_cli/src/commands/init_command.dart';
 import 'package:alfredo_cli/src/commands/memory_command.dart';
@@ -67,7 +65,8 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     final roots = targetRoots ?? defaultAgentTargetRoots();
     final runtimeRoots = memoryRoots ?? defaultMemoryRoots();
     final runtime =
-        taskRuntime ?? TaskRuntimeStore(projectRoot: Directory.current);
+        taskRuntime ??
+        TaskRuntimeStore(projectRoot: defaultTaskRuntimeProjectRoot());
     addCommand(InitCommand(logger: _logger));
     addCommand(SourceCommand(registry: registry, logger: _logger));
     addCommand(

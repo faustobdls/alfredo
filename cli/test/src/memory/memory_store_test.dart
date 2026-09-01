@@ -108,6 +108,22 @@ void main() {
     expect(await file.readAsString(), contains('Stage then rename.'));
   });
 
+  test('lists durable notes without metadata in the body', () async {
+    await store.ensureSkeleton();
+    await store.writeNote(
+      title: 'Runtime Decision',
+      body: 'Tasks are canonical.',
+      tags: const ['runtime'],
+    );
+
+    final notes = await store.listNotes();
+
+    expect(notes.single.slug, '2026-08-31-runtime-decision');
+    expect(notes.single.title, 'Runtime Decision');
+    expect(notes.single.body, 'Tasks are canonical.');
+    expect(notes.single.tags, ['runtime']);
+  });
+
   test('rejects a title that cannot become a slug', () async {
     await store.ensureSkeleton();
 

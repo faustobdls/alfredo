@@ -52,6 +52,16 @@ shipped the installer
 Notes carry a dated, slugged filename derived from their title. Writing a note
 whose slug already exists is refused rather than merged.
 
+## Listing, Search, and Digest
+
+`alfredo memory list` is an inventory view. It lists recent journal activities
+and durable notes by default, newest first. Use `--kind activity` to preserve a
+journal-only view or `--kind note` to inspect durable notes only.
+
+`alfredo memory search` ranks complete searchable documents, including notes and
+journals. `alfredo memory digest` is intentionally narrower: it renders a
+bounded briefing from recent activity entries for handoff context.
+
 ## Scopes
 
 | Scope | Directory | Resolution |

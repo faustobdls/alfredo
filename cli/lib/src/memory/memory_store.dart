@@ -170,6 +170,28 @@ class MemoryStore {
     return List.unmodifiable(filtered.take(limit < 0 ? 0 : limit));
   }
 
+  /// Returns durable notes newest first, optionally filtered and truncated.
+  Future<List<MemoryNote>> listNotes({DateTime? since, int? limit}) async {
+    final documents = await loadAll();
+    final notes =
+        [
+            for (final document in documents)
+              if (document.kind == MemoryEntryKind.note)
+                MemoryNote(
+                  slug: p.basenameWithoutExtension(document.path),
+                  title: document.title,
+                  body: _noteBody(document.text),
+                  at: document.at ?? DateTime.fromMillisecondsSinceEpoch(0),
+                  tags: _noteTags(document.text),
+                ),
+          ].where((note) => since == null || !note.at.isBefore(since)).toList()
+          ..sort((left, right) => right.at.compareTo(left.at));
+    if (limit == null || limit >= notes.length) {
+      return List.unmodifiable(notes);
+    }
+    return List.unmodifiable(notes.take(limit < 0 ? 0 : limit));
+  }
+
   /// Renders a compact, day-grouped summary bounded by [maxChars].
   Future<String> digest({DateTime? since, int maxChars = 2000}) async {
     final entries = await listActivities(since: since);
@@ -375,6 +397,35 @@ class MemoryStore {
       );
     }
     return entries;
+  }
+
+  static String _noteBody(String text) {
+    final lines = text.split('\n');
+    if (lines.isEmpty) return '';
+    var index = lines.first.startsWith('# ') ? 1 : 0;
+    while (index < lines.length && lines[index].trim().isEmpty) {
+      index++;
+    }
+    while (index < lines.length && lines[index].contains(':')) {
+      index++;
+    }
+    while (index < lines.length && lines[index].trim().isEmpty) {
+      index++;
+    }
+    return lines.skip(index).join('\n').trim();
+  }
+
+  static List<String> _noteTags(String text) {
+    for (final line in text.split('\n')) {
+      if (!line.startsWith('tags:')) continue;
+      return line
+          .substring('tags:'.length)
+          .split(',')
+          .map((tag) => tag.trim())
+          .where((tag) => tag.isNotEmpty)
+          .toList(growable: false);
+    }
+    return const [];
   }
 
   static Future<void> _writeAtomically(File file, String contents) async {
