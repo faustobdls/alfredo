@@ -6,7 +6,20 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
-## [0.0.6] - 2026-09-01
+### Added
+
+- `web-research` workflow skill in `skills-core`: fetch external content through
+  whatever tool tier the session has, record provenance (URL, date, content
+  hash), and fold the findings into memory or a context topic. Names scrapers
+  like Scrapling, ScrapeGraphAI, and Agent-Reach only as examples of each tier,
+  never as dependencies.
+- `external-content-provenance` rule in `rules-core`: content fetched from
+  outside the machine is a dated, hashed snapshot, not live truth; re-fetch
+  deliberately. Loaded conditionally when `web-research` runs.
+- Source Model docs now show consuming a third-party skill (for example the
+  `nidhinjs/prompt-master` Claude skill) as a pinned Git source rather than
+  vendoring it, plus a self-contained-skill authoring principle in
+  `docs/architecture/skills.md`.
 
 ### Changed
 

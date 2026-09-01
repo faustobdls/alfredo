@@ -57,13 +57,15 @@ Conditional policies are loaded when the workflow or task calls for them:
 - `separate-authoring-from-review` when review is part of the workflow.
 - `ask-only-when-blocked` when autonomous execution is requested.
 - `memory-usage` and `memory-hygiene` when using the memory subsystem.
+- `external-content-provenance` when the `web-research` skill runs or a task
+  pulls in external content.
 
 Adapters may still install the whole catalogue for compatibility. Context
 routing should prefer the split above to reduce always-on token cost.
 
 ## The `rules-core` set
 
-Nine always-on rules, in Alfredo's voice:
+Ten rules, in Alfredo's voice:
 
 | Rule | Governs |
 | --- | --- |
@@ -76,6 +78,7 @@ Nine always-on rules, in Alfredo's voice:
 | `ask-only-when-blocked` | Asking only genuine user decisions, one at a time |
 | `secrets-and-exfiltration` | Credential handling and private data leaving the machine |
 | `separate-authoring-from-review` | Author and reviewer are different passes |
+| `external-content-provenance` | Fetched content is a dated, hashed snapshot, not live truth |
 
 ## The Alfredo tone
 

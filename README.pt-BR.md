@@ -172,6 +172,8 @@ As fontes do Alfredo são somente leitura do ponto de vista da CLI:
 
 Os repositórios de origem são mantidos e publicados por seus próprios fluxos. O Alfredo apenas os consome.
 
+Uma skill escrita para outro agente — por exemplo a skill de Claude `nidhinjs/prompt-master` — é consumida como fonte, não copiada para dentro deste repositório. Se o repositório de origem não expõe um `alfredo-source.yaml` e um pacote, mantenha uma fonte-wrapper fina que empacota o diretório `skills/<nome>` dele. A origem Git fica presa ao commit registrado até você rodar `alfredo update`.
+
 Para começar um novo:
 
 ```sh

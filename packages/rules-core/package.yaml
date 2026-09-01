@@ -1,7 +1,7 @@
 schema_version: 1
 id: rules-core
 name: Rules Core
-version: 0.1.0
+version: 0.2.0
 description: Alfredo's always-on working rules — the standards every agent keeps.
 license: MIT
 targets:
@@ -21,5 +21,6 @@ contents:
     - rules/ask-only-when-blocked.md
     - rules/secrets-and-exfiltration.md
     - rules/separate-authoring-from-review.md
+    - rules/external-content-provenance.md
 dependencies: []
 conflicts: []
