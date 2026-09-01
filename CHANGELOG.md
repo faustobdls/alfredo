@@ -6,6 +6,16 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [0.0.6] - 2026-09-01
+
+### Changed
+
+- Bump `cli_completion` from 0.5.1 to 0.6.0 and `yaml` from 3.1.3 to 3.1.4 in
+  the CLI.
+- Bump CI and release GitHub Actions: `actions/checkout` 4 to 7,
+  `actions/setup-python` 5 to 7, `actions/upload-artifact` 4 to 7,
+  `actions/download-artifact` 4 to 8, and `dart-lang/setup-dart` 1.8.0 to 1.8.1.
+
 ## [0.0.5] - 2026-08-31
 
 ### Added
@@ -112,7 +122,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.5...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/faustobdls/alfredo/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/faustobdls/alfredo/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/faustobdls/alfredo/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/faustobdls/alfredo/compare/v0.0.2...v0.0.3
