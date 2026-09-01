@@ -132,4 +132,39 @@ void main() {
       () => logger.err(any(that: contains('cannot be combined'))),
     ).called(1);
   });
+
+  test('keeps a locally modified managed file and warns', () async {
+    when(
+      () => logger.confirm(any(), defaultValue: any(named: 'defaultValue')),
+    ).thenReturn(false);
+    expect(await runner.run(['setup', '--codex']), ExitCode.success.code);
+    final installed = File(
+      p.join(roots.userRoot.path, '.codex', 'skills', 'example', 'SKILL.md'),
+    );
+    await installed.writeAsString('hand edited\n');
+
+    expect(await runner.run(['setup', '--codex']), ExitCode.success.code);
+
+    expect(await installed.readAsString(), 'hand edited\n');
+    verify(
+      () => logger.warn(any(that: contains('locally modified'))),
+    ).called(1);
+  });
+
+  test('--force overwrites a locally modified managed file', () async {
+    expect(await runner.run(['setup', '--codex']), ExitCode.success.code);
+    final installed = File(
+      p.join(roots.userRoot.path, '.codex', 'skills', 'example', 'SKILL.md'),
+    );
+    final pristine = await installed.readAsString();
+    await installed.writeAsString('hand edited\n');
+
+    expect(
+      await runner.run(['setup', '--codex', '--force']),
+      ExitCode.success.code,
+    );
+
+    expect(await installed.readAsString(), pristine);
+    verifyNever(() => logger.warn(any(that: contains('locally modified'))));
+  });
 }

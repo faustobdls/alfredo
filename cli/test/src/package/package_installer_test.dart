@@ -224,6 +224,93 @@ void main() {
     },
   );
 
+  test('keeps a modified managed file when the resolver skips it', () async {
+    await installer.install(
+      resolution: resolution,
+      roots: roots,
+      scope: InstallationScope.user,
+    );
+    final installed = File(
+      p.join(roots.userRoot.path, '.codex', 'skills', 'example', 'SKILL.md'),
+    );
+    await installed.writeAsString('changed by user\n');
+
+    final result = await installer.install(
+      resolution: resolution,
+      roots: roots,
+      scope: InstallationScope.user,
+      onModifiedFile: (_) async => ManagedFileConflict.skip,
+    );
+
+    expect(result.skippedFiles, ['skills/example/SKILL.md']);
+    expect(await installed.readAsString(), 'changed by user\n');
+
+    final statuses = await installer.diff(
+      target: 'codex',
+      roots: roots,
+      scope: InstallationScope.user,
+    );
+    expect(statuses.single.condition, ManagedFileCondition.modified);
+  });
+
+  test(
+    'overwrites a modified managed file when the resolver allows it',
+    () async {
+      await installer.install(
+        resolution: resolution,
+        roots: roots,
+        scope: InstallationScope.user,
+      );
+      final installed = File(
+        p.join(roots.userRoot.path, '.codex', 'skills', 'example', 'SKILL.md'),
+      );
+      final pristine = await installed.readAsString();
+      await installed.writeAsString('changed by user\n');
+
+      final result = await installer.install(
+        resolution: resolution,
+        roots: roots,
+        scope: InstallationScope.user,
+        onModifiedFile: (_) async => ManagedFileConflict.overwrite,
+      );
+
+      expect(result.skippedFiles, isEmpty);
+      expect(await installed.readAsString(), pristine);
+
+      final statuses = await installer.diff(
+        target: 'codex',
+        roots: roots,
+        scope: InstallationScope.user,
+      );
+      expect(statuses.single.condition, ManagedFileCondition.unchanged);
+    },
+  );
+
+  test(
+    'still fails closed on a modified managed file with no resolver',
+    () async {
+      await installer.install(
+        resolution: resolution,
+        roots: roots,
+        scope: InstallationScope.user,
+      );
+      final installed = File(
+        p.join(roots.userRoot.path, '.codex', 'skills', 'example', 'SKILL.md'),
+      );
+      await installed.writeAsString('changed by user\n');
+
+      await expectLater(
+        installer.install(
+          resolution: resolution,
+          roots: roots,
+          scope: InstallationScope.user,
+        ),
+        throwsA(isA<PackageException>()),
+      );
+      expect(await installed.readAsString(), 'changed by user\n');
+    },
+  );
+
   test('reports files removed outside Alfredo as missing', () async {
     await installer.install(
       resolution: resolution,

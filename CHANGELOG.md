@@ -36,6 +36,14 @@ All notable changes to Alfredo are documented in this file. The format follows
   later sessions read the map instead of re-exploring. `alfredo init source`
   scaffolds it into new source repositories and points `AGENTS.md` at it.
 
+### Changed
+
+- `alfredo setup` and `alfredo package install` no longer abort when a managed
+  file was edited locally. Each modified file is resolved on its own: the
+  command asks before overwriting, keeps the file and warns if declined, and a
+  new `--force` flag overwrites every modified file without asking. Kept files
+  stay tracked and still report as modified.
+
 ## [0.0.4] - 2026-08-31
 
 ### Added

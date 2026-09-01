@@ -38,7 +38,10 @@ Codex mapping follows the local `$CODEX_HOME/skills` contract exposed by Codex.
 
 - Resolve every canonical source path below its validated source root.
 - Stage and digest all files before committing them to the target.
-- Refuse collisions with unmanaged files or modified managed files.
+- Refuse collisions with unmanaged files. A locally modified managed file is
+  resolved per file: `setup` and `package install` ask before overwriting it
+  (or keep it and warn when declined), `--force` overwrites without asking, and
+  a kept file stays tracked so it still reports as modified.
 - Track ownership outside the agent directory in deterministic installed state.
 - Preserve locally modified files during uninstall.
 - Keep per-target, per-scope lockfiles under `.alfredo/runtime/locks/`.
