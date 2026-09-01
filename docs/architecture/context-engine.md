@@ -34,6 +34,10 @@ topic and returns an `alfredo.context/v1` package. Direct files must exist.
 Simple directory globs ending in `/**` are expanded recursively in stable order.
 More complex glob patterns are retained as references for future routing.
 
+Markdown files under `.alfredo/personas/` are included automatically in the
+`personas` source group. They keep voice and communication preferences separate
+from behavioral rules and task-specific files.
+
 ## Budget
 
 The initial estimator is deliberately cheap and deterministic:

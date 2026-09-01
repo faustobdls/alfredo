@@ -180,6 +180,7 @@ class ManagedFile {
     required this.path,
     required this.digest,
     required this.packageId,
+    this.mode = ManagedFileMode.managed,
   });
 
   /// Portable path relative to the target root.
@@ -191,12 +192,25 @@ class ManagedFile {
   /// Package that owns the file.
   final String packageId;
 
+  /// Installation lifecycle for this file.
+  final ManagedFileMode mode;
+
   /// Serializes this record into installed state JSON.
   Map<String, Object?> toJson() => {
     'path': path,
     'digest': digest,
     'package_id': packageId,
+    if (mode != ManagedFileMode.managed) 'mode': mode.name,
   };
+}
+
+/// How Alfredo treats a file after its first installation.
+enum ManagedFileMode {
+  /// Normal package-owned content can be updated and removed if unchanged.
+  managed,
+
+  /// Seed content is created when absent, then preserved across updates.
+  seed,
 }
 
 /// Persisted ownership state for one target installation.
@@ -252,6 +266,7 @@ class InstallationResult {
     required this.lockfile,
     required this.installedFiles,
     this.skippedFiles = const [],
+    this.preservedFiles = const [],
   });
 
   /// Reproducible lock state after the install.
@@ -263,4 +278,7 @@ class InstallationResult {
   /// Managed paths left untouched because they were modified locally and the
   /// conflict resolver chose to keep them.
   final List<String> skippedFiles;
+
+  /// Seed paths left untouched because the local copy already exists.
+  final List<String> preservedFiles;
 }

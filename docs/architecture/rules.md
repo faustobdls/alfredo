@@ -80,11 +80,12 @@ Ten rules, in Alfredo's voice:
 | `separate-authoring-from-review` | Author and reviewer are different passes |
 | `external-content-provenance` | Fetched content is a dated, hashed snapshot, not live truth |
 
-## The Alfredo tone
+## Rules And Tone
 
 Rules are written as Alfredo would state a house standard: plainly, in the
 imperative, without apology or padding. They describe the standard and the
-boundary, not the feelings around it. See [agents.md](agents.md) for the persona.
+boundary, not the feelings around it. Durable voice and user communication
+preferences live in [personas.md](personas.md).
 
 ## Adding a rule
 

@@ -8,6 +8,12 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ### Added
 
+- `personas-core` package with seed `personas/alfredo.md` and
+  `personas/user.md` files for Alfredo's voice and durable user communication
+  preferences.
+- `personas` package content kind, installed-state seed mode, and context
+  package `personas` sources so persona files are created when absent and
+  preserved across updates.
 - `web-research` workflow skill in `skills-core`: fetch external content through
   whatever tool tier the session has, record provenance (URL, date, content
   hash), and fold the findings into memory or a context topic. Names scrapers

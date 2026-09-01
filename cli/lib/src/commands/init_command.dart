@@ -218,6 +218,7 @@ architecture from source.
 ''',
       'rules/.gitkeep': '',
       'agents/.gitkeep': '',
+      'personas/.gitkeep': '',
       'profiles/.gitkeep': '',
       'AGENTS.md':
           '''
@@ -243,9 +244,9 @@ This repository uses Alfredo.
           '''
 # $name
 
-An Alfredo source repository. It publishes skills, rules, agents, and packages
-that the `alfredo` CLI installs into agent environments. Alfredo only ever reads
-from here.
+An Alfredo source repository. It publishes skills, rules, personas, agents, and
+packages that the `alfredo` CLI installs into agent environments. Alfredo only
+ever reads from here.
 
 ## Layout
 
@@ -253,6 +254,7 @@ from here.
 - `packages/` — versioned bundles (`<id>/package.yaml`).
 - `skills/` — one directory per skill, each with `SKILL.md`.
 - `rules/` — canonical behavioural rules.
+- `personas/` — seed voice and communication preference files.
 - `agents/` — one Markdown file per sub-agent persona.
 - `profiles/` — declarative environment definitions.
 

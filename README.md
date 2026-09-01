@@ -18,8 +18,9 @@ agents, and context references under developer-controlled local files.
 
 ## What Alfredo Provides
 
-- Agent portability: canonical skills, rules, and sub-agents rendered through
-  adapters for Codex, Claude Code, Cursor, Antigravity, and generic targets.
+- Agent portability: canonical skills, rules, personas, and sub-agents rendered
+  through adapters for Codex, Claude Code, Cursor, Antigravity, and generic
+  targets.
 - Durable memory: project and user knowledge outside the current chat.
 - Durable task state: tasks, dependencies, owners, sessions, checkpoints,
   blockers, validations, and next actions outside the current chat.
@@ -86,6 +87,9 @@ process-local state lives in `.alfredo/runtime/` and is git-ignored:
 │       └── manifest.json
 ├── context/                 # versioned
 │   └── index.yaml
+├── personas/                # versioned, seeded once by setup
+│   ├── alfredo.md
+│   └── user.md
 ├── memory/                  # versioned
 └── runtime/                 # local only, git-ignored
     ├── sessions/
@@ -105,6 +109,24 @@ The three runtime entities are:
 no owner, is not blocked or terminal, and all required dependencies are `DONE`.
 Task events are append-only `alfredo.task-event/v1` documents, and local lock
 files can be recovered after a bounded stale-lock timeout.
+
+## Install The CLI
+
+macOS and Linux:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.sh | sh
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps1 | iex
+```
+
+The installer downloads the latest GitHub release for the current platform,
+validates the SHA-256 checksum, installs into `~/.alfredo/bin`, and updates the
+current shell PATH. Set `ALFREDO_INSTALL_DIR` to choose another destination.
 
 ## CLI
 
@@ -190,6 +212,11 @@ deterministic `alfredo.context/v1` package with grouped sources and a cheap toke
 budget estimate. The initial estimator is `ceil(characters / 4)`, which is
 explicitly approximate and provider-independent.
 
+Markdown files in `.alfredo/personas/` are included in the `personas` source
+group automatically. Use them for voice and communication preferences that
+should influence generated text, notices, summaries, and handoffs without
+becoming behavioral rules.
+
 ## Canonical Catalogs
 
 Alfredo distributes reusable agent capability through canonical catalogs:
@@ -199,9 +226,12 @@ Alfredo distributes reusable agent capability through canonical catalogs:
 - `rules/`: compact behavioral policies. Only a small core should stay
   always-on; specialized policies should become conditional as adapters and
   context routing mature.
+- `personas/`: seed files for Alfredo's voice and the user's durable
+  communication preferences. Installed personas are created when absent and
+  preserved across future updates.
 - `agents/`: sub-agent personas in Alfredo's voice.
 - `packages/`: installable bundles such as `android-core`, `skills-core`,
-  `rules-core`, `agents-core`, and `memory-core`.
+  `rules-core`, `personas-core`, `agents-core`, and `memory-core`.
 
 Adapters render these catalogs into provider-specific locations. The canonical
 content remains in Alfredo.
@@ -217,6 +247,7 @@ alfredo/
 ├── cli/                 # Cross-platform Dart CLI
 ├── docs/                # Architecture documentation
 ├── packages/            # Installable bundles of skills, rules, agents, assets
+├── personas/            # Seed voice and user preference files
 ├── profiles/            # Reproducible environment definitions
 ├── rules/               # Canonical behavioral and engineering rules
 ├── schemas/             # Versioned source, package, profile, runtime, and event schemas
@@ -231,6 +262,8 @@ Alfredo sources are read-only from the CLI's perspective:
 - Git sources resolve to immutable commit snapshots.
 - Archive sources require SHA-256 integrity metadata.
 - Package installs produce deterministic lockfiles and installed-state records.
+- Persona files are seed content: created when absent, then left untouched by
+  future updates.
 - Adapters render canonical content into each agent environment.
 
 ### Consuming a third-party skill
@@ -313,5 +346,6 @@ implementation of those projects.
 - [Memory](docs/architecture/memory.md)
 - [Skills](docs/architecture/skills.md)
 - [Rules](docs/architecture/rules.md)
+- [Personas](docs/architecture/personas.md)
 - [Agents](docs/architecture/agents.md)
 - [Agent Adapters](docs/architecture/agent-adapters.md)

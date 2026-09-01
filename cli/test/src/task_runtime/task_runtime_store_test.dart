@@ -83,13 +83,7 @@ void main() {
     expect((await store.readRun(run.id)).tasks, [task.id]);
     expect(
       File(
-        p.join(
-          temporary.path,
-          '.alfredo',
-          'runs',
-          run.id,
-          'manifest.json',
-        ),
+        p.join(temporary.path, '.alfredo', 'runs', run.id, 'manifest.json'),
       ).readAsStringSync(),
       contains(task.id),
     );
@@ -281,6 +275,12 @@ void main() {
     await File(p.join(temporary.path, 'shared', 'protocol', 'message.dart'))
         .create(recursive: true)
         .then((file) => file.writeAsString('class Message {}'));
+    await File(p.join(temporary.path, '.alfredo', 'personas', 'alfredo.md'))
+        .create(recursive: true)
+        .then((file) => file.writeAsString('Alfredo voice'));
+    await File(
+      p.join(temporary.path, '.alfredo', 'personas', 'user.md'),
+    ).create(recursive: true).then((file) => file.writeAsString('User voice'));
     await File(p.join(temporary.path, '.alfredo', 'context', 'index.yaml'))
         .create(recursive: true)
         .then(
@@ -308,6 +308,10 @@ void main() {
       'docs/protocol.md',
       'lib/client.dart',
       'shared/protocol/message.dart',
+    ]);
+    expect(context.sources['personas'], [
+      '.alfredo/personas/alfredo.md',
+      '.alfredo/personas/user.md',
     ]);
     expect(context.estimatedTokens, greaterThan(0));
     expect(context.missing, isEmpty);
