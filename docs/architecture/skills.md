@@ -9,7 +9,9 @@ directory per skill, each with a required `SKILL.md`.
 ```text
 skills/
 ├── autopilot/
-│   └── SKILL.md
+│   ├── SKILL.md
+│   ├── references/
+│   └── scripts/
 ├── android-app-security/
 │   └── SKILL.md
 └── ...
@@ -32,6 +34,11 @@ description: Use for <trigger>. Not for <anti-trigger>.
 
 Assets and scripts a skill needs live beside its `SKILL.md` in the same
 directory and are installed with it.
+
+`SKILL.md` is the progressive-disclosure entry point. It should define the
+trigger, anti-trigger, main procedure, and a map to deeper references. Agents
+should not load every file under `references/` unless the current task needs
+that material.
 
 ## Two families
 
@@ -56,8 +63,17 @@ package ships ten, in Alfredo's voice:
 | `trace` | Evidence-driven causal investigation with competing hypotheses |
 | `deslop` | Deletion-first, regression-safe cleanup of generated slop |
 
-Workflow skills write their working state under `.alfredo/work/<skill>/` so a run
-can resume after interruption.
+Workflow skills historically wrote working state under `.alfredo/work/<skill>/`
+so a run could resume after interruption. New workflow work should use Task
+Runtime as the durable substrate:
+
+- `team` = task graph + owners + handoffs.
+- `ultrawork` = dependency-aware ready tasks + bounded parallel workers.
+- `ralph` = task checkpoints + implementation/verification loop.
+- `ultraqa` = `VERIFYING` tasks + diagnose/fix/reverify.
+
+The `.alfredo/work/<skill>/` shape is a compatibility layer, not the future
+source of truth.
 
 ## Packaging
 

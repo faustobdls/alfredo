@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/task.schema.json",
+  "title": "Alfredo task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "title",
+    "status",
+    "priority",
+    "created_at",
+    "updated_at",
+    "dependencies",
+    "acceptance",
+    "context",
+    "checkpoint"
+  ],
+  "properties": {
+    "schema": { "const": "alfredo.task/v1" },
+    "id": { "$ref": "#/$defs/taskId" },
+    "title": { "$ref": "#/$defs/nonEmptyString" },
+    "status": {
+      "enum": ["BACKLOG", "CLAIMED", "DOING", "VERIFYING", "BLOCKED", "DONE", "CANCELLED"]
+    },
+    "priority": { "$ref": "#/$defs/nonEmptyString" },
+    "run": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/runId" }] },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "updated_at": { "$ref": "#/$defs/dateTime" },
+    "owner": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/owner" }]
+    },
+    "previous_owner": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/owner" }]
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/taskId" }
+    },
+    "acceptance": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/nonEmptyString" }
+    },
+    "context": { "$ref": "#/$defs/contextHints" },
+    "checkpoint": { "$ref": "#/$defs/checkpoint" },
+    "blocker": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+    }
+  },
+  "$defs": {
+    "taskId": { "type": "string", "pattern": "^ALF-[0-9A-HJKMNP-TV-Z]{20}$" },
+    "sessionId": { "type": "string", "pattern": "^SES-[0-9A-HJKMNP-TV-Z]{20}$" },
+    "runId": { "type": "string", "pattern": "^RUN-[0-9A-HJKMNP-TV-Z]{20}$" },
+    "dateTime": { "type": "string", "format": "date-time" },
+    "nonEmptyString": { "type": "string", "minLength": 1, "maxLength": 4096 },
+    "safeRelativePath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9][A-Za-z0-9._*?{}\\[\\]/-]*$",
+      "maxLength": 512
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter", "agent", "session"],
+      "properties": {
+        "adapter": { "$ref": "#/$defs/nonEmptyString" },
+        "agent": { "$ref": "#/$defs/nonEmptyString" },
+        "session": { "$ref": "#/$defs/sessionId" }
+      }
+    },
+    "contextHints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["topics", "files"],
+      "properties": {
+        "topics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "files": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/safeRelativePath" }
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed",
+        "current",
+        "remaining",
+        "changed_files",
+        "validations",
+        "next_action"
+      ],
+      "properties": {
+        "completed": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "current": {
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+        },
+        "remaining": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "changed_files": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/safeRelativePath" }
+        },
+        "validations": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "maxLength": 512 }
+        },
+        "next_action": {
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+        }
+      }
+    }
+  }
+}

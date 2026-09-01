@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/session.schema.json",
+  "title": "Alfredo session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "adapter",
+    "agent",
+    "started_at",
+    "updated_at",
+    "status",
+    "tasks_claimed",
+    "tasks_worked"
+  ],
+  "properties": {
+    "schema": { "const": "alfredo.session/v1" },
+    "id": { "type": "string", "pattern": "^SES-[0-9A-HJKMNP-TV-Z]{20}$" },
+    "adapter": { "$ref": "#/$defs/nonEmptyString" },
+    "agent": { "$ref": "#/$defs/nonEmptyString" },
+    "started_at": { "$ref": "#/$defs/dateTime" },
+    "updated_at": { "$ref": "#/$defs/dateTime" },
+    "status": { "enum": ["ACTIVE", "CLOSED"] },
+    "ended_at": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/dateTime" }] },
+    "close_reason": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "enum": [
+            "completed",
+            "manual",
+            "context-limit",
+            "provider-limit",
+            "crash-recovery",
+            "handoff",
+            "unknown"
+          ]
+        }
+      ]
+    },
+    "tasks_claimed": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^ALF-[0-9A-HJKMNP-TV-Z]{20}$" }
+    },
+    "tasks_worked": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^ALF-[0-9A-HJKMNP-TV-Z]{20}$" }
+    },
+    "last_checkpoint": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+    }
+  },
+  "$defs": {
+    "dateTime": { "type": "string", "format": "date-time" },
+    "nonEmptyString": { "type": "string", "minLength": 1, "maxLength": 4096 }
+  }
+}

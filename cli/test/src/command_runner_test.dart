@@ -34,13 +34,20 @@ void main() {
       expect(commandRunner.usage, isNot(contains('sample')));
     });
 
-    test('exposes init, setup, source, package, and memory commands', () {
-      expect(commandRunner.usage, contains('init'));
-      expect(commandRunner.usage, contains('setup'));
-      expect(commandRunner.usage, contains('source'));
-      expect(commandRunner.usage, contains('package'));
-      expect(commandRunner.usage, contains('memory'));
-    });
+    test(
+      'exposes init, setup, source, package, memory, and runtime commands',
+      () {
+        expect(commandRunner.usage, contains('init'));
+        expect(commandRunner.usage, contains('setup'));
+        expect(commandRunner.usage, contains('source'));
+        expect(commandRunner.usage, contains('package'));
+        expect(commandRunner.usage, contains('memory'));
+        expect(commandRunner.usage, contains('task'));
+        expect(commandRunner.usage, contains('session'));
+        expect(commandRunner.usage, contains('run'));
+        expect(commandRunner.usage, contains('context'));
+      },
+    );
 
     test('documents the init command group', () async {
       final result = await commandRunner.run(['init', '--help']);
@@ -95,6 +102,20 @@ void main() {
     test('exposes the update and upgrade lifecycle commands', () {
       expect(commandRunner.usage, contains('update'));
       expect(commandRunner.usage, contains('upgrade'));
+    });
+
+    test('documents the task runtime command groups', () async {
+      final result = await commandRunner.run(['task', '--help']);
+      final task = commandRunner.commands['task']!;
+
+      expect(result, ExitCode.success.code);
+      expect(
+        task.subcommands.keys,
+        containsAll(<String>['create', 'ready', 'claim', 'resume']),
+      );
+      expect(commandRunner.commands['session'], isNotNull);
+      expect(commandRunner.commands['run'], isNotNull);
+      expect(commandRunner.commands['context'], isNotNull);
     });
 
     test('handles FormatException', () async {

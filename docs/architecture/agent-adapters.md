@@ -4,6 +4,11 @@ Alfredo keeps one canonical package representation and maps it into each
 agent's local configuration layout. Adapters own path selection and rendering;
 they never mutate package sources.
 
+The same rule applies to Task Runtime. `.alfredo/` owns tasks, sessions, runs,
+checkpoints, dependencies, and context references. Agent directories may contain
+rendered bootstrap files, skills, rules, and agents, but they must not become
+authoritative work stores.
+
 | Target | User root | Project root | Skill rendering |
 | --- | --- | --- | --- |
 | Codex | `.codex/` | `.agents/` | canonical `skills/` tree |

@@ -49,6 +49,7 @@ void main() {
       isTrue,
     );
     expect(File(p.join(target, 'agents', '.gitkeep')).existsSync(), isTrue);
+    expect(File(p.join(target, 'AGENTS.md')).existsSync(), isTrue);
     expect(
       File(p.join(target, 'alfredo-source.yaml')).readAsStringSync(),
       contains('id: my-source'),

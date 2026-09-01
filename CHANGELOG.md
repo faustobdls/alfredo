@@ -8,6 +8,10 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ### Added
 
+- Task Runtime foundation: durable tasks, dependency-aware ready work, atomic
+  claims, sessions, runs, compact checkpoints, resumable handoff packets,
+  context packages, runtime schemas, and CLI commands under `alfredo task`,
+  `alfredo session`, `alfredo run`, and `alfredo context`.
 - `agents` content kind for packages, alongside `skills` and `rules`. Packages
   can bundle sub-agent definitions that install into each target's agent
   directory (`~/.claude/agents/`, `~/.codex/agents/`, and so on).

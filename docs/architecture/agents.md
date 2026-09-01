@@ -5,6 +5,9 @@ agent is a reusable sub-agent persona: a focused operator an orchestrator can
 delegate to. Agents live in `agents/` as one Markdown file per agent and install
 into each target's agent directory unchanged, exactly like skills.
 
+Agents are workers. Alfredo owns the work. Provider-specific agent files are
+interfaces rendered from canonical content; they do not own task state.
+
 ## On-disk shape
 
 ```text
@@ -61,6 +64,11 @@ preserves the canonical path, so the files land at:
 The same safety invariants as every other package apply: staged and digested
 before commit, no collisions with unmanaged or modified files, ownership tracked
 in installed state, locally modified files preserved on uninstall.
+
+Runtime state belongs under `.alfredo/`: tasks, runs, sessions, checkpoints,
+dependencies, ownership, context references, and memory. Provider directories
+such as `.claude/`, `.cursor/`, `.agents/`, and `.gemini/` must not become
+independent boards.
 
 ## The Alfredo persona
 

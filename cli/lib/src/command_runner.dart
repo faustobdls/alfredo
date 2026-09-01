@@ -1,13 +1,20 @@
+import 'dart:io';
+
+import 'package:alfredo_cli/src/commands/context_command.dart';
 import 'package:alfredo_cli/src/commands/init_command.dart';
 import 'package:alfredo_cli/src/commands/memory_command.dart';
 import 'package:alfredo_cli/src/commands/package_command.dart';
+import 'package:alfredo_cli/src/commands/run_command.dart';
+import 'package:alfredo_cli/src/commands/session_command.dart';
 import 'package:alfredo_cli/src/commands/setup_command.dart';
 import 'package:alfredo_cli/src/commands/source_command.dart';
+import 'package:alfredo_cli/src/commands/task_command.dart';
 import 'package:alfredo_cli/src/commands/update_command.dart';
 import 'package:alfredo_cli/src/commands/upgrade_command.dart';
 import 'package:alfredo_cli/src/memory/memory.dart';
 import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
+import 'package:alfredo_cli/src/task_runtime/task_runtime.dart';
 import 'package:alfredo_cli/src/upgrade/upgrade.dart';
 import 'package:alfredo_cli/src/version.dart';
 import 'package:args/args.dart';
@@ -37,6 +44,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     AgentTargetRoots? targetRoots,
     SelfUpdater? selfUpdater,
     MemoryRoots? memoryRoots,
+    TaskRuntimeStore? taskRuntime,
     EmbeddingsClient Function(MemoryConfig config)? embeddingsFactory,
   }) : _logger = logger ?? Logger(),
        super(executableName, description) {
@@ -57,6 +65,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     final resolver = packageResolver ?? PackageResolver(catalog);
     final installer = packageInstaller ?? const PackageInstaller();
     final roots = targetRoots ?? defaultAgentTargetRoots();
+    final runtimeRoots = memoryRoots ?? defaultMemoryRoots();
+    final runtime =
+        taskRuntime ?? TaskRuntimeStore(projectRoot: Directory.current);
     addCommand(InitCommand(logger: _logger));
     addCommand(SourceCommand(registry: registry, logger: _logger));
     addCommand(
@@ -98,7 +109,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     );
     addCommand(
       MemoryCommand(
-        roots: memoryRoots ?? defaultMemoryRoots(),
+        roots: runtimeRoots,
         logger: _logger,
         resolver: resolver,
         installer: installer,
@@ -106,6 +117,16 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         embeddingsFactory: embeddingsFactory,
       ),
     );
+    addCommand(TaskCommand(store: runtime, logger: _logger));
+    addCommand(
+      SessionCommand(
+        store: runtime,
+        logger: _logger,
+        memoryRoots: runtimeRoots,
+      ),
+    );
+    addCommand(RunCommand(store: runtime, logger: _logger));
+    addCommand(ContextCommand(store: runtime, logger: _logger));
   }
 
   final Logger _logger;
@@ -140,6 +161,9 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
       _logger.err(error.message);
       return ExitCode.unavailable.code;
     } on MemoryException catch (error) {
+      _logger.err(error.message);
+      return ExitCode.config.code;
+    } on TaskRuntimeException catch (error) {
       _logger.err(error.message);
       return ExitCode.config.code;
     }
