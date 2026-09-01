@@ -564,11 +564,17 @@ class _ListMemory extends _MemorySubcommand {
         defaultsTo: '7d',
         help: 'Relative window such as 7d, 2w, or 3m.',
       )
+      ..addOption(
+        'kind',
+        defaultsTo: 'all',
+        allowed: const ['all', 'activity', 'note'],
+        help: 'Memory kind to list.',
+      )
       ..addOption('limit', help: 'Maximum number of entries.');
   }
 
   @override
-  String get description => 'List recent journal entries, newest first.';
+  String get description => 'List recent memory entries, newest first.';
 
   @override
   String get name => 'list';
@@ -577,20 +583,38 @@ class _ListMemory extends _MemorySubcommand {
   Future<int> run() async {
     final since = sinceOption(DateTime.now());
     final limit = intOption('limit');
-    final entries = <MemoryEntry>[];
+    final kind = argResults!['kind'] as String;
+    final entries = <_ListedMemory>[];
     for (final scope in selectedScopes()) {
       final store = storeFor(scope);
       if (!store.directory.existsSync()) continue;
-      for (final entry in await store.listActivities(since: since)) {
-        entries.add(
-          MemoryEntry(
-            at: entry.at,
-            kind: entry.kind,
-            tags: entry.tags,
-            message: entry.message,
-            scopeLabel: scope.name,
-          ),
-        );
+      if (kind == 'all' || kind == 'activity') {
+        for (final entry in await store.listActivities(since: since)) {
+          entries.add(
+            _ListedMemory(
+              at: entry.at,
+              kind: entry.kind,
+              scopeLabel: scope.name,
+              tags: entry.tags,
+              title: '',
+              text: entry.message,
+            ),
+          );
+        }
+      }
+      if (kind == 'all' || kind == 'note') {
+        for (final note in await store.listNotes(since: since)) {
+          entries.add(
+            _ListedMemory(
+              at: note.at,
+              kind: MemoryEntryKind.note,
+              scopeLabel: scope.name,
+              tags: note.tags,
+              title: note.title,
+              text: note.body,
+            ),
+          );
+        }
       }
     }
     entries.sort((left, right) => right.at.compareTo(left.at));
@@ -600,13 +624,32 @@ class _ListMemory extends _MemorySubcommand {
     }
     final visible = limit > 0 ? entries.take(limit) : entries;
     for (final entry in visible) {
+      final title = entry.title.isEmpty ? '' : '${entry.title}: ';
       logger.info(
         '${_timestamp(entry.at)}\t${entry.scopeLabel}\t${entry.kind.name}\t'
-        '[${entry.tags.join(',')}]\t${_singleLine(entry.message)}',
+        '[${entry.tags.join(',')}]\t$title${_singleLine(entry.text)}',
       );
     }
     return ExitCode.success.code;
   }
+}
+
+class _ListedMemory {
+  const _ListedMemory({
+    required this.at,
+    required this.kind,
+    required this.scopeLabel,
+    required this.tags,
+    required this.title,
+    required this.text,
+  });
+
+  final DateTime at;
+  final MemoryEntryKind kind;
+  final String scopeLabel;
+  final List<String> tags;
+  final String title;
+  final String text;
 }
 
 class _DigestMemory extends _MemorySubcommand {

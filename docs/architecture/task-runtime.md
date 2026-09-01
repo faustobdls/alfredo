@@ -47,6 +47,10 @@ uses deterministic JSON for source, lockfile, and installed-state contracts.
 YAML is accepted for `context/index.yaml` because it is usually authored by
 humans.
 
+CLI commands discover the runtime project root by walking upward from the
+current directory until they find `.alfredo/` or `.git/`. That keeps state in the
+repository root even when a worker invokes `alfredo` from a subdirectory.
+
 ## IDs
 
 Runtime IDs use a prefix plus a 20-character Crockford-base32, ULID-like value:

@@ -15,6 +15,18 @@ void main() {
 
   tearDown(() async => temporary.delete(recursive: true));
 
+  test('discovers the runtime project root from a nested directory', () async {
+    await Directory(p.join(temporary.path, '.git')).create();
+    final nested = await Directory(
+      p.join(temporary.path, 'cli', 'test'),
+    ).create(recursive: true);
+    await Directory(p.join(temporary.path, 'cli', '.alfredo')).create();
+
+    final root = defaultTaskRuntimeProjectRoot(start: nested);
+
+    expect(root.path, temporary.path);
+  });
+
   test('creates, loads, lists, and rejects corrupted task state', () async {
     final task = await store.createTask(title: 'Implement reconnect support');
 

@@ -50,6 +50,10 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ### Changed
 
+- `alfredo memory list` now includes durable notes by default as well as recent
+  journal activity; use `--kind activity` or `--kind note` to filter.
+- Task Runtime CLI commands now discover the repository runtime root from nested
+  directories instead of writing accidental subdirectory `.alfredo/` stores.
 - `alfredo setup` and `alfredo package install` no longer abort when a managed
   file was edited locally. Each modified file is resolved on its own: the
   command asks before overwriting, keeps the file and warns if declined, and a

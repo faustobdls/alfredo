@@ -186,6 +186,60 @@ void main() {
     ).called(1);
   });
 
+  test('lists durable notes by default and can filter to activities', () async {
+    await runner.run([
+      'memory',
+      'add',
+      '--scope',
+      'user',
+      '--kind',
+      'note',
+      '--title',
+      'Runtime Decision',
+      'tasks are canonical',
+    ]);
+    await runner.run([
+      'memory',
+      'add',
+      '--scope',
+      'user',
+      'checkpoint written',
+    ]);
+
+    expect(
+      await runner.run(['memory', 'list', '--scope', 'user', '--since', '30d']),
+      ExitCode.success.code,
+    );
+    verify(
+      () => logger.info(
+        any(that: contains('user\tnote\t[]\tRuntime Decision:')),
+      ),
+    ).called(1);
+    verify(
+      () => logger.info(any(that: contains('user\tactivity\t[]'))),
+    ).called(1);
+
+    clearInteractions(logger);
+    expect(
+      await runner.run([
+        'memory',
+        'list',
+        '--scope',
+        'user',
+        '--since',
+        '30d',
+        '--kind',
+        'activity',
+      ]),
+      ExitCode.success.code,
+    );
+    verifyNever(
+      () => logger.info(
+        any(that: contains('user\tnote\t[]\tRuntime Decision:')),
+      ),
+    );
+  });
+
   test('reports empty stores without failing', () async {
     expect(
       await runner.run(['memory', 'list', '--since', '7d']),

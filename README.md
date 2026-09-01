@@ -161,10 +161,16 @@ improve ranking and silently fall back to keywords when unavailable.
 ```sh
 alfredo memory setup
 alfredo memory add "documented the task runtime"
+alfredo memory add --kind note --title "Runtime decision" "tasks are canonical"
+alfredo memory list --since 30d
 alfredo memory search "task handoff"
 alfredo memory digest --since 14d
 alfredo memory capture
 ```
+
+`memory list` shows recent activity and durable notes. Use
+`--kind activity` or `--kind note` when an agent needs only one class of memory.
+`memory digest` remains a compact briefing of recent activity.
 
 ## Context Engineering
 
