@@ -6,6 +6,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-08-31
+
 ### Added
 
 - Task Runtime foundation: durable tasks, dependency-aware ready work, atomic
@@ -110,7 +112,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/faustobdls/alfredo/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/faustobdls/alfredo/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/faustobdls/alfredo/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/faustobdls/alfredo/compare/v0.0.1...v0.0.2
