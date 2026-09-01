@@ -18,21 +18,29 @@ Agents are workers. Alfredo owns the work.
 
 ```text
 .alfredo/
-├── tasks/
+├── config.yaml              # versioned
+├── tasks/                   # versioned
 │   └── ALF-01K....json
-├── task-events/
+├── task-events/             # versioned
 │   └── EVT-01K....-ALF-01K....json
-├── sessions/
-│   └── SES-01K....json
-├── runs/
+├── runs/                    # versioned
 │   ├── RUN-01K....json
 │   └── RUN-01K..../
 │       └── manifest.json
-├── context/
+├── context/                 # versioned
 │   └── index.yaml
-└── locks/
-    └── task-ALF-01K....lock
+└── runtime/                 # local only, git-ignored
+    ├── sessions/
+    │   └── SES-01K....json
+    ├── locks/
+    │   └── task-ALF-01K....lock
+    ├── cache/
+    └── tmp/
 ```
+
+Everything above `runtime/` is durable project state and is committed. The
+`runtime/` subtree is machine- and process-local (locks hold a PID, sessions
+track a live worker) and is excluded from version control.
 
 JSON is used for persisted runtime documents because the existing CLI already
 uses deterministic JSON for source, lockfile, and installed-state contracts.
@@ -115,7 +123,7 @@ output.
 
 ## Concurrency
 
-The runtime uses exclusive lock files under `.alfredo/locks/`. Creating a file
+The runtime uses exclusive lock files under `.alfredo/runtime/locks/`. Creating a file
 with exclusive mode is atomic on macOS, Linux, and Windows, which makes it
 portable enough for local multi-process coordination. Writes use temporary files
 with flushed content and atomic rename into place.

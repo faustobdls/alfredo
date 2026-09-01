@@ -24,10 +24,13 @@ class TaskRuntimeStore {
   Directory get root => Directory(p.join(projectRoot.path, '.alfredo'));
 
   Directory get _tasks => Directory(p.join(root.path, 'tasks'));
-  Directory get _sessions => Directory(p.join(root.path, 'sessions'));
   Directory get _runs => Directory(p.join(root.path, 'runs'));
   Directory get _events => Directory(p.join(root.path, 'task-events'));
-  Directory get _locks => Directory(p.join(root.path, 'locks'));
+
+  /// Local, non-versioned execution state (`.alfredo/runtime/`).
+  Directory get _runtime => Directory(p.join(root.path, 'runtime'));
+  Directory get _sessions => Directory(p.join(_runtime.path, 'sessions'));
+  Directory get _locks => Directory(p.join(_runtime.path, 'locks'));
 
   /// Creates a task.
   Future<AlfredoTask> createTask({

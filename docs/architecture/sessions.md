@@ -15,7 +15,9 @@ closed.
 ## Schema
 
 Sessions use `alfredo.session/v1` and are persisted under
-`.alfredo/sessions/SES-....json`.
+`.alfredo/runtime/sessions/SES-....json`. A session tracks a live worker, so it
+is local/runtime state and is not committed; the task it worked on stays
+canonical and versioned in `.alfredo/tasks/`.
 
 Fields include:
 

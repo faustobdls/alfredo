@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "embeddings": {
+    "enabled": false,
+    "provider": "ollama",
+    "baseUrl": "http://127.0.0.1:11434",
+    "model": "nomic-embed-text"
+  },
+  "capture": {
+    "sessionEndHook": false,
+    "gitDiffStat": true,
+    "targets": [
+      "claude-code"
+    ]
+  },
+  "defaultScope": "user"
+}

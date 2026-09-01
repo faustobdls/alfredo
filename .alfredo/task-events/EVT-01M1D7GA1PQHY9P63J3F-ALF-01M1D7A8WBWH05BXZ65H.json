@@ -1,0 +1,29 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1D7GA1PQHY9P63J3F",
+  "task": "ALF-01M1D7A8WBWH05BXZ65H",
+  "type": "checkpointed",
+  "created_at": "2026-09-01T00:56:59.191487Z",
+  "data": {
+    "completed": [
+      "added task event model and schema",
+      "added stale lock recovery path",
+      "session close can use memory config"
+    ],
+    "current": "run verification",
+    "remaining": [
+      "update docs",
+      "commit follow-up debt fixes"
+    ],
+    "changed_files": [
+      "cli/lib/src/task_runtime/task_runtime_models.dart",
+      "cli/lib/src/task_runtime/task_runtime_store.dart",
+      "cli/lib/src/commands/session_command.dart",
+      "schemas/task-event.schema.json"
+    ],
+    "validations": {
+      "implementation": "partial"
+    },
+    "next_action": "run focused tests and update docs"
+  }
+}

@@ -41,4 +41,4 @@ Codex mapping follows the local `$CODEX_HOME/skills` contract exposed by Codex.
 - Refuse collisions with unmanaged files or modified managed files.
 - Track ownership outside the agent directory in deterministic installed state.
 - Preserve locally modified files during uninstall.
-- Keep per-target, per-scope lockfiles under `.alfredo/locks/`.
+- Keep per-target, per-scope lockfiles under `.alfredo/runtime/locks/`.

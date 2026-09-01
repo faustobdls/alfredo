@@ -70,24 +70,29 @@ configuration.
 
 ## Task Runtime
 
-A project can keep runtime state under `.alfredo/`:
+A project keeps durable work state under `.alfredo/`; machine- and
+process-local state lives in `.alfredo/runtime/` and is git-ignored:
 
 ```text
 .alfredo/
-├── tasks/
+├── config.yaml              # versioned
+├── tasks/                   # versioned
 │   └── ALF-01K....json
-├── task-events/
+├── task-events/             # versioned
 │   └── EVT-01K....-ALF-01K....json
-├── sessions/
-│   └── SES-01K....json
-├── runs/
+├── runs/                    # versioned
 │   ├── RUN-01K....json
 │   └── RUN-01K..../
 │       └── manifest.json
-├── context/
+├── context/                 # versioned
 │   └── index.yaml
-├── memory/
-└── locks/
+├── memory/                  # versioned
+└── runtime/                 # local only, git-ignored
+    ├── sessions/
+    │   └── SES-01K....json
+    ├── locks/
+    ├── cache/
+    └── tmp/
 ```
 
 The three runtime entities are:

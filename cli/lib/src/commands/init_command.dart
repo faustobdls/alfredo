@@ -173,7 +173,7 @@ This repository uses Alfredo.
 ''',
       '.gitignore': '''
 .DS_Store
-.alfredo/
+.alfredo/runtime/
 .alfredo-state/
 ''',
       'README.md':

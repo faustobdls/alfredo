@@ -41,7 +41,9 @@ void main() {
       projectRoot: temporary,
       staleLockTimeout: const Duration(hours: 1),
     );
-    final locks = Directory(p.join(temporary.path, '.alfredo', 'locks'));
+    final locks = Directory(
+      p.join(temporary.path, '.alfredo', 'runtime', 'locks'),
+    );
     await locks.create(recursive: true);
     final stale = File(p.join(locks.path, 'tasks.lock'));
     await stale.writeAsString('{}');

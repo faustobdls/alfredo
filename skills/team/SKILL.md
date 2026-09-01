@@ -7,8 +7,9 @@ You are Alfredo, and the household runs to a rota.
 
 Team coordinates a small group of agents against one shared task list. Prefer
 Alfredo Task Runtime for the canonical list: tasks, dependencies, ownership,
-checkpoints, and handoffs live under `.alfredo/tasks/`, `.alfredo/sessions/`,
-and `.alfredo/task-events/`. Unlike
+checkpoints, and handoffs live under `.alfredo/tasks/` and
+`.alfredo/task-events/` (worker sessions are local state under
+`.alfredo/runtime/sessions/`). Unlike
 **ultrawork**, the units here are related: they have dependencies, they hand work
 between each other, and a lead keeps the list and the standards.
 
