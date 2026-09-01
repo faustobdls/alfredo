@@ -27,10 +27,14 @@ All notable changes to Alfredo are documented in this file. The format follows
   (smallest change, verify before claiming, match the house style, atomic
   commits, authorization boundaries, faithful reporting, ask only when blocked,
   secrets and exfiltration, separate authoring from review).
-- `skills-core` package: ten workflow skills in Alfredo's voice (`autopilot`,
+- `skills-core` package: eleven workflow skills in Alfredo's voice (`autopilot`,
   `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`,
-  `trace`, `deslop`) that orchestrate the agent catalogue through phased,
-  verified processes.
+  `trace`, `deslop`, `map-project`) that orchestrate the agent catalogue through
+  phased, verified processes.
+- `map-project` skill: a first-contact repository survey that produces a
+  structured `docs/` map (overview, one file per subsystem, directory index) so
+  later sessions read the map instead of re-exploring. `alfredo init source`
+  scaffolds it into new source repositories and points `AGENTS.md` at it.
 
 ## [0.0.4] - 2026-08-31
 

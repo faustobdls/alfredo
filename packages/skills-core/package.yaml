@@ -22,5 +22,6 @@ contents:
     - skills/deep-interview
     - skills/trace
     - skills/deslop
+    - skills/map-project
 dependencies: []
 conflicts: []
