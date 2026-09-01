@@ -9,4 +9,8 @@ dist/
 build/
 *.egg-info/
 .omc/
+.claude/
 .DS_Store
+
+# Alfredo — task runtime and memory are local/runtime state, never versioned.
+.alfredo/
