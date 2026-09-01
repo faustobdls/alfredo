@@ -12,6 +12,8 @@ All notable changes to Alfredo are documented in this file. The format follows
   claims, sessions, runs, compact checkpoints, resumable handoff packets,
   context packages, runtime schemas, and CLI commands under `alfredo task`,
   `alfredo session`, `alfredo run`, and `alfredo context`.
+- Task events now have an explicit `alfredo.task-event/v1` schema and the
+  runtime can recover stale local lock files after a bounded timeout.
 - `agents` content kind for packages, alongside `skills` and `rules`. Packages
   can bundle sub-agent definitions that install into each target's agent
   directory (`~/.claude/agents/`, `~/.codex/agents/`, and so on).

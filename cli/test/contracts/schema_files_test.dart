@@ -18,6 +18,7 @@ void main() {
         'installed-state',
         'memory-config',
         'task',
+        'task-event',
         'session',
         'run',
         'context',
@@ -281,6 +282,7 @@ void main() {
 
   test('task runtime schemas validate durable runtime documents', () {
     final task = schemas['task']!;
+    final event = schemas['task-event']!;
     final session = schemas['session']!;
     final run = schemas['run']!;
     final context = schemas['context']!;
@@ -329,6 +331,16 @@ void main() {
       'tasks_worked': <String>[],
       'last_checkpoint': null,
     };
+    final validEvent = <String, Object?>{
+      'schema': 'alfredo.task-event/v1',
+      'id': 'EVT-01K3Z7H8J9ABCDEFGHJK',
+      'task': taskId,
+      'type': 'checkpointed',
+      'created_at': now,
+      'data': {
+        'next_action': 'resume implementation',
+      },
+    };
     final validRun = <String, Object?>{
       'schema': 'alfredo.run/v1',
       'id': runId,
@@ -358,10 +370,15 @@ void main() {
     };
 
     expect(task.validate(validTask).isValid, isTrue);
+    expect(event.validate(validEvent).isValid, isTrue);
     expect(session.validate(validSession).isValid, isTrue);
     expect(run.validate(validRun).isValid, isTrue);
     expect(context.validate(validContext).isValid, isTrue);
     expect(task.validate({...validTask, 'status': 'READY'}).isValid, isFalse);
+    expect(
+      event.validate({...validEvent, 'type': 'Checkpointed'}).isValid,
+      isFalse,
+    );
     expect(
       task.validate({
         ...validTask,

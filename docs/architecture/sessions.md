@@ -48,4 +48,6 @@ next action so another worker can resume without the previous chat transcript.
 
 `alfredo session close --capture-memory` can append a compact project memory
 entry with the session ID, close reason, worked tasks, and a pointer back to the
-task runtime. It does not copy checkpoint content into memory.
+task runtime. The same compact capture happens automatically when project
+memory config has `capture.sessionEndHook: true`. It does not copy checkpoint
+content into memory.

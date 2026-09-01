@@ -153,6 +153,60 @@ class TaskCheckpoint {
   }
 }
 
+/// One append-only task event.
+class TaskEvent {
+  /// Creates a task event.
+  const TaskEvent({
+    required this.id,
+    required this.task,
+    required this.type,
+    required this.createdAt,
+    this.data = const {},
+  });
+
+  /// Creates a task event from JSON.
+  factory TaskEvent.fromJson(Map<String, Object?> json) {
+    if (json['schema'] != eventSchema) {
+      throw const TaskRuntimeException('Unsupported task event schema.');
+    }
+    return TaskEvent(
+      id: _string(json, 'id'),
+      task: _string(json, 'task'),
+      type: _string(json, 'type'),
+      createdAt: DateTime.parse(_string(json, 'created_at')),
+      data: Map.unmodifiable(_map(json['data'] ?? const {})),
+    );
+  }
+
+  /// Schema identifier.
+  static const eventSchema = 'alfredo.task-event/v1';
+
+  /// Event ID.
+  final String id;
+
+  /// Task ID.
+  final String task;
+
+  /// Compact event type.
+  final String type;
+
+  /// Creation timestamp.
+  final DateTime createdAt;
+
+  /// Small event payload.
+  final Map<String, Object?> data;
+
+  /// JSON representation.
+  Map<String, Object?> toJson() => {
+    'schema': eventSchema,
+    'id': id,
+    'task': task,
+    'type': type,
+    'created_at': createdAt.toUtc().toIso8601String(),
+    'data': data,
+  };
+}
+
 /// Task context hints.
 class TaskContextHints {
   /// Creates context hints.

@@ -105,9 +105,13 @@ next action. They must not include private reasoning, full transcripts, large
 logs, or raw tool output unless summarized.
 
 The current task file is the efficient snapshot. `task-events/` records
-append-only event documents for a minimal audit trail. This is intentionally
-smaller than full event sourcing: recovery reads the snapshot, while audits can
-inspect key transitions and checkpoint updates.
+append-only `alfredo.task-event/v1` documents for a minimal audit trail. This
+is intentionally smaller than full event sourcing: recovery reads the snapshot,
+while audits can inspect key transitions and checkpoint updates.
+
+Task events are operational facts, not transcripts. Their `data` payload should
+stay compact and must not contain private reasoning, raw logs, or unbounded tool
+output.
 
 ## Concurrency
 
@@ -119,8 +123,14 @@ with flushed content and atomic rename into place.
 Protected operations include claim, release, state transitions, dependency
 updates, checkpoints, and session close.
 
+Lock recovery is deliberately small: a lock older than the runtime stale-lock
+timeout is treated as abandoned and may be removed before retrying the atomic
+create. Fresh locks fail fast with a clear error. This handles local crash
+recovery without adding a daemon or distributed coordinator.
+
 ## Memory Relationship
 
-Task Runtime does not copy itself into memory. At session close, memory capture
+Task Runtime does not copy itself into memory. At session close, explicit
+`--capture-memory` or project memory config with `capture.sessionEndHook: true`
 may record a compact statement such as: session `SES-X` ended, worked on
 `ALF-Y`, checkpoint persisted. The checkpoint remains canonical in `.alfredo/`.

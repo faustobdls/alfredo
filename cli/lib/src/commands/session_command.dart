@@ -172,7 +172,8 @@ class _CloseSession extends _SessionSubcommand {
       requireSessionId(),
       reason: argResults!['reason'] as String,
     );
-    if (argResults!['capture-memory'] as bool) {
+    final shouldCaptureMemory = await _shouldCaptureMemory();
+    if (shouldCaptureMemory) {
       final roots = memoryRoots ?? defaultMemoryRoots();
       final memory = MemoryStore(directory: roots.projectDirectory);
       await memory.ensureSkeleton();
@@ -191,6 +192,14 @@ class _CloseSession extends _SessionSubcommand {
       logger.success('Closed ${session.id}: ${session.closeReason}.');
     }
     return ExitCode.success.code;
+  }
+
+  Future<bool> _shouldCaptureMemory() async {
+    if (argResults!['capture-memory'] as bool) return true;
+    final roots = memoryRoots ?? defaultMemoryRoots();
+    final memory = MemoryStore(directory: roots.projectDirectory);
+    if (!memory.configFile.existsSync()) return false;
+    return (await memory.readConfig()).capture.sessionEndHook;
   }
 }
 

@@ -9,10 +9,16 @@ import 'package:yaml/yaml.dart';
 /// Durable local-first task runtime store.
 class TaskRuntimeStore {
   /// Creates a store under an Alfredo project root.
-  const TaskRuntimeStore({required this.projectRoot});
+  const TaskRuntimeStore({
+    required this.projectRoot,
+    this.staleLockTimeout = const Duration(minutes: 15),
+  });
 
   /// Project root containing `.alfredo`.
   final Directory projectRoot;
+
+  /// Lock age after which recovery may remove the stale lock.
+  final Duration staleLockTimeout;
 
   /// `.alfredo` root.
   Directory get root => Directory(p.join(projectRoot.path, '.alfredo'));
@@ -94,6 +100,26 @@ class TaskRuntimeStore {
     } on FormatException catch (error) {
       throw TaskRuntimeException('Cannot read task $id: ${error.message}');
     }
+  }
+
+  /// Lists append-only events for one task in stable order.
+  Future<List<TaskEvent>> listTaskEvents(String taskId) async {
+    if (!_events.existsSync()) return const [];
+    final files =
+        _events
+            .listSync()
+            .whereType<File>()
+            .where(
+              (file) =>
+                  file.path.endsWith('-$taskId.json') &&
+                  p.basename(file.path).startsWith('EVT-'),
+            )
+            .toList()
+          ..sort((left, right) => left.path.compareTo(right.path));
+    return [
+      for (final file in files)
+        TaskEvent.fromJson(_decode(await file.readAsString())),
+    ];
   }
 
   /// Returns claimable tasks. READY is derived here.
@@ -477,11 +503,7 @@ class TaskRuntimeStore {
   Future<T> withLock<T>(String name, Future<T> Function() callback) async {
     await _locks.create(recursive: true);
     final lock = File(p.join(_locks.path, '$name.lock'));
-    try {
-      await lock.create(exclusive: true);
-    } on FileSystemException {
-      throw TaskRuntimeException('Runtime resource is locked: $name');
-    }
+    await _acquireLock(lock, name);
     try {
       await lock.writeAsString(
         '${prettyJson.convert({
@@ -493,6 +515,33 @@ class TaskRuntimeStore {
       return await callback();
     } finally {
       if (lock.existsSync()) await lock.delete();
+    }
+  }
+
+  Future<void> _acquireLock(File lock, String name) async {
+    try {
+      await lock.create(exclusive: true);
+      return;
+    } on FileSystemException {
+      if (!await _tryRecoverStaleLock(lock)) {
+        throw TaskRuntimeException('Runtime resource is locked: $name');
+      }
+    }
+    try {
+      await lock.create(exclusive: true);
+    } on FileSystemException {
+      throw TaskRuntimeException('Runtime resource is locked: $name');
+    }
+  }
+
+  Future<bool> _tryRecoverStaleLock(File lock) async {
+    try {
+      final modified = lock.lastModifiedSync();
+      if (_now().difference(modified) < staleLockTimeout) return false;
+      await lock.delete();
+      return true;
+    } on FileSystemException {
+      return false;
     }
   }
 
@@ -537,17 +586,16 @@ class TaskRuntimeStore {
     Map<String, Object?> data,
   ) async {
     await _events.create(recursive: true);
-    final event = {
-      'schema': 'alfredo.task-event/v1',
-      'id': _newId('EVT'),
-      'task': task,
-      'type': type,
-      'created_at': _now().toUtc().toIso8601String(),
-      'data': data,
-    };
+    final event = TaskEvent(
+      id: _newId('EVT'),
+      task: task,
+      type: type,
+      createdAt: _now(),
+      data: data,
+    );
     await _writeJson(
-      File(p.join(_events.path, '${event['id']}-$task.json')),
-      event,
+      File(p.join(_events.path, '${event.id}-$task.json')),
+      event.toJson(),
     );
   }
 

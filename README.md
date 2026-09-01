@@ -65,6 +65,8 @@ blockers, validations, changed files, and next action.
 
 These are separate systems. Task Runtime may leave a compact memory reference at
 the end of a session, but it does not duplicate its full state into memory.
+That capture can be requested explicitly or enabled through project memory
+configuration.
 
 ## Task Runtime
 
@@ -96,6 +98,8 @@ The three runtime entities are:
 
 `READY` is derived, not persisted. A task is ready when it is in `BACKLOG`, has
 no owner, is not blocked or terminal, and all required dependencies are `DONE`.
+Task events are append-only `alfredo.task-event/v1` documents, and local lock
+files can be recovered after a bounded stale-lock timeout.
 
 ## CLI
 
@@ -204,7 +208,7 @@ alfredo/
 ├── packages/            # Installable bundles of skills, rules, agents, assets
 ├── profiles/            # Reproducible environment definitions
 ├── rules/               # Canonical behavioral and engineering rules
-├── schemas/             # Versioned source, package, profile, and runtime schemas
+├── schemas/             # Versioned source, package, profile, runtime, and event schemas
 └── skills/              # Canonical portable AI-agent skills
 ```
 

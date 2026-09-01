@@ -164,6 +164,53 @@ void main() {
       () => logger.info(any(that: contains('Next action: write tests'))),
     ).called(1);
   });
+
+  test('session close captures memory when configured', () async {
+    final projectMemory = MemoryStore(
+      directory: Directory(p.join(temporary.path, '.alfredo', 'memory')),
+    );
+    await projectMemory.ensureSkeleton();
+    await projectMemory.writeConfig(
+      const MemoryConfig(
+        embeddings: EmbeddingsConfig(),
+        capture: CaptureConfig(sessionEndHook: true),
+        defaultScope: MemoryScope.user,
+      ),
+    );
+
+    expect(
+      await runner.run([
+        'session',
+        'start',
+        '--adapter',
+        'codex',
+        '--json',
+      ]),
+      ExitCode.success.code,
+    );
+    final session =
+        jsonDecode(
+              captureInfo(logger, '{'),
+            )
+            as Map<String, dynamic>;
+
+    expect(
+      await runner.run([
+        'session',
+        'close',
+        session['id']! as String,
+        '--reason',
+        'manual',
+      ]),
+      ExitCode.success.code,
+    );
+
+    final journals = Directory(
+      p.join(temporary.path, '.alfredo', 'memory', 'journal'),
+    ).listSync(recursive: true).whereType<File>().toList();
+    expect(journals, isNotEmpty);
+    expect(journals.single.readAsStringSync(), contains('session '));
+  });
 }
 
 String captureSuccess(Logger logger, String prefix) {

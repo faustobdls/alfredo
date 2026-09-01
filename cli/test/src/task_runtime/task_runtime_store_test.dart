@@ -21,6 +21,10 @@ void main() {
     expect(task.id, startsWith('ALF-'));
     expect((await store.readTask(task.id)).title, task.title);
     expect((await store.listTasks()).single.id, task.id);
+    final events = await store.listTaskEvents(task.id);
+    expect(events, hasLength(1));
+    expect(events.single.type, 'created');
+    expect(events.single.task, task.id);
 
     await File(
       p.join(temporary.path, '.alfredo', 'tasks', '${task.id}.json'),
@@ -28,6 +32,31 @@ void main() {
 
     await expectLater(
       store.readTask(task.id),
+      throwsA(isA<TaskRuntimeException>()),
+    );
+  });
+
+  test('recovers stale locks and rejects fresh locks', () async {
+    final staleStore = TaskRuntimeStore(
+      projectRoot: temporary,
+      staleLockTimeout: const Duration(hours: 1),
+    );
+    final locks = Directory(p.join(temporary.path, '.alfredo', 'locks'));
+    await locks.create(recursive: true);
+    final stale = File(p.join(locks.path, 'tasks.lock'));
+    await stale.writeAsString('{}');
+    await stale.setLastModified(
+      DateTime.now().subtract(const Duration(days: 1)),
+    );
+
+    final task = await staleStore.createTask(title: 'Recover stale lock');
+    expect(task.id, startsWith('ALF-'));
+    expect(stale.existsSync(), isFalse);
+
+    final fresh = File(p.join(locks.path, 'tasks.lock'));
+    await fresh.writeAsString('{}');
+    await expectLater(
+      staleStore.createTask(title: 'Fresh lock fails'),
       throwsA(isA<TaskRuntimeException>()),
     );
   });
