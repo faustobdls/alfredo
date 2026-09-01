@@ -32,10 +32,7 @@ void main() {
   test('scaffolds a source that registers and validates', () async {
     final target = p.join(temporary.path, 'my-source');
 
-    expect(
-      await runner.run(['init', 'source', target]),
-      ExitCode.success.code,
-    );
+    expect(await runner.run(['init', 'source', target]), ExitCode.success.code);
 
     expect(File(p.join(target, 'alfredo-source.yaml')).existsSync(), isTrue);
     expect(
@@ -53,6 +50,7 @@ void main() {
       isTrue,
     );
     expect(File(p.join(target, 'agents', '.gitkeep')).existsSync(), isTrue);
+    expect(File(p.join(target, 'personas', '.gitkeep')).existsSync(), isTrue);
     expect(File(p.join(target, 'AGENTS.md')).existsSync(), isTrue);
     expect(
       File(p.join(target, 'alfredo-source.yaml')).readAsStringSync(),
@@ -63,10 +61,7 @@ void main() {
       await runner.run(['source', 'add', 'mine', '--local', target]),
       ExitCode.success.code,
     );
-    expect(
-      await runner.run(['source', 'test', 'mine']),
-      ExitCode.success.code,
-    );
+    expect(await runner.run(['source', 'test', 'mine']), ExitCode.success.code);
   });
 
   test('honours --id and --name overrides', () async {
@@ -95,10 +90,7 @@ void main() {
   test('rejects an unusable derived id without --id', () async {
     final target = p.join(temporary.path, '123 not valid');
 
-    expect(
-      await runner.run(['init', 'source', target]),
-      ExitCode.usage.code,
-    );
+    expect(await runner.run(['init', 'source', target]), ExitCode.usage.code);
     expect(Directory(target).existsSync(), isFalse);
   });
 

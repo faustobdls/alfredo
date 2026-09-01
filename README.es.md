@@ -27,10 +27,52 @@ El repositorio contiene actualmente:
 - El paquete `android-core` con cinco skills Android validadas.
 - El subsistema `alfredo memory`, append-only, con búsqueda por palabra clave, embeddings locales opcionales y el paquete `memory-core`.
 - El HUD FastAPI existente, aislado en `apps/hud/`.
-- Raíces versionadas para skills, paquetes, reglas, adaptadores, schemas y perfiles.
+- Runtime de tareas con tareas, sesiones, runs, checkpoints y paquetes de
+  contexto deterministas.
+- Personas versionadas para la voz de Alfredo y preferencias duraderas del
+  usuario, instaladas como seeds preservables.
+- Raíces versionadas para skills, paquetes, reglas, personas, adaptadores,
+  schemas y perfiles.
 - CI de la CLI Dart en macOS, Linux y Windows, además de la suite de pruebas Python del HUD.
 
 Los perfiles, releases firmados y comandos Android que operan dispositivos siguen como próximas etapas.
+
+## Instalar la CLI
+
+macOS y Linux (x64 o ARM64):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.sh | sh
+```
+
+Windows PowerShell (x64):
+
+```powershell
+irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps1 | iex
+```
+
+El instalador descarga el binario correcto desde la release más reciente de
+GitHub, valida su checksum SHA-256, instala en `~/.alfredo/bin` y agrega ese
+directorio al PATH del shell actual. Define `ALFREDO_INSTALL_DIR` para elegir
+otro destino.
+
+Instala los paquetes oficiales en todos los agentes soportados:
+
+```sh
+alfredo setup --all
+```
+
+O selecciona uno o más agentes:
+
+```sh
+alfredo setup --cursor
+alfredo setup --codex --claude
+alfredo setup --antigravity
+```
+
+El comando `setup` configura automáticamente la fuente oficial correspondiente
+a la release de la CLI instalada y usa el ámbito de usuario por defecto. Pasa
+`--scope project` para instalar en el proyecto actual.
 
 ## Estructura del repositorio
 
@@ -43,7 +85,8 @@ alfredo/
 │   └── hud/             # HUD FastAPI local y frontend del navegador
 ├── cli/                 # CLI Dart multiplataforma y entrada del binario nativo
 ├── docs/                # Decisiones arquitectónicas y documentación transversal
-├── packages/            # Conjuntos instalables de skills, reglas, agentes y assets
+├── packages/            # Conjuntos instalables de skills, reglas, personas y agentes
+├── personas/            # Seeds de voz y preferencias del usuario
 ├── profiles/            # Configuraciones reproducibles personales, laborales y de proyecto
 ├── rules/               # Reglas canónicas de comportamiento e ingeniería
 ├── schemas/             # Contratos versionados de fuentes, paquetes, perfiles y lockfiles
@@ -75,13 +118,22 @@ Las versiones específicas para cada agente deben generarse desde este contenido
 
 ### `packages/`
 
-Contiene paquetes instalables. Un paquete puede agrupar varias skills, reglas, scripts, referencias y requisitos de adaptadores en una unidad versionada, como `android-core`, `adb-device-fleet` o `android-security`.
+Contiene paquetes instalables. Un paquete puede agrupar varias skills, reglas, personas, scripts, referencias y requisitos de adaptadores en una unidad versionada, como `android-core`, `rules-core`, `personas-core` o `memory-core`.
 
 Los paquetes declararán dependencias, conflictos, targets compatibles y versiones semánticas. Una skill enseña una capacidad; un paquete distribuye un conjunto de capacidades.
 
 ### `rules/`
 
-Restricciones y estándares siempre activos — un archivo Markdown por regla, pensados para estar en el contexto del agente en cada tarea. El paquete `rules-core` distribuye nueve en la voz de Alfredo (cambio mínimo, verificar antes de afirmar, seguir el estilo de la casa, commits atómicos, límites de autorización, reporte fiel, preguntar solo cuando se está bloqueado, secretos y exfiltración, separar autoría de revisión); `memory-core` añade dos del subsistema de memoria. Los adaptadores las convierten al formato nativo de cada agente. Ver [docs/architecture/rules.md](docs/architecture/rules.md).
+Restricciones y estándares siempre activos — un archivo Markdown por regla, pensados para estar en el contexto del agente en cada tarea. El paquete `rules-core` distribuye diez en la voz de Alfredo (cambio mínimo, verificar antes de afirmar, seguir el estilo de la casa, commits atómicos, límites de autorización, reporte fiel, preguntar solo cuando se está bloqueado, secretos y exfiltración, separar autoría de revisión, procedencia de contenido externo); `memory-core` añade dos del subsistema de memoria. Los adaptadores las convierten al formato nativo de cada agente. Ver [docs/architecture/rules.md](docs/architecture/rules.md).
+
+### `personas/`
+
+Archivos breves de tono de voz y preferencias de comunicación. `personas-core`
+instala `personas/alfredo.md` y `personas/user.md` como seeds: si el archivo ya
+existe en el destino, Alfredo no lo sobrescribe en futuras actualizaciones. El
+contexto de tarea incluye `.alfredo/personas/*.md` en el grupo `personas`,
+separado de reglas, skills y memoria. Ver
+[docs/architecture/personas.md](docs/architecture/personas.md).
 
 ### `adapters/`
 
@@ -93,7 +145,7 @@ El catálogo canónico de sub-agentes. Un archivo Markdown por agente, en format
 
 ### `schemas/`
 
-Contiene contratos v1 legibles por máquina para fuentes, paquetes, perfiles, estado instalado y lockfiles. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
+Contiene contratos v1 legibles por máquina para fuentes, paquetes, perfiles, estado instalado, lockfiles y contexto. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
 
 ### `profiles/`
 

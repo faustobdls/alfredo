@@ -27,7 +27,12 @@ O repositório contém atualmente:
 - O pacote `android-core` com cinco skills Android validadas.
 - O subsistema `alfredo memory`, append-only, com busca por palavra-chave, embeddings locais opcionais e o pacote `memory-core`.
 - O HUD FastAPI existente, isolado em `apps/hud/`.
-- Raízes versionadas para skills, pacotes, regras, adaptadores, schemas e perfis.
+- Runtime de tarefas com tarefas, sessões, runs, checkpoints e pacotes de
+  contexto determinísticos.
+- Personas versionadas para a voz do Alfredo e preferências duráveis do usuário,
+  instaladas como seeds preserváveis.
+- Raízes versionadas para skills, pacotes, regras, personas, adaptadores,
+  schemas e perfis.
 - CI da CLI Dart em macOS, Linux e Windows, além da suíte de testes Python do HUD.
 
 Perfis, releases assinados e comandos Android que atuam nos dispositivos permanecem como próximas etapas.
@@ -88,7 +93,8 @@ alfredo/
 │   └── hud/             # HUD FastAPI local e frontend do navegador
 ├── cli/                 # CLI Dart multiplataforma e entrada do binário nativo
 ├── docs/                # Decisões arquiteturais e documentação transversal
-├── packages/            # Conjuntos instaláveis de skills, regras, agentes e assets
+├── packages/            # Conjuntos instaláveis de skills, regras, personas e agentes
+├── personas/            # Seeds de voz e preferências do usuário
 ├── profiles/            # Configurações reproduzíveis pessoais, de trabalho e projeto
 ├── rules/               # Regras canônicas de comportamento e engenharia
 ├── schemas/             # Contratos versionados de fontes, pacotes, perfis e lockfiles
@@ -124,13 +130,21 @@ O catálogo canônico de sub-agentes. Um arquivo Markdown por agente, no formato
 
 ### `packages/`
 
-Contém pacotes instaláveis. Um pacote pode agrupar várias skills, regras, scripts, referências e requisitos de adaptadores em uma unidade versionada, como `android-core`, `adb-device-fleet` ou `android-security`.
+Contém pacotes instaláveis. Um pacote pode agrupar várias skills, regras, personas, scripts, referências e requisitos de adaptadores em uma unidade versionada, como `android-core`, `rules-core`, `personas-core` ou `memory-core`.
 
 Pacotes declararão dependências, conflitos, targets suportados e versões semânticas. Uma skill ensina uma capacidade; um pacote distribui um conjunto de capacidades.
 
 ### `rules/`
 
-Restrições e padrões sempre-ativos — um arquivo Markdown por regra, para ficar no contexto do agente em toda tarefa. O pacote `rules-core` distribui nove na voz do Alfredo (menor mudança, verificar antes de afirmar, seguir o estilo da casa, commits atômicos, limites de autorização, relato fiel, perguntar só quando travado, segredos e exfiltração, separar autoria de revisão); o `memory-core` adiciona duas do subsistema de memória. Os adaptadores as convertem para o formato nativo de cada agente. Veja [docs/architecture/rules.md](docs/architecture/rules.md).
+Restrições e padrões sempre-ativos — um arquivo Markdown por regra, para ficar no contexto do agente em toda tarefa. O pacote `rules-core` distribui dez na voz do Alfredo (menor mudança, verificar antes de afirmar, seguir o estilo da casa, commits atômicos, limites de autorização, relato fiel, perguntar só quando travado, segredos e exfiltração, separar autoria de revisão, proveniência de conteúdo externo); o `memory-core` adiciona duas do subsistema de memória. Os adaptadores as convertem para o formato nativo de cada agente. Veja [docs/architecture/rules.md](docs/architecture/rules.md).
+
+### `personas/`
+
+Arquivos enxutos de tom de voz e preferências de comunicação. O `personas-core`
+instala `personas/alfredo.md` e `personas/user.md` como seeds: se o arquivo já
+existe no destino, o Alfredo não sobrescreve em updates futuros. O contexto de
+tarefa inclui `.alfredo/personas/*.md` no grupo `personas`, separado de regras,
+skills e memória. Veja [docs/architecture/personas.md](docs/architecture/personas.md).
 
 ### `adapters/`
 
@@ -138,7 +152,7 @@ Contém lógica e templates de instalação para Codex, Claude Code, Cursor, Ant
 
 ### `schemas/`
 
-Contém contratos v1 legíveis por máquina para fontes, pacotes, perfis, estado instalado e lockfiles. A validação acontece antes de persistir uma fonte ou escrever no ambiente de um agente.
+Contém contratos v1 legíveis por máquina para fontes, pacotes, perfis, estado instalado, lockfiles e contexto. A validação acontece antes de persistir uma fonte ou escrever no ambiente de um agente.
 
 ### `profiles/`
 

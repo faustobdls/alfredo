@@ -34,6 +34,7 @@
         "skills": { "$ref": "#/$defs/pathList" },
         "rules": { "$ref": "#/$defs/pathList" },
         "agents": { "$ref": "#/$defs/pathList" },
+        "personas": { "$ref": "#/$defs/pathList" },
         "scripts": { "$ref": "#/$defs/pathList" },
         "assets": { "$ref": "#/$defs/pathList" },
         "references": { "$ref": "#/$defs/pathList" }

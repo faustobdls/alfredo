@@ -24,9 +24,7 @@ typedef ManagedFileConflictResolver =
 /// Installs resolved packages with staging, collision checks, and rollback.
 class PackageInstaller {
   /// Creates a package installer.
-  const PackageInstaller({
-    this.packageLoader = const PackageManifestLoader(),
-  });
+  const PackageInstaller({this.packageLoader = const PackageManifestLoader()});
 
   /// Reads source files declared by package manifests.
   final PackageManifestLoader packageLoader;
@@ -72,11 +70,13 @@ class PackageInstaller {
     );
     final removals = validation.removals;
     final skipped = validation.skipped;
-    final effectivePlan = skipped.isEmpty
+    final preserved = validation.preserved;
+    final untouched = {...skipped, ...preserved};
+    final effectivePlan = untouched.isEmpty
         ? plan
         : [
             for (final file in plan)
-              if (!skipped.contains(file.path)) file,
+              if (!untouched.contains(file.path)) file,
           ];
 
     final stage = await Directory(
@@ -117,6 +117,7 @@ class PackageInstaller {
             File(p.join(targetRoot.path, file.path)),
         ],
         skippedFiles: skipped.toList()..sort(),
+        preservedFiles: preserved.toList()..sort(),
       );
     } finally {
       if (stage.existsSync()) await stage.delete(recursive: true);
@@ -195,7 +196,9 @@ class PackageInstaller {
     for (final entry in statuses) {
       final selected =
           requested == null || requested.contains(entry.file.packageId);
-      if (!selected || entry.condition == ManagedFileCondition.modified) {
+      if (!selected ||
+          entry.file.mode == ManagedFileMode.seed ||
+          entry.condition == ManagedFileCondition.modified) {
         remaining.add(entry.file);
         continue;
       }
@@ -246,6 +249,9 @@ class PackageInstaller {
               path: destination,
               bytes: bytes,
               packageId: candidate.manifest.id,
+              mode: content.key == 'personas'
+                  ? ManagedFileMode.seed
+                  : ManagedFileMode.managed,
             ),
           );
         }
@@ -255,7 +261,9 @@ class PackageInstaller {
     return plan;
   }
 
-  static Future<({List<ManagedFile> removals, Set<String> skipped})>
+  static Future<
+    ({List<ManagedFile> removals, Set<String> skipped, Set<String> preserved})
+  >
   _validatePlan(
     List<_PlannedFile> plan,
     InstalledState state,
@@ -265,6 +273,7 @@ class PackageInstaller {
   ) async {
     final planned = <String>{};
     final skipped = <String>{};
+    final preserved = <String>{};
     final managed = {for (final file in state.files) file.path: file};
     for (final file in plan) {
       _assertContainedPath(targetRoot, p.join(targetRoot.path, file.path));
@@ -278,6 +287,10 @@ class PackageInstaller {
         p.joinAll([targetRoot.path, ...p.posix.split(file.path)]),
       );
       if (destination.existsSync()) {
+        if (file.mode == ManagedFileMode.seed) {
+          preserved.add(file.path);
+          continue;
+        }
         final record = managed[file.path];
         if (record == null) {
           throw PackageException(
@@ -303,6 +316,9 @@ class PackageInstaller {
     }
     final removals = <ManagedFile>[];
     for (final file in state.files) {
+      if (file.mode == ManagedFileMode.seed) {
+        continue;
+      }
       if (!replacingPackageIds.contains(file.packageId) ||
           planned.contains(file.path)) {
         continue;
@@ -318,7 +334,7 @@ class PackageInstaller {
       }
       removals.add(file);
     }
-    return (removals: removals, skipped: skipped);
+    return (removals: removals, skipped: skipped, preserved: preserved);
   }
 
   static InstalledState _nextState(
@@ -328,12 +344,15 @@ class PackageInstaller {
     Set<String> replacingPackageIds,
     Set<String> skipped,
   ) {
+    final planned = {for (final file in plan) file.path};
     final files = <ManagedFile>[
       // Keep records from packages we are not replacing, plus the original
       // record of any file we skipped so it stays managed and still reports as
       // modified against its installed digest.
       for (final file in current.files)
         if (!replacingPackageIds.contains(file.packageId) ||
+            (file.mode == ManagedFileMode.seed &&
+                !planned.contains(file.path)) ||
             skipped.contains(file.path))
           file,
       for (final file in plan)
@@ -341,6 +360,7 @@ class PackageInstaller {
           path: file.path,
           digest: file.digest,
           packageId: file.packageId,
+          mode: file.mode,
         ),
     ]..sort((left, right) => left.path.compareTo(right.path));
     return InstalledState(target: target, files: files);
@@ -510,11 +530,13 @@ class _PlannedFile {
     required this.path,
     required this.bytes,
     required this.packageId,
+    this.mode = ManagedFileMode.managed,
   });
 
   final String path;
   final List<int> bytes;
   final String packageId;
+  final ManagedFileMode mode;
 
   String get digest => sha256.convert(bytes).toString();
 }

@@ -25,11 +25,14 @@ void main() {
             path: 'skills/a/SKILL.md',
             digest: _digest,
             packageId: 'a',
+            mode: ManagedFileMode.seed,
           ),
         ],
       ),
     );
-    expect((await stateStore.read('codex')).files.single.packageId, 'a');
+    final state = await stateStore.read('codex');
+    expect(state.files.single.packageId, 'a');
+    expect(state.files.single.mode, ManagedFileMode.seed);
 
     final locks = PackageLockfileStore(File('${temporary.path}/lock.json'));
     await locks.write(

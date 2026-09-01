@@ -26,6 +26,7 @@ void main() {
         'android-core',
         'memory-core',
         'agents-core',
+        'personas-core',
         'rules-core',
         'skills-core',
       ]),

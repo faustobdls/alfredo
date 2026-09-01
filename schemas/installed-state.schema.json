@@ -25,7 +25,8 @@
       "properties": {
         "path": {"$ref": "#/$defs/path"},
         "digest": {"$ref": "#/$defs/digest"},
-        "package_id": {"$ref": "#/$defs/id"}
+        "package_id": {"$ref": "#/$defs/id"},
+        "mode": {"enum": ["managed", "seed"]}
       }
     }
   }

@@ -33,16 +33,25 @@ class InstalledStateStore {
         final path = rawFile['path'];
         final digest = rawFile['digest'];
         final packageId = rawFile['package_id'];
+        final rawMode = rawFile['mode'] ?? ManagedFileMode.managed.name;
         if (path is! String ||
             digest is! String ||
             packageId is! String ||
+            rawMode is! String ||
             !_isSafeRelativePath(path) ||
             !RegExp(r'^[a-f0-9]{64}$').hasMatch(digest) ||
+            !ManagedFileMode.values.any((value) => value.name == rawMode) ||
             !paths.add(path)) {
           throw const PackageException('Invalid installed state entry.');
         }
+        final mode = ManagedFileMode.values.byName(rawMode);
         files.add(
-          ManagedFile(path: path, digest: digest, packageId: packageId),
+          ManagedFile(
+            path: path,
+            digest: digest,
+            packageId: packageId,
+            mode: mode,
+          ),
         );
       }
       files.sort((left, right) => left.path.compareTo(right.path));

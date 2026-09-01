@@ -97,13 +97,7 @@ void main() {
 
     expect(
       File(
-        p.join(
-          roots.userRoot.path,
-          '.cursor',
-          'skills',
-          'example',
-          'SKILL.md',
-        ),
+        p.join(roots.userRoot.path, '.cursor', 'skills', 'example', 'SKILL.md'),
       ).existsSync(),
       isTrue,
     );
@@ -352,4 +346,115 @@ void main() {
     );
     expect(await unmanaged.readAsString(), 'keep\n');
   });
+
+  test('seeds personas once and preserves them across reinstalls', () async {
+    final source = await createPackageSourceFixture(
+      temporary,
+      sourceId: 'personas-source',
+      packages: const [
+        PackageFixture(
+          id: 'personas-core',
+          contents: {
+            'personas': ['personas/alfredo.md', 'personas/user.md'],
+          },
+        ),
+      ],
+    );
+    final targetResolution = await _resolutionFor(
+      source,
+      packageId: 'personas-core',
+      target: 'generic',
+    );
+
+    await installer.install(
+      resolution: targetResolution,
+      roots: roots,
+      scope: InstallationScope.project,
+    );
+    final userPersona = File(
+      p.join(roots.projectRoot.path, '.alfredo', 'personas', 'user.md'),
+    );
+    await userPersona.writeAsString('local voice preference\n');
+
+    final updatedSource = File(p.join(source.path, 'personas', 'user.md'));
+    await updatedSource.writeAsString('upstream default changed\n');
+    final updatedResolution = await _resolutionFor(
+      source,
+      packageId: 'personas-core',
+      target: 'generic',
+    );
+    final result = await installer.install(
+      resolution: updatedResolution,
+      roots: roots,
+      scope: InstallationScope.project,
+    );
+
+    expect(result.skippedFiles, isEmpty);
+    expect(result.preservedFiles, ['personas/alfredo.md', 'personas/user.md']);
+    expect(await userPersona.readAsString(), 'local voice preference\n');
+  });
+
+  test('does not uninstall persona seed files', () async {
+    final source = await createPackageSourceFixture(
+      temporary,
+      sourceId: 'persona-uninstall-source',
+      packages: const [
+        PackageFixture(
+          id: 'personas-core',
+          contents: {
+            'personas': ['personas/user.md'],
+          },
+        ),
+      ],
+    );
+    final targetResolution = await _resolutionFor(
+      source,
+      packageId: 'personas-core',
+      target: 'generic',
+    );
+
+    await installer.install(
+      resolution: targetResolution,
+      roots: roots,
+      scope: InstallationScope.project,
+    );
+    final userPersona = File(
+      p.join(roots.projectRoot.path, '.alfredo', 'personas', 'user.md'),
+    );
+
+    await installer.uninstall(
+      target: 'generic',
+      roots: roots,
+      scope: InstallationScope.project,
+      packageIds: const ['personas-core'],
+    );
+
+    expect(userPersona.existsSync(), isTrue);
+  });
+}
+
+Future<PackageResolution> _resolutionFor(
+  Directory source, {
+  required String packageId,
+  required String target,
+}) async {
+  const loader = PackageManifestLoader();
+  final packageRoot = p.join(source.path, 'packages', packageId);
+  final manifest = await loader.load(packageRoot);
+  return PackageResolution(
+    target: target,
+    packages: [
+      PackageCandidate(
+        sourceName: 'local',
+        sourceRoot: source.path,
+        packageRoot: packageRoot,
+        manifest: manifest,
+        digest: await loader.digest(
+          packageDirectory: packageRoot,
+          contentRoot: source.path,
+          manifest: manifest,
+        ),
+      ),
+    ],
+  );
 }

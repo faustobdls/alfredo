@@ -505,6 +505,13 @@ class TaskRuntimeStore {
         }
       }
     }
+    final personas = await _resolvePersonaFiles();
+    for (final personaPath in personas) {
+      final file = File(p.join(projectRoot.path, personaPath));
+      if (file.existsSync()) {
+        estimated += _estimateTokens(await file.readAsString());
+      }
+    }
     final sortedFiles = _sortedUnique(files);
     return AlfredoContextPackage(
       task: task.id,
@@ -514,6 +521,7 @@ class TaskRuntimeStore {
       sources: {
         'rules': const [],
         'skills': const [],
+        'personas': personas,
         'memory': const [],
         'files': sortedFiles,
         'decisions': const [],
@@ -754,6 +762,25 @@ class TaskRuntimeStore {
     if (pattern.contains('*')) return [pattern];
     final file = File(p.join(projectRoot.path, pattern));
     return file.existsSync() ? [pattern] : const [];
+  }
+
+  Future<List<String>> _resolvePersonaFiles() async {
+    final directory = Directory(
+      p.join(projectRoot.path, '.alfredo', 'personas'),
+    );
+    if (!directory.existsSync()) return const [];
+    final files =
+        (await directory.list(followLinks: false).toList())
+            .whereType<File>()
+            .where((file) => p.extension(file.path).toLowerCase() == '.md')
+            .map(
+              (file) => p.posix.joinAll(
+                p.split(p.relative(file.path, from: projectRoot.path)),
+              ),
+            )
+            .toList()
+          ..sort();
+    return List.unmodifiable(files);
   }
 
   static void _ensureSafePaths(Iterable<String> paths) {

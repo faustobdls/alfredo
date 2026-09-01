@@ -22,10 +22,11 @@
     "sources": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["rules", "skills", "memory", "files", "decisions"],
+      "required": ["rules", "skills", "personas", "memory", "files", "decisions"],
       "properties": {
         "rules": { "$ref": "#/$defs/stringList" },
         "skills": { "$ref": "#/$defs/stringList" },
+        "personas": { "$ref": "#/$defs/stringList" },
         "memory": { "$ref": "#/$defs/stringList" },
         "files": { "$ref": "#/$defs/stringList" },
         "decisions": { "$ref": "#/$defs/stringList" }

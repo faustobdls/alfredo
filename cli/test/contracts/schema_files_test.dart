@@ -60,10 +60,7 @@ void main() {
       'version': '1.2.3',
       'description': 'Android foundation.',
       'targets': ['codex'],
-      'contents': <String, Object?>{
-        'skills': <String>[],
-        'rules': <String>[],
-      },
+      'contents': <String, Object?>{'skills': <String>[], 'rules': <String>[]},
       'dependencies': <Object?>[],
       'conflicts': <String>[],
     };
@@ -74,6 +71,15 @@ void main() {
         ...valid,
         'contents': {
           'agents': ['agents'],
+        },
+      }).isValid,
+      isTrue,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'contents': {
+          'personas': ['personas/user.md'],
         },
       }).isValid,
       isTrue,
@@ -100,10 +106,7 @@ void main() {
       schema.validate({...valid, 'id': ' android-core '}).isValid,
       isFalse,
     );
-    expect(
-      schema.validate({...valid, 'version': ' 1.2.3 '}).isValid,
-      isFalse,
-    );
+    expect(schema.validate({...valid, 'version': ' 1.2.3 '}).isValid, isFalse);
     expect(
       schema.validate({
         ...valid,
@@ -176,6 +179,7 @@ void main() {
           'path': 'skills/android/SKILL.md',
           'digest': digest,
           'package_id': 'android-core',
+          'mode': 'seed',
         },
       ],
     };
@@ -337,9 +341,7 @@ void main() {
       'task': taskId,
       'type': 'checkpointed',
       'created_at': now,
-      'data': {
-        'next_action': 'resume implementation',
-      },
+      'data': {'next_action': 'resume implementation'},
     };
     final validRun = <String, Object?>{
       'schema': 'alfredo.run/v1',
@@ -362,6 +364,7 @@ void main() {
       'sources': {
         'rules': <String>[],
         'skills': <String>[],
+        'personas': ['.alfredo/personas/user.md'],
         'memory': <String>[],
         'files': ['lib/reconnect.dart'],
         'decisions': <String>[],
@@ -406,8 +409,5 @@ Future<JsonSchema> _loadSchema(String name) async {
   );
   final document = jsonDecode(await file.readAsString()) as Map;
   expect(document[r'$schema'], 'https://json-schema.org/draft/2020-12/schema');
-  return JsonSchema.create(
-    document,
-    schemaVersion: SchemaVersion.draft2020_12,
-  );
+  return JsonSchema.create(document, schemaVersion: SchemaVersion.draft2020_12);
 }

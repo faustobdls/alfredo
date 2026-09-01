@@ -24,6 +24,7 @@ class CatalogContractValidator {
     'skills',
     'rules',
     'agents',
+    'personas',
     'scripts',
     'assets',
     'references',
@@ -205,10 +206,7 @@ class CatalogContractValidator {
     }
   }
 
-  static void _requireSchemaVersion(
-    Map<String, Object?> map,
-    String context,
-  ) {
+  static void _requireSchemaVersion(Map<String, Object?> map, String context) {
     if (map['schema_version'] != 1) {
       throw SourceException('Unsupported $context schema version.');
     }
