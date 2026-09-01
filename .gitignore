@@ -9,4 +9,9 @@ dist/
 build/
 *.egg-info/
 .omc/
+.claude/
 .DS_Store
+
+# Alfredo — durable work state (config, tasks/, runs/, context/, task-events/,
+# memory/) is versioned; only machine/process-local state is ignored.
+.alfredo/runtime/

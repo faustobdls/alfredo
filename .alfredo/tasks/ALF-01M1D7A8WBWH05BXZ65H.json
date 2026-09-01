@@ -1,0 +1,64 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M1D7A8WBWH05BXZ65H",
+  "title": "Harden task runtime follow-up debts",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-01T00:53:41.386572Z",
+  "updated_at": "2026-09-01T01:00:50.529692Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M1D7A0600NHA4PETE2"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "Add stale lock recovery or explicit lock TTL behavior",
+    "Add versioned schema coverage for task events",
+    "Improve session close memory capture ergonomics",
+    "Keep CLI tests green"
+  ],
+  "context": {
+    "topics": [],
+    "files": []
+  },
+  "checkpoint": {
+    "completed": [
+      "added stale lock recovery path",
+      "added task event model and schema",
+      "documented config-driven session memory capture",
+      "documented task event schema and stale lock recovery",
+      "formatter stable with zero changes",
+      "full CLI test suite passed",
+      "full analyzer passed",
+      "session close can use memory config",
+      "task ready returned no claimable work while current task is owned"
+    ],
+    "current": "commit follow-up debt fixes",
+    "remaining": [
+      "none"
+    ],
+    "changed_files": [
+      "CHANGELOG.md",
+      "README.md",
+      "cli/lib/src/commands/session_command.dart",
+      "cli/lib/src/task_runtime/task_runtime_models.dart",
+      "cli/lib/src/task_runtime/task_runtime_store.dart",
+      "docs/architecture/sessions.md",
+      "docs/architecture/task-runtime.md",
+      "schemas/task-event.schema.json"
+    ],
+    "validations": {
+      "implementation": "partial",
+      "focused_tests": "passed",
+      "format": "passed",
+      "analyze": "passed",
+      "cli_tests": "232 passed",
+      "task_ready": "passed"
+    },
+    "next_action": "commit debt fixes"
+  },
+  "blocker": null
+}

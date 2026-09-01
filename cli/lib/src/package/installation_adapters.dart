@@ -103,7 +103,14 @@ class TargetAdapter {
       InstallationScope.project => roots.projectRoot,
     };
     return File(
-      p.join(base.path, '.alfredo', 'locks', id, '${scope.name}.lock.json'),
+      p.join(
+        base.path,
+        '.alfredo',
+        'runtime',
+        'locks',
+        id,
+        '${scope.name}.lock.json',
+      ),
     );
   }
 }

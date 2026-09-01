@@ -10,6 +10,10 @@ without asking for step-by-step direction: requirements, technical design, a
 plan, implementation, and a QA pass. The user describes the outcome; I deliver
 it, verified.
 
+Prefer Alfredo Task Runtime for canonical state. The run is an `alfredo run`,
+the phases become tasks, progress becomes checkpoints, and sessions are
+disposable workers.
+
 ## When to use it
 
 - The user wants end-to-end execution and is content to let it run.
@@ -26,12 +30,12 @@ it, verified.
 
 ## Method
 
-1. **Spec.** If a **deep-interview** spec or a **ralplan** consensus plan already
-   exists under `.alfredo/work/`, use it and skip to step 3. Otherwise the
+1. **Spec.** If a **deep-interview** spec, **ralplan** consensus plan, or
+   existing Alfredo run already exists, use it and skip to step 3. Otherwise the
    **analyst** extracts acceptance criteria and the **architect** writes a
-   technical design. Save to `.alfredo/work/autopilot/spec.md`.
-2. **Plan.** The **architect** turns the spec into an ordered implementation
-   plan; the **critic** reviews it. Save to `.alfredo/work/autopilot/plan.md`.
+   technical design. Persist the resulting objective as a run and tasks.
+2. **Plan.** The **architect** turns the spec into ordered implementation tasks;
+   the **critic** reviews the graph before execution.
 3. **Build.** Delegate the plan's steps to **executor** agents — in parallel
    where the steps are independent, sequentially where they are not.
 4. **QA.** Run **ultraqa**: test, verify, fix, repeat until the acceptance
@@ -44,7 +48,7 @@ it, verified.
 
 - Each phase finishes before the next begins.
 - Every completion claim carries fresh test output.
-- Progress is written to `.alfredo/work/autopilot/` so the run can resume.
+- Progress is written to Task Runtime so the run can resume.
 
 ## How I report back
 

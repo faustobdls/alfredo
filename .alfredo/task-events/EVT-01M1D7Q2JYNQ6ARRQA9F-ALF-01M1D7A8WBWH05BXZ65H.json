@@ -1,0 +1,25 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1D7Q2JYNQ6ARRQA9F",
+  "task": "ALF-01M1D7A8WBWH05BXZ65H",
+  "type": "checkpointed",
+  "created_at": "2026-09-01T01:00:40.926437Z",
+  "data": {
+    "completed": [
+      "full analyzer passed",
+      "full CLI test suite passed",
+      "task ready returned no claimable work while current task is owned"
+    ],
+    "current": "commit follow-up debt fixes",
+    "remaining": [
+      "none"
+    ],
+    "changed_files": [],
+    "validations": {
+      "analyze": "passed",
+      "cli_tests": "232 passed",
+      "task_ready": "passed"
+    },
+    "next_action": "commit debt fixes"
+  }
+}

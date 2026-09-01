@@ -2,283 +2,294 @@
 
 [Português do Brasil](README.pt-BR.md) · [Español](README.es.md)
 
-Alfredo is a local-first ecosystem for distributing reusable AI-agent knowledge and building reproducible Android engineering workflows. The project is organized as a monorepo so the command-line installer, portable skills, agent-specific adapters, and the existing local HUD can evolve independently while sharing one versioned foundation.
+Alfredo is local-first infrastructure for durable, portable AI-assisted
+engineering.
 
-## Goals
+Your agent is temporary. Your work is not.
 
-- Keep the same skills, rules, and workflows available across personal and work environments.
-- Install selected capabilities into Codex, Claude Code, Cursor, Antigravity, and future agents without requiring MCP.
-- Treat external skill repositories as read-only sources and install immutable snapshots from them.
-- Provide a cross-platform Dart CLI distributed as native binaries for macOS, Windows, and Linux.
-- Build a safe Android and ADB automation layer that can coordinate multiple devices by serial number.
-- Keep private data and local execution under explicit user control.
+Claude Code, Codex, Cursor, Antigravity, and future tools all have their own
+context windows, session limits, conventions, and extension formats. Without an
+independent layer, long-running work gets trapped in the current chat:
+continuity is fragile, handoff is expensive, and task state is hard to audit.
 
-## Current status
+Alfredo puts a portable layer between developers and AI agents. Agents become
+disposable workers. Alfredo owns the durable work state, memory, skills, rules,
+agents, and context references under developer-controlled local files.
 
-The repository currently contains:
+## What Alfredo Provides
 
-- The initial Dart CLI generated from the Very Good Ventures Dart CLI template.
-- A native `alfredo` executable entry point with help, version, and shell-completion support.
-- Versioned v1 contracts for source, package, and profile manifests.
-- Validated local, Git, and checksum-pinned archive sources backed by immutable snapshots.
-- Deterministic package discovery, dependency resolution, lockfiles, and installed-state tracking.
-- Transactional install, status, diff, and safe uninstall commands for user and project scopes.
-- Adapters for Codex, Claude Code, Cursor, Antigravity, and a generic target.
-- An `android-core` package containing five validated Android engineering skills.
-- An append-only `alfredo memory` subsystem with keyword recall, optional local embeddings, and a `memory-core` package.
-- The existing FastAPI HUD, moved into its own application boundary under `apps/hud/`.
-- Versioned roots for skills, packages, rules, adapters, schemas, and profiles.
-- CI workflows for the Dart CLI on macOS, Linux, and Windows, plus the Python HUD test suite.
+- Agent portability: canonical skills, rules, and sub-agents rendered through
+  adapters for Codex, Claude Code, Cursor, Antigravity, and generic targets.
+- Durable memory: project and user knowledge outside the current chat.
+- Durable task state: tasks, dependencies, owners, sessions, checkpoints,
+  blockers, validations, and next actions outside the current chat.
+- Context engineering: deterministic context packages for a specific task.
+- Progressive disclosure: small `SKILL.md` entry points with deeper references
+  loaded only when needed.
+- Multi-agent coordination: claim, release, handoff, dependency-aware ready
+  work, and resumable sessions.
+- Local-first operation: state remains readable, versionable, recoverable, and
+  inspectable on the developer machine.
+- Provider independence: current and future agents consume Alfredo state instead
+  of owning it.
 
-Profiles, signed binary releases, and device-executing Android commands remain future stages.
+## Core Model
 
-## Install the CLI
-
-macOS and Linux (x64 or ARM64):
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.sh | sh
+```text
+canonical state
+      |
+      v
+.alfredo/
+      |
+      v
+adapters
+      |
+      v
+Claude Code / Codex / Cursor / Antigravity / future agents
 ```
 
-Windows PowerShell (x64):
+Provider-specific directories such as `.claude/`, `.cursor/`, `.agents/`, and
+`.gemini/` are adapter interfaces. They must not become independent boards or
+task stores.
 
-```powershell
-irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps1 | iex
+## Memory vs Task Runtime
+
+Memory answers: "what do we know?"
+
+Examples: durable decisions, facts, conventions, lessons, and relevant history.
+
+Task Runtime answers: "what are we doing now?"
+
+Examples: tasks, dependencies, status, ownership, sessions, checkpoints,
+blockers, validations, changed files, and next action.
+
+These are separate systems. Task Runtime may leave a compact memory reference at
+the end of a session, but it does not duplicate its full state into memory.
+That capture can be requested explicitly or enabled through project memory
+configuration.
+
+## Task Runtime
+
+A project keeps durable work state under `.alfredo/`; machine- and
+process-local state lives in `.alfredo/runtime/` and is git-ignored:
+
+```text
+.alfredo/
+├── config.yaml              # versioned
+├── tasks/                   # versioned
+│   └── ALF-01K....json
+├── task-events/             # versioned
+│   └── EVT-01K....-ALF-01K....json
+├── runs/                    # versioned
+│   ├── RUN-01K....json
+│   └── RUN-01K..../
+│       └── manifest.json
+├── context/                 # versioned
+│   └── index.yaml
+├── memory/                  # versioned
+└── runtime/                 # local only, git-ignored
+    ├── sessions/
+    │   └── SES-01K....json
+    ├── locks/
+    ├── cache/
+    └── tmp/
 ```
 
-The installer downloads the correct binary from the latest GitHub Release,
-verifies its SHA-256 checksum, installs it under `~/.alfredo/bin`, and adds that
-directory to the current shell's user PATH. Set `ALFREDO_INSTALL_DIR` to use a
-different destination.
+The three runtime entities are:
 
-Install the official packages for every supported agent:
+- Run: a larger objective or orchestration unit.
+- Task: a durable unit of work with acceptance criteria and dependencies.
+- Session: one temporary worker instance using any supported adapter/provider.
+
+`READY` is derived, not persisted. A task is ready when it is in `BACKLOG`, has
+no owner, is not blocked or terminal, and all required dependencies are `DONE`.
+Task events are append-only `alfredo.task-event/v1` documents, and local lock
+files can be recovered after a bounded stale-lock timeout.
+
+## CLI
+
+Install official packages for supported agents:
 
 ```sh
 alfredo setup --all
 ```
 
-Or select one or more agents:
+Create and coordinate durable work:
 
 ```sh
-alfredo setup --cursor
-alfredo setup --codex --claude
-alfredo setup --antigravity
+alfredo task create --title "Implement reconnect support"
+alfredo task list
+alfredo task ready
+
+alfredo session start --adapter claude
+alfredo task claim ALF-... --adapter claude --session SES-...
+alfredo task start ALF-...
+alfredo task checkpoint ALF-... \
+  --completed "protocol" \
+  --current "client reconnect" \
+  --remaining "tests" \
+  --file lib/reconnect.dart \
+  --validation unit_tests=pending \
+  --next-action "write tests"
+
+alfredo session close SES-... --reason context-limit --capture-memory
+alfredo task resume ALF-...
+alfredo context build ALF-...
 ```
 
-`setup` bootstraps the official source associated with the installed CLI
-release and installs into the user scope by default. Pass `--scope project` to
-install into the current project instead.
+Most runtime commands support `--json` for agents and tools.
 
-Maintainers create a release by updating `cli/pubspec.yaml`, running
-`dart run build_runner build` inside `cli/`,
-updating this changelog, and merging the change into `main`. The release
-workflow validates the version, runs the CLI checks, builds every supported
-artifact, creates the annotated `vX.Y.Z` tag, generates release notes from
-Conventional Commits, and publishes the checksums and binaries to GitHub
-Releases. A matching manually pushed tag remains supported.
-
-## Repository structure
-
-```text
-alfredo/
-├── .github/             # CI, dependency updates, and repository templates
-├── adapters/            # Agent-specific installation and rendering adapters
-├── agents/              # Canonical sub-agent personas, answering as Alfredo
-├── apps/
-│   └── hud/             # Existing local FastAPI HUD and browser frontend
-├── cli/                 # Cross-platform Dart CLI and native binary entry point
-├── docs/                # Architecture decisions and cross-project documentation
-├── packages/            # Installable bundles of skills, rules, agents, and assets
-├── profiles/            # Reproducible personal, work, and project configurations
-├── rules/               # Canonical behavioral and engineering rules
-├── schemas/             # Versioned source, package, profile, and lockfile contracts
-└── skills/              # Canonical portable AI-agent skills
-```
-
-### `.github/`
-
-Contains repository automation. `alfredo_cli.yaml` formats, analyzes, tests, and compiles the Dart CLI on all three target operating-system families. `alfredo_hud.yaml` installs and tests the Python HUD. Dependabot is configured to resolve Dart packages from `cli/`.
-
-### `cli/`
-
-Contains the pure-Dart `alfredo_cli` package and the `alfredo` executable. It owns:
-
-- Read-only Git/archive snapshots and source registry CRUD.
-- Catalog search and deterministic package resolution.
-- Transactional installation, status, diff, and safe removal.
-- User and project scopes.
-- Explicit adapter selection for five targets.
-- Future `alfredo android` multi-device commands.
-
-The CLI has no Flutter runtime dependency. Native binaries will be compiled on each target operating system.
-
-### `skills/`
-
-The canonical home for reusable agent skills — on-demand capability guides, each a directory with a required `SKILL.md`. Two families: **domain skills** (`android-core`: kernel internals, platform internals, native development, app security, ADB device-fleet operation) and **workflow skills** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop` — phased, verified orchestration methods in Alfredo's voice). See [docs/architecture/skills.md](docs/architecture/skills.md).
-
-Agent-specific copies must be generated from this canonical content instead of being maintained independently.
-
-### `agents/`
-
-The canonical sub-agent catalogue. One Markdown file per agent, in Claude Code sub-agent format, all answering **as Alfredo** — the household's butler-engineer: precise, unflappable, and exacting about standards. The `agents-core` package ships them; `alfredo setup` installs them into each target's agent directory. See [docs/architecture/agents.md](docs/architecture/agents.md).
-
-### `packages/`
-
-Contains installable bundles. A package may group multiple skills, rules, scripts, references, and adapter requirements into one versioned unit, such as `android-core`, `adb-device-fleet`, or `android-security`.
-
-Packages will declare dependencies, conflicts, supported targets, and semantic versions. They are different from skills: a skill teaches one capability, while a package is a distributable collection of capabilities.
-
-### `rules/`
-
-Always-on constraints and standards — one Markdown file per rule, meant to be in an agent's context for every task. The `rules-core` package ships nine in Alfredo's voice (smallest change, verify before claiming, match the house style, atomic commits, authorization boundaries, faithful reporting, ask only when blocked, secrets and exfiltration, separate authoring from review); `memory-core` adds two scoped to the memory subsystem. Adapters transform them into each agent's native format. See [docs/architecture/rules.md](docs/architecture/rules.md).
-
-### `adapters/`
-
-Contains target-specific installation logic and templates for Codex, Claude Code, Cursor, Antigravity, and generic directory-based targets. Adapters know where a target stores skills and rules and how canonical Alfredo content must be rendered there. They do not own the canonical knowledge.
-
-### `schemas/`
-
-Contains machine-readable v1 contracts for source, package, profile, installed-state, and lockfile documents. Validation happens before the CLI persists a source registration or writes into an agent environment.
-
-### `profiles/`
-
-Will contain declarative environment definitions such as `personal`, `work`, or project-specific profiles. A profile selects sources, packages, versions, scopes, and targets. Combined with a lockfile, it will make separate machines resolve the same installation.
-
-### `apps/hud/`
-
-Contains the existing local-first Alfredo HUD:
-
-- `app/`: FastAPI backend, providers, routing, memory, tools, and voice support.
-- `web/`: static browser interface served by FastAPI.
-- `tests/`: Python regression suite.
-- `docs/`: HUD-specific implementation notes.
-- `pyproject.toml`: Python package and dependency configuration.
-
-The HUD can call local or controlled remote providers. It remains separate from the Dart CLI so either product can run, test, and ship independently. See [apps/hud/README.md](apps/hud/README.md) for its API, privacy model, and setup.
-
-### `docs/`
-
-Contains documentation that applies to the whole ecosystem, including migration records and future architecture decisions. Application-specific documentation stays with its application.
-
-## Source model
-
-Alfredo sources are designed to be read-only from the CLI's perspective:
-
-- Source CRUD changes only the local source registry.
-- Downloading a Git source resolves content to a commit snapshot.
-- Downloading an archive requires integrity metadata such as SHA-256.
-- Installing or updating a package never commits, pushes, merges, tags, or edits the remote source.
-- Installed versions will be recorded in a deterministic lockfile.
-
-Source repositories are maintained and published through their own workflows. Alfredo only consumes them.
-
-Start a new one with:
+Existing lifecycle commands remain available:
 
 ```sh
 alfredo init source ./my-source
+alfredo source add canonical --local ..
+alfredo package install android-core --target codex --scope user
+alfredo update --dry-run
+alfredo upgrade --check
 ```
-
-This scaffolds the manifest, the content roots (`skills/`, `rules/`, `agents/`, `profiles/`), a sample package, and a README. `--id` and `--name` override the defaults; `--force` allows a non-empty directory.
 
 ## Memory
 
-Alfredo keeps a durable, local record of what was decided and what was done, so an agent can reload context in a later session instead of re-deriving it.
+Alfredo keeps durable, local memory in `.alfredo/memory/` and
+`~/.alfredo/memory/`. Memory remains append-only by construction: journals grow,
+notes are never overwritten, and only derived indexes are regenerated.
 
-Memory lives in `.alfredo/memory/` and exists in two independent scopes: `~/.alfredo/memory/` for cross-project practice and `<repo>/.alfredo/memory/` for facts that only make sense inside one repository. Each store contains an append-only `journal/` of dated session files, a `notes/` directory holding one durable fact per file, a generated `index/`, and a derived `MEMORY.md`. Only `MEMORY.md` is ever regenerated; journals grow by concatenation and notes are never overwritten.
+Recall works offline with keyword ranking. Optional local Ollama embeddings can
+improve ranking and silently fall back to keywords when unavailable.
 
-Recall works without a network. Keyword ranking is always available. When a local Ollama daemon is reachable, `alfredo memory setup` can enable embedding ranking, and search silently falls back to keywords whenever the provider is unavailable. Setup reuses any known embedding model you have already pulled (`nomic-embed-text`, `mxbai-embed-large`, `bge-m3`, `snowflake-arctic-embed2`, `embeddinggemma`, and more); a model is downloaded only when the operator explicitly confirms it.
+```sh
+alfredo memory setup
+alfredo memory add "documented the task runtime"
+alfredo memory search "task handoff"
+alfredo memory digest --since 14d
+alfredo memory capture
+```
 
-| Command | Effect |
-| --- | --- |
-| `alfredo memory setup` | Create the store, configure recall, and install `memory-core` |
-| `alfredo memory add <message>` | Append a journal entry, or write a note with `--kind note --title` |
-| `alfredo memory search <query>` | Rank memory documents, falling back to keyword search |
-| `alfredo memory list --since 7d` | Show recent journal entries, newest first |
-| `alfredo memory digest --since 14d` | Render a compact, day-grouped briefing |
-| `alfredo memory index` | Embed new and changed documents and prune deleted ones |
-| `alfredo memory capture` | Record the end of a working session |
+## Context Engineering
 
-Set `ALFREDO_MEMORY_HOME` to relocate the user store. See [docs/architecture/memory.md](docs/architecture/memory.md) for the on-disk contract and safety invariants.
+Projects can declare lightweight context topics:
+
+```yaml
+contexts:
+  multiplayer:
+    description: Multiplayer architecture and protocol
+    files:
+      - docs/architecture/multiplayer.md
+      - shared/protocol/**
+```
+
+A task can reference topics and files. `alfredo context build ALF-...` returns a
+deterministic `alfredo.context/v1` package with grouped sources and a cheap token
+budget estimate. The initial estimator is `ceil(characters / 4)`, which is
+explicitly approximate and provider-independent.
+
+## Canonical Catalogs
+
+Alfredo distributes reusable agent capability through canonical catalogs:
+
+- `skills/`: on-demand capability guides, including Android domain skills and
+  workflow strategies such as `team`, `ultrawork`, `ralph`, and `autopilot`.
+- `rules/`: compact behavioral policies. Only a small core should stay
+  always-on; specialized policies should become conditional as adapters and
+  context routing mature.
+- `agents/`: sub-agent personas in Alfredo's voice.
+- `packages/`: installable bundles such as `android-core`, `skills-core`,
+  `rules-core`, `agents-core`, and `memory-core`.
+
+Adapters render these catalogs into provider-specific locations. The canonical
+content remains in Alfredo.
+
+## Repository Structure
+
+```text
+alfredo/
+├── adapters/            # Agent-specific installation and rendering adapters
+├── agents/              # Canonical sub-agent personas
+├── apps/
+│   └── hud/             # Experimental visual interface, not runtime owner
+├── cli/                 # Cross-platform Dart CLI
+├── docs/                # Architecture documentation
+├── packages/            # Installable bundles of skills, rules, agents, assets
+├── profiles/            # Reproducible environment definitions
+├── rules/               # Canonical behavioral and engineering rules
+├── schemas/             # Versioned source, package, profile, runtime, and event schemas
+└── skills/              # Canonical portable AI-agent skills
+```
+
+## Source Model
+
+Alfredo sources are read-only from the CLI's perspective:
+
+- Source CRUD changes only the local source registry.
+- Git sources resolve to immutable commit snapshots.
+- Archive sources require SHA-256 integrity metadata.
+- Package installs produce deterministic lockfiles and installed-state records.
+- Adapters render canonical content into each agent environment.
 
 ## Development
 
-### Requirements
+Requirements:
 
 - Dart 3.12 or newer for CLI development.
-- Python 3.13 for HUD development.
+- Python 3.13 for the experimental HUD.
 - Git.
 - Platform-specific build tools when producing native release artifacts.
 
-### Dart CLI
+CLI checks:
 
-```bash
+```sh
 cd cli
 dart pub get
 dart format --output=none --set-exit-if-changed .
 dart analyze --fatal-infos --fatal-warnings
 dart test
 dart run bin/alfredo.dart --help
-dart run bin/alfredo.dart source add canonical --local ..
-dart run bin/alfredo.dart source test canonical
-dart run bin/alfredo.dart package install android-core --target codex --scope user
-dart run bin/alfredo.dart package status --target codex --scope user
-dart run bin/alfredo.dart update --dry-run
-dart run bin/alfredo.dart update
-dart run bin/alfredo.dart upgrade --check
-dart run bin/alfredo.dart memory setup --all --source canonical
-dart run bin/alfredo.dart memory add "explored the source registry"
-dart run bin/alfredo.dart memory digest --since 14d
 ```
 
 Compile a native executable on the current platform:
 
-```bash
+```sh
 cd cli
 mkdir -p build
 dart compile exe bin/alfredo.dart -o build/alfredo
 ./build/alfredo --version
 ```
 
-### Python HUD
+## Experimental Interfaces
 
-Create the shared development environment from the repository root:
+`apps/hud/` contains an existing local FastAPI HUD and browser frontend. It is
+kept working as an application boundary, but it is no longer the center of the
+main Alfredo narrative. Future visual interfaces should consume Task Runtime
+state instead of owning independent work state.
 
-```bash
-python3.13 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e "apps/hud[dev]"
-cp apps/hud/.env.example apps/hud/.env
-```
+## Architectural Influences
 
-Run tests and start the server:
+Alfredo is inspired by ideas from context engineering, just-in-time context,
+progressive disclosure, durable agent memory, task graphs, dependency graphs,
+Spec Driven Development, GitHub Spec Kit, Beads, agent handoff, resumable
+workflows, fan-out/fan-in coordination, and local-first tooling.
 
-```bash
-cd apps/hud
-../../.venv/bin/python -m pytest -q
-../../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8765 --reload
-```
+These are conceptual influences. Alfredo is not a fork, wrapper, or
+implementation of those projects.
 
-Open `http://127.0.0.1:8765` after the server starts.
+## Security Principles
 
-## Security principles
-
-- Never commit `.env` files, credentials, runtime caches, or generated binaries.
+- Keep secrets, credentials, runtime caches, and generated binaries out of Git.
 - Do not expose a generic shell to an AI model.
-- Address Android devices explicitly by serial number.
-- Separate observation, application changes, privileged system actions, and authorized security-lab operations.
 - Validate source content and paths before installation.
-- Stage changes, preserve backups, and update installation state atomically.
-- Keep remote execution and fallback behavior explicit to the user.
+- Stage changes, preserve backups, and update state atomically.
+- Keep provider behavior and remote execution explicit.
+- Treat authorization boundaries as hard constraints.
 
-## Roadmap
+## Documentation
 
-1. Add declarative profiles, package update, rollback, and offline bundles.
-2. Publish signed native CLI binaries for macOS, Windows, and Linux.
-3. Build device-executing Android and ADB multi-device commands.
-4. Expand Android skills with versioned references, scripts, and lab fixtures.
-
-## Documentation languages
-
-- English: [README.md](README.md)
-- Português do Brasil: [README.pt-BR.md](README.pt-BR.md)
-- Español: [README.es.md](README.es.md)
+- [Task Runtime](docs/architecture/task-runtime.md)
+- [Sessions](docs/architecture/sessions.md)
+- [Runs](docs/architecture/runs.md)
+- [Context Engine](docs/architecture/context-engine.md)
+- [Memory](docs/architecture/memory.md)
+- [Skills](docs/architecture/skills.md)
+- [Rules](docs/architecture/rules.md)
+- [Agents](docs/architecture/agents.md)
+- [Agent Adapters](docs/architecture/agent-adapters.md)

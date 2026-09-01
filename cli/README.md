@@ -7,6 +7,9 @@
 Built from the [Very Good CLI][very_good_cli_link] template.
 
 Cross-platform manager for Alfredo skills, rules, packages, and tools.
+It also owns the local-first Task Runtime used to persist tasks, sessions,
+runs, checkpoints, ownership, and resumable handoffs outside any one agent
+conversation.
 
 ---
 
@@ -57,6 +60,17 @@ $ alfredo package install android-core --target codex --scope user
 $ alfredo package status --target codex --scope user
 $ alfredo package diff --target codex --scope user
 $ alfredo package uninstall android-core --target codex --scope user
+
+# Coordinate durable work
+$ alfredo run create --title "Implement multiplayer MVP"
+$ alfredo task create --title "Implement reconnect support"
+$ alfredo task ready
+$ alfredo session start --adapter claude
+$ alfredo task claim ALF-... --adapter claude --session SES-...
+$ alfredo task checkpoint ALF-... --next-action "write tests"
+$ alfredo session close SES-... --reason context-limit --capture-memory
+$ alfredo task resume ALF-...
+$ alfredo context build ALF-...
 
 # Refresh installed packages from their sources
 $ alfredo update

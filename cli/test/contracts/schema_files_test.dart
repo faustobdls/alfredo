@@ -17,6 +17,11 @@ void main() {
         'lockfile',
         'installed-state',
         'memory-config',
+        'task',
+        'task-event',
+        'session',
+        'run',
+        'context',
       ])
         name: await _loadSchema(name),
     };
@@ -271,6 +276,125 @@ void main() {
     expect(schema.validate({...valid, 'unknown': true}).isValid, isFalse);
     expect(
       schema.validate({...valid, 'capture': <String, Object?>{}}).isValid,
+      isFalse,
+    );
+  });
+
+  test('task runtime schemas validate durable runtime documents', () {
+    final task = schemas['task']!;
+    final event = schemas['task-event']!;
+    final session = schemas['session']!;
+    final run = schemas['run']!;
+    final context = schemas['context']!;
+    const taskId = 'ALF-01K3Z7H8J9ABCDEFGHJK';
+    const sessionId = 'SES-01K3Z7H8J9ABCDEFGHJK';
+    const runId = 'RUN-01K3Z7H8J9ABCDEFGHJK';
+    const now = '2026-08-31T12:00:00.000Z';
+    final validTask = <String, Object?>{
+      'schema': 'alfredo.task/v1',
+      'id': taskId,
+      'title': 'Implement reconnect support',
+      'status': 'BACKLOG',
+      'priority': 'normal',
+      'run': runId,
+      'created_at': now,
+      'updated_at': now,
+      'owner': null,
+      'previous_owner': null,
+      'dependencies': <String>[],
+      'acceptance': ['resume works'],
+      'context': {
+        'topics': ['multiplayer'],
+        'files': ['lib/reconnect.dart'],
+      },
+      'checkpoint': {
+        'completed': <String>[],
+        'current': null,
+        'remaining': <String>[],
+        'changed_files': <String>[],
+        'validations': <String, Object?>{},
+        'next_action': null,
+      },
+      'blocker': null,
+    };
+    final validSession = <String, Object?>{
+      'schema': 'alfredo.session/v1',
+      'id': sessionId,
+      'adapter': 'claude',
+      'agent': 'executor',
+      'started_at': now,
+      'updated_at': now,
+      'status': 'ACTIVE',
+      'ended_at': null,
+      'close_reason': null,
+      'tasks_claimed': [taskId],
+      'tasks_worked': <String>[],
+      'last_checkpoint': null,
+    };
+    final validEvent = <String, Object?>{
+      'schema': 'alfredo.task-event/v1',
+      'id': 'EVT-01K3Z7H8J9ABCDEFGHJK',
+      'task': taskId,
+      'type': 'checkpointed',
+      'created_at': now,
+      'data': {
+        'next_action': 'resume implementation',
+      },
+    };
+    final validRun = <String, Object?>{
+      'schema': 'alfredo.run/v1',
+      'id': runId,
+      'title': 'Implement multiplayer MVP',
+      'summary': null,
+      'created_at': now,
+      'updated_at': now,
+      'tasks': [taskId],
+    };
+    final validContext = <String, Object?>{
+      'schema': 'alfredo.context/v1',
+      'task': taskId,
+      'budget': {
+        'target_tokens': 6000,
+        'hard_limit_tokens': 12000,
+        'estimated_tokens': 42,
+        'estimator': 'ceil(chars / 4)',
+      },
+      'sources': {
+        'rules': <String>[],
+        'skills': <String>[],
+        'memory': <String>[],
+        'files': ['lib/reconnect.dart'],
+        'decisions': <String>[],
+      },
+      'missing': <String>[],
+    };
+
+    expect(task.validate(validTask).isValid, isTrue);
+    expect(event.validate(validEvent).isValid, isTrue);
+    expect(session.validate(validSession).isValid, isTrue);
+    expect(run.validate(validRun).isValid, isTrue);
+    expect(context.validate(validContext).isValid, isTrue);
+    expect(task.validate({...validTask, 'status': 'READY'}).isValid, isFalse);
+    expect(
+      event.validate({...validEvent, 'type': 'Checkpointed'}).isValid,
+      isFalse,
+    );
+    expect(
+      task.validate({
+        ...validTask,
+        'context': {
+          'topics': ['multiplayer'],
+          'files': ['../escape'],
+        },
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      session.validate({...validSession, 'close_reason': 'quota'}).isValid,
+      isFalse,
+    );
+    expect(
+      context.validate({...validContext, 'unknown': true}).isValid,
       isFalse,
     );
   });

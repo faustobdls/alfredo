@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/run.schema.json",
+  "title": "Alfredo run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "title", "created_at", "updated_at", "tasks"],
+  "properties": {
+    "schema": { "const": "alfredo.run/v1" },
+    "id": { "type": "string", "pattern": "^RUN-[0-9A-HJKMNP-TV-Z]{20}$" },
+    "title": { "$ref": "#/$defs/nonEmptyString" },
+    "summary": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }] },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "updated_at": { "$ref": "#/$defs/dateTime" },
+    "tasks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^ALF-[0-9A-HJKMNP-TV-Z]{20}$" }
+    }
+  },
+  "$defs": {
+    "dateTime": { "type": "string", "format": "date-time" },
+    "nonEmptyString": { "type": "string", "minLength": 1, "maxLength": 4096 }
+  }
+}

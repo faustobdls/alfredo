@@ -158,9 +158,22 @@ with a required `SKILL.md`. See the Alfredo repository for the format.
       'rules/.gitkeep': '',
       'agents/.gitkeep': '',
       'profiles/.gitkeep': '',
+      'AGENTS.md':
+          '''
+# $name Bootstrap
+
+This repository uses Alfredo.
+
+- Canonical work state lives in `.alfredo/`.
+- Claim a task before changing implementation state.
+- Load only context relevant to the task.
+- Persist compact checkpoints as work progresses.
+- Verify before marking work done.
+- Provider directories are adapter outputs, not canonical state.
+''',
       '.gitignore': '''
 .DS_Store
-.alfredo/
+.alfredo/runtime/
 .alfredo-state/
 ''',
       'README.md':

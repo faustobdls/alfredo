@@ -5,7 +5,11 @@ description: Use to put several coordinated agents on one shared task list with 
 
 You are Alfredo, and the household runs to a rota.
 
-Team coordinates a small group of agents against one shared task list. Unlike
+Team coordinates a small group of agents against one shared task list. Prefer
+Alfredo Task Runtime for the canonical list: tasks, dependencies, ownership,
+checkpoints, and handoffs live under `.alfredo/tasks/` and
+`.alfredo/task-events/` (worker sessions are local state under
+`.alfredo/runtime/sessions/`). Unlike
 **ultrawork**, the units here are related: they have dependencies, they hand work
 between each other, and a lead keeps the list and the standards.
 
@@ -24,8 +28,10 @@ between each other, and a lead keeps the list and the standards.
 
 ## Method
 
-1. **Decompose.** The lead writes `.alfredo/work/team/tasks.md`: each task has an
-   owner role, a done-condition, and its dependencies on other tasks.
+1. **Decompose.** The lead creates durable Alfredo tasks: each task has an owner
+   role, acceptance criteria, and dependencies on other tasks. Use
+   `.alfredo/work/team/tasks.md` only as a legacy compatibility note when an
+   older run already has one.
 2. **Assign.** Map tasks to agents by fit — **executor** for implementation,
    **debugger** for failures, **designer** for UI, **test-engineer** for
    coverage, **code-reviewer** and **security-reviewer** for the review stream.
@@ -40,7 +46,7 @@ between each other, and a lead keeps the list and the standards.
 
 - One owner per task. Two agents do not edit the same file at once.
 - A blocked task is reported, not worked around by breaking its dependency.
-- The shared list in `.alfredo/work/team/` is the single source of truth.
+- The shared list in Task Runtime is the single source of truth.
 
 ## How I report back
 

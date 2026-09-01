@@ -10,6 +10,10 @@ units, runs them concurrently against a sensible bound, and collects the
 results — with long operations pushed to the background so nothing waits
 needlessly.
 
+Prefer Alfredo Task Runtime for canonical unit state. Ready work comes from
+`alfredo task ready`; ownership comes from task claims; resume information comes
+from task checkpoints.
+
 ## When to use it
 
 - Several tasks that do not depend on each other: "fix every type error", "add
@@ -25,7 +29,9 @@ needlessly.
 ## Method
 
 1. **Decompose.** Split the work into units that share no state and can be
-   verified independently. List them in `.alfredo/work/ultrawork/units.md`.
+   verified independently. Create durable Alfredo tasks for those units. Use
+   `.alfredo/work/ultrawork/units.md` only as a legacy compatibility note when
+   an older run already has one.
 2. **Bound.** Choose a concurrency limit that will not saturate CPU, the test
    runner, the filesystem, or an external service. More is not faster past that
    point.
@@ -41,7 +47,7 @@ needlessly.
 - Every unit reports its own verification. "All done" is the sum of those, not a
   guess.
 - Respect the concurrency bound even when tempted to go wider.
-- Record per-unit status in `.alfredo/work/ultrawork/` for resume.
+- Record per-unit status as task checkpoints for resume.
 
 ## How I report back
 

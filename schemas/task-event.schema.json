@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alfredo.dev/schemas/task-event.schema.json",
+  "title": "Alfredo task event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "task", "type", "created_at", "data"],
+  "properties": {
+    "schema": {
+      "const": "alfredo.task-event/v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^EVT-[0-9A-HJKMNP-TV-Z]{20}$"
+    },
+    "task": {
+      "type": "string",
+      "pattern": "^ALF-[0-9A-HJKMNP-TV-Z]{20}$"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "type": "object"
+    }
+  }
+}

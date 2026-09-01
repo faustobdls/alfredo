@@ -4,6 +4,16 @@ Alfredo memory gives an agent a durable, local record of what was decided and
 what was done. It is append-only by construction: the CLI concatenates new
 bytes onto existing files and never rewrites history.
 
+Memory answers: "what do we know?"
+
+Task Runtime answers: "what are we doing now?"
+
+These systems are deliberately separate. Memory stores durable facts,
+decisions, conventions, lessons, and relevant historical summaries. Task
+Runtime stores active work, ownership, dependencies, checkpoints, blockers, and
+validations. A session close may write a compact memory note pointing at a task,
+but the canonical checkpoint remains under `.alfredo/tasks/`.
+
 ## Overview
 
 Memory has two independent stores. The user store holds cross-project practice;
@@ -77,6 +87,10 @@ refused, never replaced.
 `capture` records that the session ended, optionally appends the first twenty
 lines of `git diff --stat`, and appends a `todo`-tagged line for the agent to
 replace with a real summary. Missing Git degrades silently.
+
+Task Runtime session close can additionally append a compact project memory
+entry with the session ID, close reason, worked tasks, and the fact that task
+checkpoints were persisted. It does not duplicate the checkpoint payload.
 
 ## Safety invariants
 

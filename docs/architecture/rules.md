@@ -1,9 +1,12 @@
 # Rules catalog contract
 
-Alfredo ships a set of **rules** alongside `skills/` and `agents/`. A rule is an
-always-on constraint or standard: guidance meant to be in an agent's context for
-every task, not consulted on demand. Rules live in `rules/` as one Markdown file
-per rule and install into each target's rule directory unchanged.
+Alfredo ships a set of **rules** alongside `skills/` and `agents/`. A rule is a
+constraint or standard rendered by adapters into an agent environment. Rules
+live in `rules/` as one Markdown file per rule and install into each target's
+rule directory unchanged.
+
+The long-term context strategy is not "load every rule forever." Rules should be
+classified as either compact core invariants or conditional policies.
 
 ## On-disk shape
 
@@ -36,6 +39,27 @@ The `rules-core` package declares `contents.rules: [rules/<name>.md, ...]` and
 targets every agent. `alfredo setup` installs it automatically. `memory-core`
 also ships two rules (`memory-usage.md`, `memory-hygiene.md`) scoped to the
 memory subsystem.
+
+## Classification
+
+Core invariants should be few and short enough to remain in every context:
+
+- `smallest-change`
+- `verify-before-claiming`
+- `authorization-boundaries`
+- `secrets-and-exfiltration`
+- `report-outcomes-faithfully`
+
+Conditional policies are loaded when the workflow or task calls for them:
+
+- `atomic-commits` when Git operations or commits are relevant.
+- `match-the-house-style` when authoring or editing code.
+- `separate-authoring-from-review` when review is part of the workflow.
+- `ask-only-when-blocked` when autonomous execution is requested.
+- `memory-usage` and `memory-hygiene` when using the memory subsystem.
+
+Adapters may still install the whole catalogue for compatibility. Context
+routing should prefer the split above to reduce always-on token cost.
 
 ## The `rules-core` set
 
