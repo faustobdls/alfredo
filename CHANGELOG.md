@@ -6,6 +6,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-02
+
 ### Added
 
 - `ai-review-attribution` rule in `rules-core`: AI-generated PR review comments
@@ -210,7 +212,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v0.0.7...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/faustobdls/alfredo/compare/v0.0.7...v1.0.0
 [0.0.7]: https://github.com/faustobdls/alfredo/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/faustobdls/alfredo/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/faustobdls/alfredo/compare/v0.0.4...v0.0.5
