@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/package.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/package.schema.json",
   "title": "Alfredo package manifest",
   "description": "A versioned, installable bundle of canonical Alfredo content.",
   "type": "object",
@@ -35,6 +35,7 @@
         "rules": { "$ref": "#/$defs/pathList" },
         "agents": { "$ref": "#/$defs/pathList" },
         "personas": { "$ref": "#/$defs/pathList" },
+        "templates": { "$ref": "#/$defs/pathList" },
         "scripts": { "$ref": "#/$defs/pathList" },
         "assets": { "$ref": "#/$defs/pathList" },
         "references": { "$ref": "#/$defs/pathList" }

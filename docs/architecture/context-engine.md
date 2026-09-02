@@ -18,13 +18,14 @@ contexts:
       - shared/protocol/**
 ```
 
-A task can reference topics:
+A task can reference topics and pin an output template:
 
 ```json
 {
   "context": {
     "topics": ["multiplayer"],
-    "files": ["client/reconnect.ts"]
+    "files": ["client/reconnect.ts"],
+    "template": "email"
   }
 }
 ```
@@ -37,6 +38,11 @@ More complex glob patterns are retained as references for future routing.
 Markdown files under `.alfredo/personas/` are included automatically in the
 `personas` source group. They keep voice and communication preferences separate
 from behavioral rules and task-specific files.
+
+When `context.template` is set, the builder resolves it against the project's
+[templates](templates.md) by exact name or kind (no fuzzy fallback) and lists
+the `TEMPLATE.md` under `sources.templates`; an unresolved hint is reported as
+`template:<name>` in `missing`.
 
 ## Budget
 

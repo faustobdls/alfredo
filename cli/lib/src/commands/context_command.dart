@@ -55,6 +55,7 @@ class _BuildContext extends Command<int> {
         'target_tokens: ${budget['target_tokens']}\n'
         'hard_limit_tokens: ${budget['hard_limit_tokens']}\n'
         'files: ${(sources['files']! as List<String>).join(', ')}\n'
+        'templates: ${(sources['templates']! as List<String>).join(', ')}\n'
         'missing: ${context.missing.join(', ')}',
       );
     }

@@ -48,7 +48,7 @@ and ADB device-fleet operation.
 
 **Workflow skills** teach an orchestration method — how to run a phased,
 verified process using Alfredo's [agent catalogue](agents.md). The `skills-core`
-package ships twelve, in Alfredo's voice:
+package ships thirteen, in Alfredo's voice:
 
 | Skill | Method |
 | --- | --- |
@@ -64,6 +64,7 @@ package ships twelve, in Alfredo's voice:
 | `deslop` | Deletion-first, regression-safe cleanup of generated slop |
 | `map-project` | First-contact repo survey into a structured, reusable `docs/` map |
 | `web-research` | Fetch external content, record provenance, fold it into memory or a context topic |
+| `compose-from-template` | Shape existing source material into an authored artifact under an output template |
 
 Workflow skills historically wrote working state under `.alfredo/work/<skill>/`
 so a run could resume after interruption. New workflow work should use Task

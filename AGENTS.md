@@ -20,4 +20,5 @@ alfredo task claim <task> --adapter <adapter> --session <session>
 alfredo task checkpoint <task>
 alfredo task resume <task>
 alfredo context build <task>
+alfredo template match <kind>
 ```

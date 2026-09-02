@@ -143,6 +143,10 @@ Contiene lógica y plantillas de instalación para Codex, Claude Code, Cursor, A
 
 El catálogo canónico de sub-agentes. Un archivo Markdown por agente, en formato de sub-agente de Claude Code, todos respondiendo **como Alfredo** — el mayordomo-ingeniero de la casa: preciso, imperturbable y exigente con los estándares. El paquete `agents-core` los distribuye; `alfredo setup` los instala en el directorio de agentes de cada destino. Ver [docs/architecture/agents.md](docs/architecture/agents.md).
 
+### `templates/`
+
+La fuente canónica de las plantillas de salida — contratos de cómo debe quedar un artefacto: la voz, la estructura, la extensión, el formato y las restricciones de un correo, una presentación, un memorando. Un directorio por plantilla, cada uno con un `TEMPLATE.md` obligatorio (frontmatter validado por `schemas/template.schema.json` más un cuerpo en prosa). Alfredo **no distribuye ninguna plantilla**: solo la maquinaria (el esquema, el grupo de comandos `alfredo template`, la regla `use-templates`, la skill `compose-from-template`). Los equipos crean las suyas y las distribuyen en un paquete mediante `contents.templates`. Ver [docs/architecture/templates.md](docs/architecture/templates.md).
+
 ### `schemas/`
 
 Contiene contratos v1 legibles por máquina para fuentes, paquetes, perfiles, estado instalado, lockfiles y contexto. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.

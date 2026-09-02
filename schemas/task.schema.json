@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/task.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/task.schema.json",
   "title": "Alfredo task",
   "type": "object",
   "additionalProperties": false,
@@ -84,6 +84,9 @@
           "type": "array",
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/safeRelativePath" }
+        },
+        "template": {
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
         }
       }
     },

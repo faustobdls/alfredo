@@ -38,7 +38,8 @@ canonical file stays format-neutral.
 The `rules-core` package declares `contents.rules: [rules/<name>.md, ...]` and
 targets every agent. `alfredo setup` installs it automatically. `memory-core`
 also ships two rules (`memory-usage.md`, `memory-hygiene.md`) scoped to the
-memory subsystem.
+memory subsystem. `use-templates.md` (in `rules-core`) is scoped to the
+[templates subsystem](templates.md).
 
 ## Classification
 
@@ -59,13 +60,15 @@ Conditional policies are loaded when the workflow or task calls for them:
 - `memory-usage` and `memory-hygiene` when using the memory subsystem.
 - `external-content-provenance` when the `web-research` skill runs or a task
   pulls in external content.
+- `use-templates` when the deliverable is an authored artifact (email, slide
+  deck, memo) that an output template may govern.
 
 Adapters may still install the whole catalogue for compatibility. Context
 routing should prefer the split above to reduce always-on token cost.
 
 ## The `rules-core` set
 
-Ten rules, in Alfredo's voice:
+Eleven rules, in Alfredo's voice:
 
 | Rule | Governs |
 | --- | --- |
@@ -79,6 +82,7 @@ Ten rules, in Alfredo's voice:
 | `secrets-and-exfiltration` | Credential handling and private data leaving the machine |
 | `separate-authoring-from-review` | Author and reviewer are different passes |
 | `external-content-provenance` | Fetched content is a dated, hashed snapshot, not live truth |
+| `use-templates` | Resolving and following an output template for an authored artifact |
 
 ## Rules And Tone
 

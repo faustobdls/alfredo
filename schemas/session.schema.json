@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alfredo.dev/schemas/session.schema.json",
+  "$id": "https://alfredo.faustobdls.dev/schemas/session.schema.json",
   "title": "Alfredo session",
   "type": "object",
   "additionalProperties": false,

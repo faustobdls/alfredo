@@ -22,6 +22,7 @@ void main() {
         'session',
         'run',
         'context',
+        'template',
       ])
         name: await _loadSchema(name),
     };
@@ -80,6 +81,15 @@ void main() {
         ...valid,
         'contents': {
           'personas': ['personas/user.md'],
+        },
+      }).isValid,
+      isTrue,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'contents': {
+          'templates': ['templates/bank-email'],
         },
       }).isValid,
       isTrue,
@@ -365,6 +375,7 @@ void main() {
         'rules': <String>[],
         'skills': <String>[],
         'personas': ['.alfredo/personas/user.md'],
+        'templates': <String>[],
         'memory': <String>[],
         'files': ['lib/reconnect.dart'],
         'decisions': <String>[],
@@ -399,6 +410,106 @@ void main() {
     expect(
       context.validate({...validContext, 'unknown': true}).isValid,
       isFalse,
+    );
+    expect(
+      context.validate({
+        ...validContext,
+        'sources': {
+          'rules': <String>[],
+          'skills': <String>[],
+          'personas': <String>[],
+          'memory': <String>[],
+          'files': <String>[],
+          'decisions': <String>[],
+        },
+      }).isValid,
+      isFalse,
+      reason: 'sources.templates is required',
+    );
+    expect(
+      task.validate({
+        ...validTask,
+        'context': {
+          'topics': <String>[],
+          'files': <String>[],
+          'template': 'bank-email',
+        },
+      }).isValid,
+      isTrue,
+    );
+  });
+
+  test('template schema executes positive and adversarial fixtures', () {
+    final schema = schemas['template']!;
+    final valid = <String, Object?>{
+      'schema_version': 1,
+      'name': 'bank-email',
+      'kind': 'email',
+      'description': 'Use for client email in the bank voice. Not for Slack.',
+      'voice': {
+        'temperature': 'formal',
+        'person': 'first-person-plural',
+        'greeting': 'Prezado(a),',
+        'signoff': 'Atenciosamente,',
+      },
+      'structure': [
+        'opening',
+        {'body': 'one idea per paragraph'},
+      ],
+      'length': {'max_words': 220},
+      'format': {'target': 'markdown', 'theme': 'references/bank-theme.md'},
+      'constraints': {
+        'always': ['cite the account manager'],
+        'never': ['emojis'],
+      },
+      'examples': ['references/example-onboarding.md'],
+    };
+
+    expect(schema.validate(valid).isValid, isTrue);
+    expect(
+      schema.validate({
+        'schema_version': 1,
+        'name': 'bank-email',
+        'kind': 'email',
+        'description': 'Minimal template.',
+      }).isValid,
+      isTrue,
+    );
+    expect(
+      schema.validate({...valid, 'kind': 'Email Blast'}).isValid,
+      isFalse,
+    );
+    expect(schema.validate({...valid, 'schema_version': 2}).isValid, isFalse);
+    expect(
+      schema.validate({
+        ...valid,
+        'format': {'target': 'powerpoint'},
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'format': {'theme': '../secrets.md'},
+      }).isValid,
+      isFalse,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'voice': {'temperature': 'chilly'},
+      }).isValid,
+      isFalse,
+    );
+    expect(schema.validate({...valid, 'unknown': true}).isValid, isFalse);
+    expect(
+      schema.validate({
+        'schema_version': 1,
+        'name': 'bank-email',
+        'kind': 'email',
+      }).isValid,
+      isFalse,
+      reason: 'description is required',
     );
   });
 }

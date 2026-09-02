@@ -128,6 +128,10 @@ As versões específicas para cada agente devem ser geradas desse conteúdo can�
 
 O catálogo canônico de sub-agentes. Um arquivo Markdown por agente, no formato de sub-agente do Claude Code, todos respondendo **como Alfredo** — o mordomo-engenheiro da casa: preciso, imperturbável e exigente com padrões. O pacote `agents-core` os distribui; o `alfredo setup` os instala no diretório de agentes de cada destino. Veja [docs/architecture/agents.md](docs/architecture/agents.md).
 
+### `templates/`
+
+A fonte canônica dos templates de saída — contratos de como um artefato deve ficar pronto: a voz, a estrutura, o tamanho, o formato e as restrições de um e-mail, uma apresentação, um memorando. Um diretório por template, cada um com um `TEMPLATE.md` obrigatório (frontmatter validado por `schemas/template.schema.json` mais um corpo em prosa). O Alfredo **não distribui nenhum template**: apenas a maquinaria (schema, o grupo de comandos `alfredo template`, a regra `use-templates`, a skill `compose-from-template`). As equipes criam os seus e os distribuem em um pacote via `contents.templates`. Veja [docs/architecture/templates.md](docs/architecture/templates.md).
+
 ### `packages/`
 
 Contém pacotes instaláveis. Um pacote pode agrupar várias skills, regras, personas, scripts, referências e requisitos de adaptadores em uma unidade versionada, como `android-core`, `rules-core`, `personas-core` ou `memory-core`.
