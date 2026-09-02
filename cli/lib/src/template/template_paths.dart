@@ -46,6 +46,9 @@ const _agentDirectoryNames = <String>[
   '.codex',
   '.cursor',
   '.gemini/config',
+  '.gemini',
+  '.devin',
+  '.via',
   '.alfredo',
 ];
 

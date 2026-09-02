@@ -2,294 +2,217 @@
 
 [English](README.md) · [Português do Brasil](README.pt-BR.md)
 
-Alfredo es un ecosistema local-first para distribuir conocimiento reutilizable entre agentes de IA y construir flujos reproducibles de ingeniería Android. El proyecto está organizado como monorepo para que el instalador de línea de comandos, las skills portables, los adaptadores específicos de cada agente y el HUD local existente puedan evolucionar de forma independiente sobre una única base versionada.
+Alfredo es una infraestructura local-first para ingeniería asistida por IA de forma durable y portable.
 
-## Objetivos
+Los agentes y chats son temporales. La memoria del proyecto, el estado de tareas, las skills, reglas, templates y el contexto no deberían serlo. Alfredo mantiene esa capa durable en archivos controlados por el desarrollador y renderiza las piezas correctas hacia el target de agente que elijas explícitamente.
 
-- Mantener las mismas skills, reglas y rutinas en los entornos personal y laboral.
-- Instalar capacidades seleccionadas en Codex, Claude Code, Cursor, Antigravity y futuros agentes sin depender de MCP.
-- Tratar los repositorios externos de skills como fuentes de solo lectura e instalar snapshots inmutables.
-- Proporcionar una CLI Dart multiplataforma distribuida como binario nativo para macOS, Windows y Linux.
-- Construir una capa segura de automatización Android y ADB capaz de coordinar varios dispositivos por número de serie.
-- Mantener los datos privados y la ejecución local bajo control explícito del usuario.
+## Qué Entrega Alfredo
 
-## Estado actual
+- Setup portable para Codex, Claude Code, Cursor, Antigravity/GCA, Devin, Gemini CLI, Via y targets genéricos basados en directorios.
+- Memoria durable para conocimiento de usuario y proyecto fuera del chat actual.
+- Paquetes de contexto determinísticos para una tarea específica.
+- Skills, reglas, personas, sub-agentes, templates, scripts, assets y referencias portables.
+- Runtime durable de tareas con tareas, dependencias, dueños, sesiones, checkpoints, bloqueos, validaciones y próximas acciones.
+- Fuentes de paquetes de solo lectura, resolución de dependencias, lockfiles, instalación transaccional, status, diff, update y uninstall seguro.
+- Operación local-first: el estado sigue siendo legible, versionable, recuperable e inspeccionable en la máquina del desarrollador.
 
-El repositorio contiene actualmente:
+## Cómo Funciona
 
-- La CLI Dart inicial, generada con la plantilla Dart CLI de Very Good Ventures.
-- El punto de entrada nativo `alfredo`, con ayuda, versión y soporte de autocompletado del shell.
-- Contratos v1 versionados para manifiestos de fuente, paquete y perfil.
-- Fuentes locales, Git y archivos con checksum, validadas como snapshots inmutables.
-- Descubrimiento determinista, resolución de dependencias, lockfiles y control del estado instalado.
-- Instalación transaccional, status, diff y desinstalación segura en ámbitos de usuario y proyecto.
-- Adaptadores para Codex, Claude Code, Cursor, Antigravity y un destino genérico.
-- El paquete `android-core` con cinco skills Android validadas.
-- El subsistema `alfredo memory`, append-only, con búsqueda por palabra clave, embeddings locales opcionales y el paquete `memory-core`.
-- El HUD FastAPI existente, aislado en `apps/hud/`.
-- Runtime de tareas con tareas, sesiones, runs, checkpoints y paquetes de
-  contexto deterministas.
-- Personas versionadas para la voz de Alfredo y preferencias duraderas del
-  usuario, instaladas como seeds preservables.
-- Raíces versionadas para skills, paquetes, reglas, personas, adaptadores,
-  schemas y perfiles.
-- CI de la CLI Dart en macOS, Linux y Windows, además de la suite de pruebas Python del HUD.
+```text
+estado canónico de Alfredo
+        |
+        v
+fuentes, paquetes, memoria, tareas, contexto
+        |
+        v
+adaptadores de target
+        |
+        v
+Codex / Claude Code / Cursor / Antigravity / Devin / Gemini CLI / Via / genérico
+```
 
-Los perfiles, releases firmados y comandos Android que operan dispositivos siguen como próximas etapas.
+Directorios de provider como `.codex/`, `.claude/`, `.cursor/`, `.gemini/`, `.devin/`, `.via/`, `.agents/` y `.alfredo/` son salidas de adaptadores. No son el tablero canónico, la memoria ni la fuente de verdad.
 
-## Instalar la CLI
+## Conceptos Centrales
 
-macOS y Linux (x64 o ARM64):
+### Memoria
+
+La memoria responde: "qué sabemos?"
+
+Guarda decisiones durables, hechos, convenciones, aprendizajes e historial relevante en dos alcances:
+
+- `~/.alfredo/memory/` para conocimiento que aplica entre proyectos.
+- `<repo>/.alfredo/memory/` para conocimiento que solo aplica a un repositorio.
+
+La memoria es append-only por diseño. Los journals crecen con el tiempo, las notas se escriben una vez y los índices derivados se pueden regenerar. La búsqueda funciona offline por palabras clave. Embeddings locales opcionales con Ollama mejoran el ranking cuando están disponibles y vuelven a palabras clave cuando no lo están.
+
+### Contexto
+
+El contexto responde: "qué debe cargar esta tarea ahora?"
+
+Los proyectos pueden declarar tópicos de contexto en `.alfredo/config.yaml`. Una tarea puede referenciar tópicos y archivos. `alfredo context build ALF-...` devuelve un paquete determinístico `alfredo.context/v1` con fuentes agrupadas y una estimación aproximada de tokens, para que los agentes carguen material relevante en vez de redescubrir el proyecto en cada sesión.
+
+### Skills
+
+Las skills son guías portables de capacidad. Cada skill vive en `skills/<nombre>/SKILL.md`, con referencias, scripts y assets opcionales cargados solo cuando hacen falta. Las skills hacen que el comportamiento del agente sea enseñable sin volcar todos los detalles en cada prompt.
+
+### Reglas
+
+Las reglas son restricciones y estándares siempre activos. Viven en `rules/` y los adaptadores las renderizan hacia cada target seleccionado. Usa reglas para comportamientos que deben aplicar ampliamente; usa skills para procedimientos específicos de una tarea.
+
+### Personas
+
+Las personas son archivos livianos de voz y preferencias. Viven en `personas/` y pueden sembrarse en targets sin sobrescribir ediciones locales del usuario en updates futuros.
+
+### Templates
+
+Los templates describen la forma deseada de un artefacto de salida: voz, estructura, tamaño, formato y restricciones. Alfredo provee el schema y los comandos; los equipos crean y empaquetan sus propios templates.
+
+Al crear un template, pregunta o informa el tipo, para que sirve y el formato de
+salida. El formato es abierto: los targets conocidos son sugerencias, y un
+proyecto puede definir un target de texto puro, archivo customizado o renderer
+especifico. Los templates en blanco se escriben en el repositorio en
+`templates/<name>/TEMPLATE.md`, no en el perfil de usuario, para poder
+empaquetarlos o exportarlos despues.
+
+### Paquetes Y Fuentes
+
+Los paquetes agrupan contenido canónico en unidades instalables versionadas. Un paquete declara sus targets soportados, dependencias, conflictos y rutas de contenido. Las fuentes son catálogos de solo lectura, locales, Git o archives. Instalar paquetes escribe en adaptadores de target, nunca en la fuente.
+
+### Targets Y Adaptadores
+
+Un target es un ambiente explícito de agente, como `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via` o `generic`. Un adaptador mapea contenido canónico de Alfredo al layout de directorios de ese target.
+
+`alfredo setup --all` instala solamente los targets declarados por los paquetes oficiales descubiertos que ya están configurados en el alcance local seleccionado. No instala en todos los adapters incorporados solo porque Alfredo sabe que existen.
+
+### Runtime De Tareas
+
+El Runtime de Tareas responde: "qué estamos haciendo ahora?"
+
+Los proyectos mantienen estado durable de trabajo en `.alfredo/` y estado local de máquina en `.alfredo/runtime/`. Las entidades centrales son:
+
+- Run: un objetivo mayor o unidad de orquestación.
+- Task: una unidad durable de trabajo con criterios de aceptación y dependencias.
+- Session: una instancia temporal de worker usando un adapter/provider soportado.
+
+`READY` es derivado, no persistido. Una tarea está lista cuando está en `BACKLOG`, no tiene dueño, no está bloqueada ni terminal, y todas las dependencias están `DONE`.
+
+Los flujos de desarrollo mayores terminan con una verificación de cierre:
+revisar el conjunto de READMEs para detectar comportamiento o notas de setup
+desactualizados y revisar los elementos alterados para ver si algo debe ir a la
+memoria antes de reportar la tarea master como completa.
+
+## Instalación
+
+macOS y Linux:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.sh | sh
 ```
 
-Windows PowerShell (x64):
+Windows PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps1 | iex
 ```
 
-El instalador descarga el binario correcto desde la release más reciente de
-GitHub, valida su checksum SHA-256, instala en `~/.alfredo/bin` y agrega ese
-directorio al PATH del shell actual. Define `ALFREDO_INSTALL_DIR` para elegir
-otro destino.
+El instalador descarga la release más reciente de GitHub para la plataforma actual, valida el checksum SHA-256, instala en `~/.alfredo/bin` y actualiza el PATH del shell actual. Define `ALFREDO_INSTALL_DIR` para elegir otro destino.
 
-Instala los paquetes oficiales en todos los agentes soportados:
+## Setup De Targets
+
+Instala paquetes oficiales en todos los targets configurados y declarados por esos paquetes:
 
 ```sh
 alfredo setup --all
 ```
 
-O selecciona uno o más agentes:
+Instala solo targets seleccionados:
 
 ```sh
-alfredo setup --cursor
-alfredo setup --codex --claude
+alfredo setup --codex
+alfredo setup --cursor --gemini-cli
+alfredo setup --devin --via
+alfredo setup --claude-code
 alfredo setup --antigravity
+alfredo setup --generic
 ```
 
-El comando `setup` configura automáticamente la fuente oficial correspondiente
-a la release de la CLI instalada y usa el ámbito de usuario por defecto. Pasa
-`--scope project` para instalar en el proyecto actual.
+Usa `--scope project` para instalar en el proyecto actual en vez del alcance de usuario, y `--force` para sobrescribir archivos administrados modificados localmente.
 
-## Estructura del repositorio
-
-```text
-alfredo/
-├── .github/             # CI, actualización de dependencias y plantillas
-├── adapters/            # Adaptadores de instalación y renderizado por agente
-├── agents/              # Sub-agentes canónicos, respondiendo como Alfredo
-├── apps/
-│   └── hud/             # HUD FastAPI local y frontend del navegador
-├── cli/                 # CLI Dart multiplataforma y entrada del binario nativo
-├── docs/                # Decisiones arquitectónicas y documentación transversal
-├── packages/            # Conjuntos instalables de skills, reglas, personas y agentes
-├── personas/            # Seeds de voz y preferencias del usuario
-├── profiles/            # Configuraciones reproducibles personales, laborales y de proyecto
-├── rules/               # Reglas canónicas de comportamiento e ingeniería
-├── schemas/             # Contratos versionados de fuentes, paquetes, perfiles y lockfiles
-└── skills/              # Skills portables canónicas para agentes de IA
-```
-
-### `.github/`
-
-Contiene las automatizaciones del repositorio. `alfredo_cli.yaml` formatea, analiza, prueba y compila la CLI Dart en las tres familias de sistemas operativos. `alfredo_hud.yaml` instala y prueba el HUD Python. Dependabot consulta los paquetes Dart en `cli/`.
-
-### `cli/`
-
-Contiene el paquete Dart puro `alfredo_cli` y el ejecutable `alfredo`. Implementa:
-
-- Fuentes locales y Git/archive de solo lectura con snapshots inmutables.
-- Búsqueda y resolución determinista de paquetes.
-- Instalación transaccional, status, diff y eliminación segura.
-- Alcances de usuario y proyecto.
-- Selección explícita de adaptadores para cinco destinos.
-- Futuros comandos multi-device en `alfredo android`.
-
-La CLI no depende del runtime de Flutter. Los binarios nativos se compilarán en el sistema operativo de destino.
-
-### `skills/`
-
-La fuente canónica de las skills reutilizables — guías de capacidad bajo demanda, cada una un directorio con `SKILL.md` obligatorio. Dos familias: **skills de dominio** (`android-core`: kernel, internos de la plataforma, desarrollo nativo, seguridad de apps, flotas ADB) y **skills de flujo** (`skills-core`: `autopilot`, `ralph`, `ralplan`, `ultrawork`, `ultraqa`, `team`, `plan`, `deep-interview`, `trace`, `deslop`, `map-project` — métodos de orquestación por fases y verificados en la voz de Alfredo). Ver [docs/architecture/skills.md](docs/architecture/skills.md).
-
-Las versiones específicas para cada agente deben generarse desde este contenido canónico y no mantenerse como copias independientes.
-
-### `packages/`
-
-Contiene paquetes instalables. Un paquete puede agrupar varias skills, reglas, personas, scripts, referencias y requisitos de adaptadores en una unidad versionada, como `android-core`, `rules-core`, `personas-core` o `memory-core`.
-
-Los paquetes declararán dependencias, conflictos, targets compatibles y versiones semánticas. Una skill enseña una capacidad; un paquete distribuye un conjunto de capacidades.
-
-### `rules/`
-
-Restricciones y estándares siempre activos — un archivo Markdown por regla, pensados para estar en el contexto del agente en cada tarea. El paquete `rules-core` distribuye diez en la voz de Alfredo (cambio mínimo, verificar antes de afirmar, seguir el estilo de la casa, commits atómicos, límites de autorización, reporte fiel, preguntar solo cuando se está bloqueado, secretos y exfiltración, separar autoría de revisión, procedencia de contenido externo); `memory-core` añade dos del subsistema de memoria. Los adaptadores las convierten al formato nativo de cada agente. Ver [docs/architecture/rules.md](docs/architecture/rules.md).
-
-### `personas/`
-
-Archivos breves de tono de voz y preferencias de comunicación. `personas-core`
-instala `personas/alfredo.md` y `personas/user.md` como seeds: si el archivo ya
-existe en el destino, Alfredo no lo sobrescribe en futuras actualizaciones. El
-contexto de tarea incluye `.alfredo/personas/*.md` en el grupo `personas`,
-separado de reglas, skills y memoria. Ver
-[docs/architecture/personas.md](docs/architecture/personas.md).
-
-### `adapters/`
-
-Contiene lógica y plantillas de instalación para Codex, Claude Code, Cursor, Antigravity y destinos genéricos basados en directorios. Los adaptadores conocen las rutas y formatos de cada agente, pero no son propietarios del conocimiento canónico.
-
-### `agents/`
-
-El catálogo canónico de sub-agentes. Un archivo Markdown por agente, en formato de sub-agente de Claude Code, todos respondiendo **como Alfredo** — el mayordomo-ingeniero de la casa: preciso, imperturbable y exigente con los estándares. El paquete `agents-core` los distribuye; `alfredo setup` los instala en el directorio de agentes de cada destino. Ver [docs/architecture/agents.md](docs/architecture/agents.md).
-
-### `templates/`
-
-La fuente canónica de las plantillas de salida — contratos de cómo debe quedar un artefacto: la voz, la estructura, la extensión, el formato y las restricciones de un correo, una presentación, un memorando. Un directorio por plantilla, cada uno con un `TEMPLATE.md` obligatorio (frontmatter validado por `schemas/template.schema.json` más un cuerpo en prosa). Alfredo **no distribuye ninguna plantilla**: solo la maquinaria (el esquema, el grupo de comandos `alfredo template`, la regla `use-templates`, la skill `compose-from-template`). Los equipos crean las suyas y las distribuyen en un paquete mediante `contents.templates`. Ver [docs/architecture/templates.md](docs/architecture/templates.md).
-
-### `schemas/`
-
-Contiene contratos v1 legibles por máquina para fuentes, paquetes, perfiles, estado instalado, lockfiles y contexto. La validación ocurre antes de persistir una fuente o escribir en el entorno de un agente.
-
-### `profiles/`
-
-Contendrá definiciones declarativas como `personal`, `work` o perfiles específicos del proyecto. Un perfil selecciona fuentes, paquetes, versiones, alcances y targets. Junto con un lockfile, permitirá reproducir la misma instalación en máquinas diferentes.
-
-### `apps/hud/`
-
-Contiene el HUD local-first existente:
-
-- `app/`: backend FastAPI, providers, enrutamiento, memoria, herramientas y voz.
-- `web/`: interfaz estática servida por FastAPI.
-- `tests/`: suite de regresión Python.
-- `docs/`: notas de implementación específicas del HUD.
-- `pyproject.toml`: paquete y dependencias Python.
-
-El HUD puede llamar a providers locales o remotos controlados. Permanece separado de la CLI Dart para que ambos productos puedan ejecutarse, probarse y distribuirse de forma independiente. Consulta [apps/hud/README.md](apps/hud/README.md) para API, privacidad y configuración.
-
-### `docs/`
-
-Contiene documentación aplicable a todo el ecosistema, incluidos registros de migración y futuras decisiones arquitectónicas. La documentación específica de una aplicación permanece junto a ella.
-
-## Modelo de fuentes
-
-Las fuentes de Alfredo son de solo lectura desde la perspectiva de la CLI:
-
-- El CRUD de fuentes modifica únicamente el registro local.
-- Una fuente Git se descarga como snapshot asociado a un commit.
-- Un archivo descargable exige metadatos de integridad, como SHA-256.
-- Instalar o actualizar paquetes nunca ejecuta commit, push, merge o tag ni edita el origen.
-- Las versiones instaladas se registrarán en un lockfile determinista.
-
-Los repositorios de origen se mantienen y publican mediante sus propios flujos. Alfredo solamente los consume.
-
-Una skill escrita para otro agente — por ejemplo la skill de Claude `nidhinjs/prompt-master` — se consume como fuente, no se copia dentro de este repositorio. Si el repositorio de origen no expone un `alfredo-source.yaml` y un paquete, mantén una fuente-wrapper mínima que empaquete su directorio `skills/<nombre>`. El origen Git queda fijado al commit registrado hasta que ejecutes `alfredo update`.
-
-Para empezar uno nuevo:
+## Comandos Comunes
 
 ```sh
 alfredo init source ./mi-fuente
+alfredo source add canonical --local ./mi-fuente
+alfredo package list
+alfredo package install android-core --target codex --scope user
+alfredo package status --target codex
+alfredo update --dry-run
+alfredo upgrade --check
+alfredo template new email-cliente --kind email --description "Use para email de cliente. No para chat interno." --format-target email
+alfredo template validate email-cliente
 ```
 
-Esto genera el manifiesto, las raíces de contenido (`skills/`, `rules/`, `agents/`, `profiles/`), un paquete de ejemplo y un README. `--id` y `--name` sobrescriben los valores por defecto; `--force` permite un directorio no vacío.
+```sh
+alfredo memory setup --target codex
+alfredo memory add "documente el runtime de tareas"
+alfredo memory add --kind note --title "Decision de runtime" "las tareas son canonicas"
+alfredo memory list --since 30d
+alfredo memory search "handoff de tarea"
+alfredo memory digest --since 14d
+alfredo memory capture
+```
 
-## Memoria
+```sh
+alfredo task create --title "Implementar soporte de reconnect"
+alfredo task ready
+alfredo session start --adapter codex
+alfredo task claim ALF-... --adapter codex --session SES-...
+alfredo task start ALF-...
+alfredo task checkpoint ALF-... --completed "protocolo" --current "tests"
+alfredo task verify ALF-...
+alfredo task done ALF-...
+alfredo task resume ALF-...
+alfredo context build ALF-...
+```
 
-Alfredo mantiene un registro local y duradero de lo que se decidió y de lo que se hizo, para que el agente recupere el contexto en una sesión posterior en lugar de deducirlo otra vez.
+La mayoría de los comandos de runtime soporta `--json` para agentes y herramientas.
 
-La memoria vive en `.alfredo/memory/` y existe en dos ámbitos independientes: `~/.alfredo/memory/` para prácticas que valen en cualquier proyecto y `<repo>/.alfredo/memory/` para hechos que solo tienen sentido dentro de un repositorio. Cada store contiene un `journal/` append-only con archivos diarios, un directorio `notes/` con un hecho duradero por archivo, un `index/` generado y un `MEMORY.md` derivado. Solo `MEMORY.md` se regenera; los journals crecen por concatenación y las notas nunca se sobrescriben.
+## Estructura Del Repositorio
 
-La recuperación funciona sin red. La búsqueda por palabra clave siempre está disponible. Cuando hay un Ollama local accesible, `alfredo memory setup` puede habilitar la búsqueda por embeddings, y la búsqueda vuelve silenciosamente a palabras clave siempre que el proveedor no esté disponible. El setup reutiliza cualquier modelo de embedding conocido que ya hayas descargado (`nomic-embed-text`, `mxbai-embed-large`, `bge-m3`, `snowflake-arctic-embed2`, `embeddinggemma`, entre otros); un modelo solo se descarga con confirmación explícita del operador.
+```text
+alfredo/
+├── .github/             # CI, actualizaciones de dependencias y templates del repo
+├── adapters/            # Adaptadores de instalacion y renderizado por agente
+├── agents/              # Sub-agentes canonicos
+├── cli/                 # CLI Dart multiplataforma y entrada del ejecutable nativo
+├── docs/                # Documentacion de arquitectura y migraciones
+├── packages/            # Bundles instalables de contenido canonico
+├── personas/            # Seeds de voz y preferencias durables
+├── profiles/            # Selecciones reproducibles personales, trabajo y proyecto
+├── rules/               # Reglas canonicas siempre activas
+├── schemas/             # Contratos JSON versionados
+└── skills/              # Skills portables canonicas
+```
 
-| Comando | Efecto |
-| --- | --- |
-| `alfredo memory setup` | Crea el store, configura la recuperación e instala `memory-core` |
-| `alfredo memory add <mensaje>` | Registra una entrada en el journal, o una nota con `--kind note --title` |
-| `alfredo memory search <consulta>` | Ordena los documentos de memoria, con reserva por palabra clave |
-| `alfredo memory list --since 7d` | Muestra las entradas recientes del journal, de la más nueva a la más antigua |
-| `alfredo memory digest --since 14d` | Genera un resumen compacto agrupado por día |
-| `alfredo memory index` | Genera embeddings de los documentos nuevos y modificados y elimina los borrados |
-| `alfredo memory capture` | Registra el final de una sesión de trabajo |
+## Notas De Arquitectura
 
-Define `ALFREDO_MEMORY_HOME` para mover el store del usuario. Consulta [docs/architecture/memory.md](docs/architecture/memory.md) para el contrato en disco y las invariantes de seguridad.
+- [Adaptadores De Agente](docs/architecture/agent-adapters.md)
+- [Agentes](docs/architecture/agents.md)
+- [Motor De Contexto](docs/architecture/context-engine.md)
+- [Memoria](docs/architecture/memory.md)
+- [Personas](docs/architecture/personas.md)
+- [Reglas](docs/architecture/rules.md)
+- [Skills](docs/architecture/skills.md)
+- [Runtime De Tareas](docs/architecture/task-runtime.md)
+- [Templates](docs/architecture/templates.md)
 
 ## Desarrollo
 
-### Requisitos
-
-- Dart 3.12 o posterior para desarrollar la CLI.
-- Python 3.13 para desarrollar el HUD.
-- Git.
-- Herramientas específicas de la plataforma para producir releases nativas.
-
-### CLI Dart
-
-```bash
+```sh
 cd cli
 dart pub get
-dart format --output=none --set-exit-if-changed .
-dart analyze --fatal-infos --fatal-warnings
+dart format .
+dart analyze
 dart test
-dart run bin/alfredo.dart --help
-dart run bin/alfredo.dart source add canonical --local ..
-dart run bin/alfredo.dart package install android-core --target codex --scope user
-dart run bin/alfredo.dart update --dry-run
-dart run bin/alfredo.dart update
-dart run bin/alfredo.dart upgrade --check
-dart run bin/alfredo.dart memory setup --all --source canonical
-dart run bin/alfredo.dart memory add "exploré el registro de fuentes"
-dart run bin/alfredo.dart memory digest --since 14d
 ```
-
-Compila un ejecutable nativo en el sistema actual:
-
-```bash
-cd cli
-mkdir -p build
-dart compile exe bin/alfredo.dart -o build/alfredo
-./build/alfredo --version
-```
-
-### HUD Python
-
-Crea el entorno compartido desde la raíz:
-
-```bash
-python3.13 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e "apps/hud[dev]"
-cp apps/hud/.env.example apps/hud/.env
-```
-
-Ejecuta las pruebas y el servidor:
-
-```bash
-cd apps/hud
-../../.venv/bin/python -m pytest -q
-../../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8765 --reload
-```
-
-Abre `http://127.0.0.1:8765` después de iniciar el servidor.
-
-## Principios de seguridad
-
-- Nunca versionar archivos `.env`, credenciales, caches ni binarios generados.
-- No exponer un shell genérico a un modelo de IA.
-- Direccionar dispositivos Android explícitamente por número de serie.
-- Separar observación, cambios de aplicación, acciones privilegiadas y operaciones autorizadas de laboratorio de seguridad.
-- Validar contenido y rutas antes de la instalación.
-- Usar staging, backups y actualización atómica del estado instalado.
-- Mantener la ejecución remota y el fallback explícitos para el usuario.
-
-## Roadmap
-
-1. Añadir perfiles declarativos, actualización, rollback y bundles offline.
-2. Publicar binarios firmados para macOS, Windows y Linux.
-3. Construir comandos Android y ADB multi-device que operen dispositivos.
-4. Ampliar las skills Android con referencias, scripts y laboratorios versionados.
-
-## Idiomas de la documentación
-
-- English: [README.md](README.md)
-- Português do Brasil: [README.pt-BR.md](README.pt-BR.md)
-- Español: [README.es.md](README.es.md)

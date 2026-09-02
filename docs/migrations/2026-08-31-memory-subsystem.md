@@ -4,8 +4,8 @@
 
 The repository had persistent state for sources, packages, and installations,
 but nothing that let an agent record why a decision was made or recall it in a
-later session. The HUD carried a keyword search over a note vault
-(`apps/hud/app/memory.py`) that never shipped to the CLI. This change adds a
+later session. An earlier local prototype carried keyword search over a note
+vault, but that capability never shipped to the CLI. This change adds a
 first-class `memory` domain to `alfredo_cli` and a `memory-core` package that
 teaches agents to use it.
 

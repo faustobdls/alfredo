@@ -1,0 +1,56 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M1HJ0Z61HR8WPG3QQ9",
+  "title": "Respect installed targets and task flow priorities",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-02T17:17:48.608767Z",
+  "updated_at": "2026-09-02T17:23:36.995846Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M1HJ0Z605WPWT1MVH8"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "automatic setup and memory target selection ignores unavailable local targets",
+    "task flow documents plan review approval todo parallel atomic semantic commit lifecycle"
+  ],
+  "context": {
+    "topics": [],
+    "files": [
+      "cli/lib/src/package/installation_adapters.dart",
+      "cli/lib/src/commands/setup_command.dart",
+      "cli/lib/src/commands/memory_command.dart",
+      "docs/architecture/task-runtime.md"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      "automatic setup filters declared targets by configured local target roots",
+      "generic target auto-detection requires existing content markers",
+      "master flow documented across task runtime and workflow skills",
+      "memory setup captures configured targets before creating its own .alfredo skeleton",
+      "ready tasks now sort by priority before age"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "none"
+    ],
+    "changed_files": [
+      "cli/lib/src/commands/memory_command.dart",
+      "cli/lib/src/commands/setup_command.dart",
+      "cli/lib/src/package/installation_adapters.dart",
+      "cli/lib/src/task_runtime/task_runtime_store.dart",
+      "docs/architecture/task-runtime.md"
+    ],
+    "validations": {
+      "dart_analyze": "passed",
+      "dart_test": "passed"
+    },
+    "next_action": "review and commit"
+  },
+  "blocker": null
+}

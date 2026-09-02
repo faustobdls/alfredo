@@ -27,7 +27,16 @@ void main() {
       packages: const [
         PackageFixture(
           id: 'android-core',
-          targets: ['codex', 'claude-code', 'cursor', 'antigravity', 'generic'],
+          targets: [
+            'codex',
+            'claude-code',
+            'cursor',
+            'antigravity',
+            'devin',
+            'generic',
+            'gemini-cli',
+            'via',
+          ],
         ),
       ],
     );
@@ -61,7 +70,10 @@ void main() {
       'claude-code',
       'cursor',
       'antigravity',
+      'devin',
       'generic',
+      'gemini-cli',
+      'via',
     ]) {
       final targetResolution = PackageResolution(
         target: target,

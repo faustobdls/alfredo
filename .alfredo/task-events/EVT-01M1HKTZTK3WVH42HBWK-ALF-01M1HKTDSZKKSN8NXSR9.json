@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HKTZTK3WVH42HBWK",
+  "task": "ALF-01M1HKTDSZKKSN8NXSR9",
+  "type": "claimed",
+  "created_at": "2026-09-02T17:49:29.811621Z",
+  "data": {
+    "session": "SES-01M1HKTDSY2Y4Q2N2G1B"
+  }
+}

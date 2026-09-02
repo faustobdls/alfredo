@@ -7,7 +7,7 @@
   "required": ["version", "target", "packages"],
   "properties": {
     "version": {"const": 1},
-    "target": {"enum": ["codex", "claude-code", "cursor", "antigravity", "generic"]},
+    "target": {"enum": ["codex", "claude-code", "cursor", "antigravity", "devin", "generic", "gemini-cli", "via"]},
     "packages": {
       "type": "array",
       "uniqueItems": true,

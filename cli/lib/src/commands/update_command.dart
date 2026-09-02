@@ -10,13 +10,7 @@ class UpdateCommand extends Command<int> {
     argParser
       ..addMultiOption(
         'target',
-        allowed: const [
-          'codex',
-          'claude-code',
-          'cursor',
-          'antigravity',
-          'generic',
-        ],
+        allowed: TargetAdapters.supportedIds,
         help: 'Limit the update to specific agent targets.',
       )
       ..addMultiOption(

@@ -485,6 +485,13 @@ void main() {
         ...valid,
         'format': {'target': 'powerpoint'},
       }).isValid,
+      isTrue,
+    );
+    expect(
+      schema.validate({
+        ...valid,
+        'format': {'target': 'Power Point'},
+      }).isValid,
       isFalse,
     );
     expect(

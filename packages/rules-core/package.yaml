@@ -1,7 +1,7 @@
 schema_version: 1
 id: rules-core
 name: Rules Core
-version: 0.3.0
+version: 0.3.2
 description: Alfredo's always-on working rules — the standards every agent keeps.
 license: MIT
 targets:
@@ -9,7 +9,10 @@ targets:
   - claude-code
   - cursor
   - antigravity
+  - devin
   - generic
+  - gemini-cli
+  - via
 contents:
   rules:
     - rules/smallest-change.md
@@ -21,6 +24,7 @@ contents:
     - rules/ask-only-when-blocked.md
     - rules/secrets-and-exfiltration.md
     - rules/separate-authoring-from-review.md
+    - rules/ai-review-attribution.md
     - rules/external-content-provenance.md
     - rules/use-templates.md
 dependencies: []

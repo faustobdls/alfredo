@@ -173,13 +173,7 @@ abstract class _TargetCommand extends Command<int> {
       ..addOption(
         'target',
         mandatory: true,
-        allowed: const [
-          'codex',
-          'claude-code',
-          'cursor',
-          'antigravity',
-          'generic',
-        ],
+        allowed: TargetAdapters.supportedIds,
         help: 'Agent environment to manage.',
       )
       ..addOption(

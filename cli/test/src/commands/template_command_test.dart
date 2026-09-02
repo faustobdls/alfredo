@@ -40,13 +40,31 @@ void main() {
 
   test('new scaffolds a valid template that validate accepts', () async {
     expect(
-      await runner.run(['template', 'new', 'bank-email', '--kind', 'email']),
+      await runner.run([
+        'template',
+        'new',
+        'bank-email',
+        '--kind',
+        'email',
+        '--description',
+        'Use for client email. Not for internal chat.',
+        '--format-target',
+        'email',
+      ]),
       ExitCode.success.code,
     );
     expect(templateFile('bank-email').existsSync(), isTrue);
     expect(
       templateFile('bank-email').readAsStringSync(),
       contains('kind: email'),
+    );
+    expect(
+      templateFile('bank-email').readAsStringSync(),
+      contains('description: Use for client email. Not for internal chat.'),
+    );
+    expect(
+      templateFile('bank-email').readAsStringSync(),
+      contains('target: email'),
     );
 
     expect(
@@ -61,7 +79,17 @@ void main() {
       ..writeAsStringSync('keep me');
 
     expect(
-      await runner.run(['template', 'new', 'bank-email', '--kind', 'email']),
+      await runner.run([
+        'template',
+        'new',
+        'bank-email',
+        '--kind',
+        'email',
+        '--description',
+        'Use for client email.',
+        '--format-target',
+        'email',
+      ]),
       ExitCode.usage.code,
     );
     expect(templateFile('bank-email').readAsStringSync(), 'keep me');
@@ -69,13 +97,77 @@ void main() {
 
   test('new rejects an invalid kind', () async {
     expect(
-      await runner.run(['template', 'new', 'bank-email', '--kind', 'Email!']),
+      await runner.run([
+        'template',
+        'new',
+        'bank-email',
+        '--kind',
+        'Email!',
+        '--description',
+        'Use for client email.',
+        '--format-target',
+        'email',
+      ]),
       ExitCode.usage.code,
     );
   });
 
+  test('new requires description and format target', () async {
+    expect(
+      await runner.run(['template', 'new', 'bank-email', '--kind', 'email']),
+      ExitCode.usage.code,
+    );
+    expect(templateFile('bank-email').existsSync(), isFalse);
+
+    expect(
+      await runner.run([
+        'template',
+        'new',
+        'bank-email',
+        '--kind',
+        'email',
+        '--description',
+        'Use for client email.',
+      ]),
+      ExitCode.usage.code,
+    );
+    expect(templateFile('bank-email').existsSync(), isFalse);
+  });
+
+  test('new accepts project-defined format targets', () async {
+    expect(
+      await runner.run([
+        'template',
+        'new',
+        'ledger-note',
+        '--kind',
+        'note',
+        '--description',
+        'Use for ledger notes.',
+        '--format-target',
+        'custom-ledger-file',
+      ]),
+      ExitCode.success.code,
+    );
+
+    expect(
+      templateFile('ledger-note').readAsStringSync(),
+      contains('target: custom-ledger-file'),
+    );
+  });
+
   test('list and match resolve an authored template', () async {
-    await runner.run(['template', 'new', 'bank-email', '--kind', 'email']);
+    await runner.run([
+      'template',
+      'new',
+      'bank-email',
+      '--kind',
+      'email',
+      '--description',
+      'Use for client email. Not for internal chat.',
+      '--format-target',
+      'email',
+    ]);
 
     expect(
       await runner.run(['template', 'list', '--json']),

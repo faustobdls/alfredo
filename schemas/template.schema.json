@@ -48,19 +48,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "target": {
-          "enum": [
-            "markdown",
-            "plain",
-            "email",
-            "pptx",
-            "marp",
-            "gamma",
-            "figma-slides",
-            "docx",
-            "html"
-          ]
-        },
+        "target": { "$ref": "#/$defs/id" },
         "theme": { "$ref": "#/$defs/safeRelativePath" }
       }
     },

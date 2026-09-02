@@ -1,0 +1,55 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M1HKTDSZKKSN8NXSR9",
+  "title": "Add AI review comment attribution rule",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-02T17:49:11.359014Z",
+  "updated_at": "2026-09-02T17:50:28.919212Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M1HKTDSY2Y4Q2N2G1B"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "review comments include generated-by agent and reviewed-by user attribution",
+    "rule makes AI generation explicit at the end of each comment"
+  ],
+  "context": {
+    "topics": [],
+    "files": [
+      "agents/code-reviewer.md",
+      "rules",
+      "docs"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      "added AI review attribution rule",
+      "reviewed README impact: root README does not enumerate individual rules",
+      "updated code-reviewer prompt and rules architecture docs",
+      "wired rule into rules-core and bumped rules-core to 0.3.2"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "mark verified and done"
+    ],
+    "changed_files": [
+      "CHANGELOG.md",
+      "agents/code-reviewer.md",
+      "docs/architecture/rules.md",
+      "packages/rules-core/package.yaml",
+      "rules/ai-review-attribution.md"
+    ],
+    "validations": {
+      "dart format": "passed",
+      "dart analyze": "passed",
+      "dart test": "passed"
+    },
+    "next_action": null
+  },
+  "blocker": null
+}

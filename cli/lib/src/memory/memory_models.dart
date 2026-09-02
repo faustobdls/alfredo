@@ -116,7 +116,7 @@ class CaptureConfig {
   const CaptureConfig({
     this.sessionEndHook = false,
     this.gitDiffStat = true,
-    this.targets = const ['claude-code'],
+    this.targets = const [],
   });
 
   /// Recreates persisted capture settings.
@@ -160,7 +160,10 @@ class CaptureConfig {
     'claude-code',
     'cursor',
     'antigravity',
+    'devin',
     'generic',
+    'gemini-cli',
+    'via',
   ];
 
   /// Whether an end-of-session hook records an activity entry.

@@ -228,6 +228,7 @@ class _SetupMemory extends _MemorySubcommand {
     final unattended = argResults!['all'] == true;
     final scope = scopeOption(fallback: MemoryScope.user);
     final store = storeFor(scope);
+    final configuredTargets = _configuredTargets(scope);
     await store.ensureSkeleton();
 
     final hook = argResults!.wasParsed('hook')
@@ -241,12 +242,9 @@ class _SetupMemory extends _MemorySubcommand {
     final requested = argResults!['target'] as List<String>;
     final targets = requested.isNotEmpty
         ? requested
-        : unattended
-        ? const ['claude-code']
-        : logger.chooseAny(
-            'Which agents should receive $memoryPackageId?',
-            choices: CaptureConfig.supportedTargets,
-            defaultValues: const ['claude-code'],
+        : _chooseTargets(
+            configuredTargets: configuredTargets,
+            unattended: unattended,
           );
     final defaultScope = unattended
         ? scope
@@ -269,7 +267,7 @@ class _SetupMemory extends _MemorySubcommand {
     );
 
     await _install(targets, scope);
-    if (hook) {
+    if (hook && targets.contains('claude-code')) {
       final settings = File(
         p.join(
           switch (scope) {
@@ -383,6 +381,42 @@ class _SetupMemory extends _MemorySubcommand {
       defaultScope: MemoryScope.user,
     ),
   );
+
+  List<String> _configuredTargets(MemoryScope scope) {
+    final installationScope = switch (scope) {
+      MemoryScope.user => InstallationScope.user,
+      MemoryScope.project => InstallationScope.project,
+    };
+    final configured = TargetAdapters.configuredIds(
+      targetRoots,
+      installationScope,
+    );
+    return [
+      for (final target in CaptureConfig.supportedTargets)
+        if (configured.contains(target)) target,
+    ];
+  }
+
+  List<String> _chooseTargets({
+    required List<String> configuredTargets,
+    required bool unattended,
+  }) {
+    if (unattended) return configuredTargets;
+    if (configuredTargets.isEmpty) {
+      logger.info(
+        'No configured agent targets found; memory will be prepared without '
+        'installing $memoryPackageId.',
+      );
+      return const [];
+    }
+    return logger.chooseAny(
+      'Which agents should receive $memoryPackageId?',
+      choices: configuredTargets,
+      defaultValues: configuredTargets.contains('codex')
+          ? const ['codex']
+          : [configuredTargets.first],
+    );
+  }
 
   Future<void> _install(List<String> targets, MemoryScope scope) async {
     if (targets.isEmpty) return;

@@ -54,6 +54,7 @@ class TargetAdapter {
     required this.id,
     required this.userDirectoryName,
     required this.projectDirectoryName,
+    this.configurationMarkers = const [],
   });
 
   /// Stable target identifier used in package manifests.
@@ -64,6 +65,9 @@ class TargetAdapter {
 
   /// Agent configuration directory below the injected project root.
   final String projectDirectoryName;
+
+  /// Child paths that must exist for automatic target detection.
+  final List<String> configurationMarkers;
 
   /// Resolves the target configuration root for [scope].
   Directory targetRoot(AgentTargetRoots roots, InstallationScope scope) {
@@ -76,6 +80,16 @@ class TargetAdapter {
       InstallationScope.project => projectDirectoryName,
     };
     return Directory(p.join(base.path, directoryName));
+  }
+
+  /// Whether this target already exists in the selected environment.
+  bool isConfigured(AgentTargetRoots roots, InstallationScope scope) {
+    final root = targetRoot(roots, scope);
+    if (!root.existsSync()) return false;
+    if (configurationMarkers.isEmpty) return true;
+    return configurationMarkers.any(
+      (marker) => Directory(p.join(root.path, marker)).existsSync(),
+    );
   }
 
   /// Resolves the metadata file outside the target content root.
@@ -145,11 +159,33 @@ class TargetAdapters {
     projectDirectoryName: '.agents',
   );
 
+  /// Via uses `.via` for user and project configuration.
+  static const via = TargetAdapter(
+    id: 'via',
+    userDirectoryName: '.via',
+    projectDirectoryName: '.via',
+  );
+
+  /// Devin uses `.devin` for user and project configuration.
+  static const devin = TargetAdapter(
+    id: 'devin',
+    userDirectoryName: '.devin',
+    projectDirectoryName: '.devin',
+  );
+
+  /// Gemini CLI uses `.gemini`, distinct from Antigravity's GCA config path.
+  static const geminiCli = TargetAdapter(
+    id: 'gemini-cli',
+    userDirectoryName: '.gemini',
+    projectDirectoryName: '.gemini',
+  );
+
   /// Generic Alfredo content uses `.alfredo`.
   static const generic = TargetAdapter(
     id: 'generic',
     userDirectoryName: '.alfredo',
     projectDirectoryName: '.alfredo',
+    configurationMarkers: ['skills', 'rules', 'agents', 'templates'],
   );
 
   /// Every built-in adapter, in stable identifier order.
@@ -158,7 +194,31 @@ class TargetAdapters {
     claudeCode,
     cursor,
     antigravity,
+    devin,
     generic,
+    geminiCli,
+    via,
+  ];
+
+  /// Every built-in target id, in stable identifier order.
+  static const supportedIds = <String>[
+    'codex',
+    'claude-code',
+    'cursor',
+    'antigravity',
+    'devin',
+    'generic',
+    'gemini-cli',
+    'via',
+  ];
+
+  /// Returns configured built-in target ids for [scope], in stable order.
+  static List<String> configuredIds(
+    AgentTargetRoots roots,
+    InstallationScope scope,
+  ) => [
+    for (final adapter in all)
+      if (adapter.isConfigured(roots, scope)) adapter.id,
   ];
 
   /// Returns an adapter by its package target identifier.
@@ -168,7 +228,10 @@ class TargetAdapters {
       'claude-code' => claudeCode,
       'cursor' => cursor,
       'antigravity' => antigravity,
+      'devin' => devin,
       'generic' => generic,
+      'gemini-cli' => geminiCli,
+      'via' => via,
       _ => throw PackageException('Unsupported installation target: $id'),
     };
   }

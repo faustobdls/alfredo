@@ -153,10 +153,31 @@ class TaskRuntimeStore {
       for (final task in tasks)
         if (task.status == TaskStatus.done) task.id,
     };
-    return [
+    final ready = [
       for (final task in tasks)
         if (task.isClaimable(done)) task,
-    ];
+    ]..sort(_compareReadyTasks);
+    return ready;
+  }
+
+  static int _compareReadyTasks(AlfredoTask left, AlfredoTask right) {
+    final priority = _priorityRank(right.priority).compareTo(
+      _priorityRank(left.priority),
+    );
+    if (priority != 0) return priority;
+    final created = left.createdAt.compareTo(right.createdAt);
+    if (created != 0) return created;
+    return left.id.compareTo(right.id);
+  }
+
+  static int _priorityRank(String value) {
+    return switch (value.trim().toLowerCase()) {
+      'critical' || 'urgent' || 'p0' => 4,
+      'high' || 'p1' => 3,
+      'normal' || 'medium' || 'p2' => 2,
+      'low' || 'p3' => 1,
+      _ => 0,
+    };
   }
 
   /// Claims a task atomically.

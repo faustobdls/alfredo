@@ -28,7 +28,7 @@ name: Memory Core
 version: 0.1.0
 description: Memory skills and rules.
 license: MIT
-targets: [codex, claude-code, cursor, antigravity, generic]
+targets: [codex, claude-code, cursor, antigravity, devin, generic, gemini-cli, via]
 contents:
   skills:
     - skills/alfredo-memory

@@ -14,7 +14,10 @@ authoritative work stores.
 | Codex | `.codex/` | `.agents/` | canonical `skills/` tree |
 | Claude Code | `.claude/` | `.claude/` | canonical `skills/` tree |
 | Cursor | `.cursor/` | `.cursor/` | native canonical `skills/` tree |
-| Antigravity | `.gemini/config/` | `.agents/` | canonical `skills/` tree |
+| Antigravity/GCA | `.gemini/config/` | `.agents/` | canonical `skills/` tree |
+| Devin | `.devin/` | `.devin/` | canonical `skills/` tree |
+| Gemini CLI | `.gemini/` | `.gemini/` | canonical `skills/` tree |
+| Via | `.via/` | `.via/` | canonical `skills/` tree |
 | Generic | `.alfredo/` | `.alfredo/` | canonical content tree |
 
 Installation preserves each canonical content path verbatim under the target
@@ -35,6 +38,13 @@ These mappings follow the documented extension models for
 [Cursor skills](https://prod.cursor.com/docs/skills), and
 [Antigravity skills](https://www.antigravity.google/docs/skills?authuser=14).
 Codex mapping follows the local `$CODEX_HOME/skills` contract exposed by Codex.
+Gemini CLI intentionally uses `.gemini/`, while Antigravity/GCA uses
+`.gemini/config/`; setup treats them as distinct targets.
+
+Automatic target selection is conservative. `alfredo setup --all` intersects
+package-declared targets with target roots that already exist in the selected
+scope. A missing local target is not created implicitly; explicit target flags
+still express user intent and may create that target root.
 
 ## Safety invariants
 

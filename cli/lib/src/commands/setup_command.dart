@@ -25,7 +25,7 @@ class SetupCommand extends Command<int> {
       ..addFlag(
         'all',
         negatable: false,
-        help: 'Install for every supported agent.',
+        help: 'Install every target declared by the official packages.',
       )
       ..addFlag('codex', negatable: false, help: 'Install for Codex.')
       ..addFlag(
@@ -40,6 +40,19 @@ class SetupCommand extends Command<int> {
         negatable: false,
         help: 'Install for Antigravity.',
       )
+      ..addFlag('devin', negatable: false, help: 'Install for Devin.')
+      ..addFlag(
+        'gemini',
+        aliases: const ['gemini-cli'],
+        negatable: false,
+        help: 'Install for Gemini CLI.',
+      )
+      ..addFlag(
+        'generic',
+        negatable: false,
+        help: 'Install for a generic Alfredo directory target.',
+      )
+      ..addFlag('via', negatable: false, help: 'Install for Via.')
       ..addOption(
         'scope',
         defaultsTo: 'user',
@@ -92,7 +105,6 @@ class SetupCommand extends Command<int> {
         usage,
       );
     }
-    final targets = _selectedTargets();
     final source = await _ensureOfficialSource();
     final candidates = (await catalog.discover())
         .where((candidate) => candidate.sourceName == source.name)
@@ -102,11 +114,17 @@ class SetupCommand extends Command<int> {
         'The official Alfredo source does not contain any packages.',
       );
     }
-
     final scope = switch (argResults!['scope'] as String) {
       'project' => InstallationScope.project,
       _ => InstallationScope.user,
     };
+    final targets = _selectedTargets(candidates, scope);
+    if (targets.isEmpty) {
+      logger.info(
+        'No configured official package targets found for ${scope.name} scope.',
+      );
+      return ExitCode.success.code;
+    }
     final onModifiedFile = managedFileConflictResolver(
       logger: logger,
       force: argResults!['force'] as bool,
@@ -143,12 +161,19 @@ class SetupCommand extends Command<int> {
     return ExitCode.success.code;
   }
 
-  List<String> _selectedTargets() {
+  List<String> _selectedTargets(
+    List<PackageCandidate> candidates,
+    InstallationScope scope,
+  ) {
     const flags = {
       'codex': 'codex',
       'claude': 'claude-code',
       'cursor': 'cursor',
       'antigravity': 'antigravity',
+      'devin': 'devin',
+      'generic': 'generic',
+      'gemini': 'gemini-cli',
+      'via': 'via',
     };
     final all = argResults!['all'] as bool;
     final selected = [
@@ -167,7 +192,15 @@ class SetupCommand extends Command<int> {
         usage,
       );
     }
-    return all ? flags.values.toList() : selected;
+    if (!all) return selected;
+    final declared = {
+      for (final candidate in candidates) ...candidate.manifest.targets,
+    };
+    final configured = TargetAdapters.configuredIds(roots, scope).toSet();
+    return [
+      for (final target in TargetAdapters.supportedIds)
+        if (declared.contains(target) && configured.contains(target)) target,
+    ];
   }
 
   Future<RegisteredSource> _ensureOfficialSource() async {
