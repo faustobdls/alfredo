@@ -35,7 +35,15 @@ void main() {
       packages: const [
         PackageFixture(
           id: 'android-core',
-          targets: ['codex', 'claude-code', 'cursor', 'antigravity'],
+          targets: [
+            'codex',
+            'claude-code',
+            'cursor',
+            'devin',
+            'generic',
+            'gemini-cli',
+            'via',
+          ],
         ),
       ],
     );
@@ -51,14 +59,32 @@ void main() {
     await temporary.delete(recursive: true);
   });
 
-  test('--all installs official packages for every agent', () async {
+  test('--all installs official packages only for declared targets', () async {
+    for (final directory in [
+      '.codex',
+      '.claude',
+      '.cursor',
+      '.devin',
+      p.join('.alfredo', 'skills'),
+      '.gemini',
+      '.via',
+      p.join('.gemini', 'config'),
+    ]) {
+      await Directory(p.join(roots.userRoot.path, directory)).create(
+        recursive: true,
+      );
+    }
+
     expect(await runner.run(['setup', '--all']), ExitCode.success.code);
 
     for (final directory in [
       '.codex',
       '.claude',
       '.cursor',
-      p.join('.gemini', 'config'),
+      '.devin',
+      '.alfredo',
+      '.gemini',
+      '.via',
     ]) {
       expect(
         File(
@@ -73,10 +99,64 @@ void main() {
         isTrue,
       );
     }
+    for (final directory in [
+      p.join('.gemini', 'config'),
+    ]) {
+      expect(
+        File(
+          p.join(
+            roots.userRoot.path,
+            directory,
+            'skills',
+            'example',
+            'SKILL.md',
+          ),
+        ).existsSync(),
+        isFalse,
+      );
+    }
     verify(
       () => logger.success(any(that: contains('Installed 1 package'))),
-    ).called(4);
+    ).called(7);
   });
+
+  test(
+    '--all skips targets that are not configured in the environment',
+    () async {
+      await Directory(p.join(roots.userRoot.path, '.alfredo')).create(
+        recursive: true,
+      );
+
+      expect(await runner.run(['setup', '--all']), ExitCode.success.code);
+
+      for (final directory in [
+        '.codex',
+        '.claude',
+        '.cursor',
+        '.devin',
+        '.alfredo',
+        '.gemini',
+        '.via',
+      ]) {
+        expect(
+          File(
+            p.join(
+              roots.userRoot.path,
+              directory,
+              'skills',
+              'example',
+              'SKILL.md',
+            ),
+          ).existsSync(),
+          isFalse,
+          reason: directory,
+        );
+      }
+      verify(
+        () => logger.info(any(that: contains('No configured official'))),
+      ).called(1);
+    },
+  );
 
   test('an individual flag installs only its selected agent', () async {
     expect(await runner.run(['setup', '--cursor']), ExitCode.success.code);
@@ -114,6 +194,35 @@ void main() {
       Directory(p.join(roots.userRoot.path, '.cursor')).existsSync(),
       false,
     );
+  });
+
+  test('accepts Devin, Gemini CLI, Via, and generic targets', () async {
+    expect(
+      await runner.run([
+        'setup',
+        '--devin',
+        '--gemini-cli',
+        '--via',
+        '--generic',
+      ]),
+      ExitCode.success.code,
+    );
+
+    for (final directory in ['.devin', '.gemini', '.via', '.alfredo']) {
+      expect(
+        File(
+          p.join(
+            roots.userRoot.path,
+            directory,
+            'skills',
+            'example',
+            'SKILL.md',
+          ),
+        ).existsSync(),
+        isTrue,
+        reason: directory,
+      );
+    }
   });
 
   test('requires all or at least one individual agent flag', () async {

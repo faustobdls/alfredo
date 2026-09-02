@@ -56,6 +56,8 @@ Conditional policies are loaded when the workflow or task calls for them:
 - `atomic-commits` when Git operations or commits are relevant.
 - `match-the-house-style` when authoring or editing code.
 - `separate-authoring-from-review` when review is part of the workflow.
+- `ai-review-attribution` when review comments may be posted to a PR or handed
+  to a user to post.
 - `ask-only-when-blocked` when autonomous execution is requested.
 - `memory-usage` and `memory-hygiene` when using the memory subsystem.
 - `external-content-provenance` when the `web-research` skill runs or a task
@@ -68,7 +70,7 @@ routing should prefer the split above to reduce always-on token cost.
 
 ## The `rules-core` set
 
-Eleven rules, in Alfredo's voice:
+Twelve rules, in Alfredo's voice:
 
 | Rule | Governs |
 | --- | --- |
@@ -81,6 +83,7 @@ Eleven rules, in Alfredo's voice:
 | `ask-only-when-blocked` | Asking only genuine user decisions, one at a time |
 | `secrets-and-exfiltration` | Credential handling and private data leaving the machine |
 | `separate-authoring-from-review` | Author and reviewer are different passes |
+| `ai-review-attribution` | AI review comments disclose agent creation and human review |
 | `external-content-provenance` | Fetched content is a dated, hashed snapshot, not live truth |
 | `use-templates` | Resolving and following an output template for an authored artifact |
 

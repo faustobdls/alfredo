@@ -1,7 +1,7 @@
 schema_version: 1
 id: memory-core
 name: Memory Core
-version: 0.1.0
+version: 0.1.1
 description: Skills and rules that teach an agent to use the Alfredo memory subsystem.
 license: MIT
 targets:
@@ -9,7 +9,10 @@ targets:
   - claude-code
   - cursor
   - antigravity
+  - devin
   - generic
+  - gemini-cli
+  - via
 contents:
   skills:
     - skills/alfredo-memory

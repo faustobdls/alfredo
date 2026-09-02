@@ -28,25 +28,40 @@ between each other, and a lead keeps the list and the standards.
 
 ## Method
 
-1. **Decompose.** The lead creates durable Alfredo tasks: each task has an owner
-   role, acceptance criteria, and dependencies on other tasks. Use
-   `.alfredo/work/team/tasks.md` only as a legacy compatibility note when an
-   older run already has one.
+1. **Decompose.** The lead asks clarifying questions before planning when an
+   answer would change scope, acceptance criteria, architecture, task
+   boundaries, sequencing, target environment, or safe parallelization. Then the
+   lead drafts a development plan, has it reviewed, and after approval creates
+   durable Alfredo tasks: each task has an owner role, acceptance criteria,
+   priority, and dependencies on other tasks. Use `.alfredo/work/team/tasks.md`
+   only as a legacy compatibility note when an older run already has one.
 2. **Assign.** Map tasks to agents by fit — **executor** for implementation,
    **debugger** for failures, **designer** for UI, **test-engineer** for
    coverage, **code-reviewer** and **security-reviewer** for the review stream.
-3. **Run.** Start tasks whose dependencies are met. As each completes, the lead
-   updates the list and releases the tasks it unblocked.
+3. **Run.** Treat `BACKLOG` as To Do. Start `READY` tasks whose dependencies are
+   met, highest priority first. Parallelize only independent tasks with no file
+   ownership overlap. As each completes, the lead updates the list and releases
+   the tasks it unblocked.
 4. **Coordinate.** The lead resolves file conflicts, keeps the house style
    consistent across owners, and re-scopes a task that turns out wrong.
 5. **Integrate.** When the list is clear, run the full build and suite, then a
-   final **code-reviewer** pass over the combined change.
+   final **code-reviewer** pass over the combined change. When commit authority
+   is present, **git-master** records atomic semantic commits by task.
+6. **Close.** Review README coverage before reporting completion. Update the
+   README set when changed behavior, commands, targets, setup, architecture, or
+   user-facing workflow would otherwise be stale, keeping localized READMEs in
+   sync. Review changed items for memory relevance: durable decisions,
+   conventions, recurring pitfalls, and user preferences become memory
+   candidates; transient execution details stay in checkpoints.
 
 ## Rules
 
 - One owner per task. Two agents do not edit the same file at once.
+- One task should be small enough to verify and commit as one logical change.
 - A blocked task is reported, not worked around by breaking its dependency.
 - The shared list in Task Runtime is the single source of truth.
+- The team does not call the list complete until documentation freshness and
+  memory relevance have been checked.
 
 ## How I report back
 

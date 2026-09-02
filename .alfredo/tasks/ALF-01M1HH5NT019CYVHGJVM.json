@@ -1,0 +1,65 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M1HH5NT019CYVHGJVM",
+  "title": "Align setup targets, adapters, and docs",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-02T17:02:54.272173Z",
+  "updated_at": "2026-09-02T17:14:55.761790Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M1HH5NRRR9BC2DEFQY"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "setup --all only installs configured targets",
+    "support via adapter",
+    " Devin",
+    " and Gemini CLI targets",
+    "README docs in English",
+    " Portuguese",
+    " and Spanish are equivalent",
+    "review project for target/documentation gaps"
+  ],
+  "context": {
+    "topics": [],
+    "files": [
+      "cli/lib/src/commands/setup_command.dart",
+      "cli/lib/src/package/installation_adapters.dart",
+      "README.md",
+      "README.pt-BR.md",
+      "README.es.md"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      "added devin gemini-cli via adapters and schema/package support",
+      "coalesced English Portuguese Spanish README structure",
+      "removed implicit claude-code memory setup target",
+      "setup --all now uses declared package targets",
+      "updated architecture docs and changelog"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "none"
+    ],
+    "changed_files": [
+      "README.es.md",
+      "README.md",
+      "README.pt-BR.md",
+      "cli/lib/src/commands/memory_command.dart",
+      "cli/lib/src/commands/setup_command.dart",
+      "cli/lib/src/package/installation_adapters.dart"
+    ],
+    "validations": {
+      "dart_analyze": "passed",
+      "dart_test": "passed",
+      "hud_pytest": "blocked_pytest_missing"
+    },
+    "next_action": "review and commit"
+  },
+  "blocker": null
+}

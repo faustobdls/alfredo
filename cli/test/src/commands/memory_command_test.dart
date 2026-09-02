@@ -21,6 +21,7 @@ void main() {
   late AlfredoCliCommandRunner runner;
   late Directory userMemory;
   late Directory projectMemory;
+  late AgentTargetRoots targetRoots;
 
   MemoryStore storeFor(Directory directory) =>
       MemoryStore(directory: directory);
@@ -37,15 +38,16 @@ void main() {
     projectMemory = Directory(
       p.join(temporary.path, 'project', '.alfredo', 'memory'),
     );
+    targetRoots = AgentTargetRoots(
+      userRoot: Directory(p.join(temporary.path, 'user')),
+      projectRoot: Directory(p.join(temporary.path, 'project')),
+    );
     runner = AlfredoCliCommandRunner(
       logger: logger,
       sourceRegistry: SourceRegistry(
         file: File(p.join(temporary.path, 'config', 'sources.json')),
       ),
-      targetRoots: AgentTargetRoots(
-        userRoot: Directory(p.join(temporary.path, 'user')),
-        projectRoot: Directory(p.join(temporary.path, 'project')),
-      ),
+      targetRoots: targetRoots,
       memoryRoots: MemoryRoots(
         userDirectory: userMemory,
         projectDirectory: projectMemory,
@@ -376,6 +378,8 @@ void main() {
         'memory',
         '--scope',
         'user',
+        '--target',
+        'claude-code',
       ]),
       ExitCode.success.code,
     );
@@ -555,6 +559,81 @@ void main() {
     );
   });
 
+  test('unattended setup does not imply a Claude Code target', () async {
+    await registerMemorySource();
+
+    expect(
+      await runner.run([
+        'memory',
+        'setup',
+        '--all',
+        '--source',
+        'memory',
+      ]),
+      ExitCode.success.code,
+    );
+
+    final config =
+        jsonDecode(
+              await File(
+                p.join(userMemory.path, 'config.json'),
+              ).readAsString(),
+            )
+            as Map<String, Object?>;
+    expect((config['capture']! as Map)['targets'], isEmpty);
+    expect(
+      Directory(p.join(temporary.path, 'user', '.claude')).existsSync(),
+      isFalse,
+    );
+  });
+
+  test(
+    'unattended setup installs memory only into configured targets',
+    () async {
+      await registerMemorySource();
+      await Directory(p.join(targetRoots.userRoot.path, '.codex')).create(
+        recursive: true,
+      );
+
+      expect(
+        await runner.run([
+          'memory',
+          'setup',
+          '--all',
+          '--source',
+          'memory',
+          '--no-hook',
+        ]),
+        ExitCode.success.code,
+      );
+
+      final config =
+          jsonDecode(
+                await File(
+                  p.join(userMemory.path, 'config.json'),
+                ).readAsString(),
+              )
+              as Map<String, Object?>;
+      expect((config['capture']! as Map)['targets'], ['codex']);
+      expect(
+        File(
+          p.join(
+            targetRoots.userRoot.path,
+            '.codex',
+            'skills',
+            'alfredo-memory',
+            'SKILL.md',
+          ),
+        ).existsSync(),
+        isTrue,
+      );
+      expect(
+        Directory(p.join(targetRoots.userRoot.path, '.claude')).existsSync(),
+        isFalse,
+      );
+    },
+  );
+
   test('installs into every requested target', () async {
     await registerMemorySource();
 
@@ -595,7 +674,14 @@ void main() {
 
   test('reports a configuration error when memory-core is absent', () async {
     expect(
-      await runner.run(['memory', 'setup', '--all', '--no-hook']),
+      await runner.run([
+        'memory',
+        'setup',
+        '--all',
+        '--target',
+        'codex',
+        '--no-hook',
+      ]),
       ExitCode.config.code,
     );
     verify(
@@ -612,6 +698,8 @@ void main() {
         'setup',
         '--all',
         '--no-hook',
+        '--target',
+        'codex',
         '--source',
         'other',
       ]),

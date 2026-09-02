@@ -135,7 +135,10 @@ targets:
   - claude-code
   - cursor
   - antigravity
+  - devin
   - generic
+  - gemini-cli
+  - via
 contents:
   skills:
     - skills/hello

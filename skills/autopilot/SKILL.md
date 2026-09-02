@@ -27,28 +27,47 @@ disposable workers.
 - Reviewing an existing plan — use **plan** in review mode.
 - The idea is vague, with no files or concrete anchors — run **deep-interview**
   first, then return here.
+- A material answer could change scope, acceptance criteria, architecture, task
+  boundaries, sequencing, target environment, or safe parallelization — ask that
+  question before creating the spec or plan.
 
 ## Method
 
 1. **Spec.** If a **deep-interview** spec, **ralplan** consensus plan, or
    existing Alfredo run already exists, use it and skip to step 3. Otherwise the
    **analyst** extracts acceptance criteria and the **architect** writes a
-   technical design. Persist the resulting objective as a run and tasks.
+   technical design. If material ambiguity remains, pause and ask before any
+   plan is written. Persist the resulting objective as a run and tasks.
 2. **Plan.** The **architect** turns the spec into ordered implementation tasks;
-   the **critic** reviews the graph before execution.
-3. **Build.** Delegate the plan's steps to **executor** agents — in parallel
-   where the steps are independent, sequentially where they are not.
+   the **critic** reviews the graph before execution. Approved tasks move to
+   `BACKLOG` as To Do work.
+3. **Build.** Delegate `READY` tasks to **executor** agents — in parallel where
+   the tasks are independent and touch separate files, sequentially where they
+   depend on each other or overlap.
 4. **QA.** Run **ultraqa**: test, verify, fix, repeat until the acceptance
    criteria pass. Stop after five cycles, or after the same failure recurs three
    times, and report the underlying problem.
 5. **Validate.** The **code-reviewer**, **verifier**, and — where relevant —
    **security-reviewer** each sign off. Rejected items go back to step 3.
+6. **Closure.** Review README coverage before reporting done. Update the README
+   set when changed behavior, commands, targets, setup, architecture, or
+   user-facing workflow would otherwise be stale, keeping localized READMEs in
+   sync. Review changed items for memory relevance: durable decisions,
+   conventions, recurring pitfalls, and user preferences become memory
+   candidates; transient execution details stay in checkpoints.
+7. **History.** When commit authority is present, hand completed tasks to
+   **git-master** as atomic semantic commits, then take the next `READY` task
+   until the master run is complete.
 
 ## Rules
 
 - Each phase finishes before the next begins.
 - Every completion claim carries fresh test output.
 - Progress is written to Task Runtime so the run can resume.
+- One task maps to one logical change and, when committing is allowed, one
+  semantic commit.
+- The run is not complete until documentation freshness and memory relevance
+  have been checked.
 
 ## How I report back
 

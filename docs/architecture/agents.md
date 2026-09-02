@@ -18,7 +18,8 @@ agents/
 └── ...
 ```
 
-Each file is a Claude Code compatible sub-agent definition:
+Each file uses Alfredo's canonical Markdown sub-agent definition, compatible
+with Claude Code and rendered unchanged for directory-based targets:
 
 ```markdown
 ---
@@ -58,7 +59,10 @@ preserves the canonical path, so the files land at:
 | Claude Code | `~/.claude/agents/<name>.md` (user) / `<repo>/.claude/agents/<name>.md` (project) |
 | Codex | `~/.codex/agents/<name>.md` / `<repo>/.agents/agents/<name>.md` |
 | Cursor | `~/.cursor/agents/<name>.md` |
-| Antigravity | `~/.gemini/config/agents/<name>.md` |
+| Antigravity/GCA | `~/.gemini/config/agents/<name>.md` |
+| Devin | `~/.devin/agents/<name>.md` |
+| Gemini CLI | `~/.gemini/agents/<name>.md` |
+| Via | `~/.via/agents/<name>.md` |
 | Generic | `~/.alfredo/agents/<name>.md` |
 
 The same safety invariants as every other package apply: staged and digested
@@ -67,8 +71,8 @@ in installed state, locally modified files preserved on uninstall.
 
 Runtime state belongs under `.alfredo/`: tasks, runs, sessions, checkpoints,
 dependencies, ownership, context references, and memory. Provider directories
-such as `.claude/`, `.cursor/`, `.agents/`, and `.gemini/` must not become
-independent boards.
+such as `.claude/`, `.cursor/`, `.agents/`, `.gemini/`, `.devin/`, and `.via/`
+must not become independent boards.
 
 ## The Alfredo persona
 

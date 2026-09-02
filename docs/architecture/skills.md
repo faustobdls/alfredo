@@ -17,7 +17,8 @@ skills/
 └── ...
 ```
 
-`SKILL.md` is a Claude Code compatible skill definition:
+`SKILL.md` uses Alfredo's canonical Markdown skill definition, compatible with
+Claude Code and portable across supported adapters:
 
 ```markdown
 ---
@@ -82,8 +83,9 @@ source of truth.
 
 Each package declares `contents.skills: [skills/<name>, ...]`. Installation
 preserves the canonical path, so `skills/autopilot/SKILL.md` lands at
-`<target>/skills/autopilot/SKILL.md`. `alfredo setup` installs every official
-package that supports the target.
+`<target>/skills/autopilot/SKILL.md`. `alfredo setup --all` installs official
+packages only for targets declared by those packages; explicit target flags
+install only the selected target.
 
 ## Self-contained skills
 

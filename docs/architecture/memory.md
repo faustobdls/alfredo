@@ -87,12 +87,17 @@ match" rather than an error.
 
 ## Capture hook
 
-`alfredo memory setup` can register `alfredo memory capture` on the Claude Code
-`Stop` and `SessionEnd` events. The merge into `settings.json` is additive and
-idempotent: unrelated keys survive, an already-present command is detected by
-exact string match, and the previous file is copied to `settings.json.alfredo-bak`
-before the first modification. A settings file that is not a JSON object is
-refused, never replaced.
+`alfredo memory setup --target claude-code` can register
+`alfredo memory capture` on the Claude Code `Stop` and `SessionEnd` events. The
+merge into `settings.json` is additive and idempotent: unrelated keys survive,
+an already-present command is detected by exact string match, and the previous
+file is copied to `settings.json.alfredo-bak` before the first modification. A
+settings file that is not a JSON object is refused, never replaced.
+
+When targets are selected automatically, memory setup only uses targets whose
+configuration roots already exist in the selected local scope. A machine without
+Claude Code does not receive a Claude Code target or hook unless the operator
+selects it explicitly.
 
 `capture` records that the session ended, optionally appends the first twenty
 lines of `git diff --stat`, and appends a `todo`-tagged line for the agent to

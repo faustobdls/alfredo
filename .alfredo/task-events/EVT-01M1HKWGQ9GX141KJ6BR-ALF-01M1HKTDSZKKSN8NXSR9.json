@@ -1,0 +1,32 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HKWGQ9GX141KJ6BR",
+  "task": "ALF-01M1HKTDSZKKSN8NXSR9",
+  "type": "checkpointed",
+  "created_at": "2026-09-02T17:50:19.881898Z",
+  "data": {
+    "completed": [
+      "added AI review attribution rule",
+      "wired rule into rules-core and bumped rules-core to 0.3.2",
+      "updated code-reviewer prompt and rules architecture docs",
+      "reviewed README impact: root README does not enumerate individual rules"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "mark verified and done"
+    ],
+    "changed_files": [
+      "rules/ai-review-attribution.md",
+      "agents/code-reviewer.md",
+      "docs/architecture/rules.md",
+      "packages/rules-core/package.yaml",
+      "CHANGELOG.md"
+    ],
+    "validations": {
+      "dart format": "passed",
+      "dart analyze": "passed",
+      "dart test": "passed"
+    },
+    "next_action": null
+  }
+}

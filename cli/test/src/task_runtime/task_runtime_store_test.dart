@@ -209,6 +209,17 @@ void main() {
     expect((await store.readTask(dependent.id)).status, TaskStatus.cancelled);
   });
 
+  test('orders ready tasks by priority before age', () async {
+    final low = await store.createTask(title: 'Low', priority: 'low');
+    final normal = await store.createTask(title: 'Normal');
+    final urgent = await store.createTask(title: 'Urgent', priority: 'urgent');
+
+    expect(
+      (await store.readyTasks()).map((task) => task.id),
+      [urgent.id, normal.id, low.id],
+    );
+  });
+
   test('rejects dependency cycles', () async {
     final first = await store.createTask(title: 'First');
     final second = await store.createTask(title: 'Second');

@@ -8,6 +8,8 @@ import 'package:path/path.dart' as p;
 
 const _prettyJson = JsonEncoder.withIndent('  ');
 final _idPattern = RegExp(r'^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$');
+const _formatTargetExamples =
+    'markdown, plain, email, pptx, marp, gamma, figma-slides, docx, html';
 
 /// Manages output templates: artifact contracts an agent follows when
 /// producing an email, a slide deck, a memo, or any other deliverable.
@@ -75,7 +77,7 @@ class _ListTemplates extends _TemplateSubcommand {
     if (templates.isEmpty) {
       logger.info(
         'No templates found. Author one with: alfredo template new <name> '
-        '--kind <kind>',
+        '--kind <kind> --description <text> --format-target <target>',
       );
       return ExitCode.success.code;
     }
@@ -149,6 +151,18 @@ class _NewTemplate extends _TemplateSubcommand {
         help: 'Artifact kind, for example email, slides, doc, memo.',
         valueHelp: 'kind',
       )
+      ..addOption(
+        'description',
+        help: 'What this template is for, written as its applicability rule.',
+        valueHelp: 'text',
+      )
+      ..addOption(
+        'format-target',
+        help:
+            'Rendered artifact format. Suggestions: $_formatTargetExamples. '
+            'Project-defined values are allowed.',
+        valueHelp: 'target',
+      )
       ..addFlag(
         'force',
         negatable: false,
@@ -163,7 +177,9 @@ class _NewTemplate extends _TemplateSubcommand {
   String get name => 'new';
 
   @override
-  String get invocation => 'alfredo template new <name> --kind <kind>';
+  String get invocation =>
+      'alfredo template new <name> --kind <kind> --description <text> '
+      '--format-target <target>';
 
   @override
   Future<int> run() async {
@@ -187,6 +203,28 @@ class _NewTemplate extends _TemplateSubcommand {
         usage,
       );
     }
+    final description = (argResults!['description'] as String?)?.trim();
+    if (description == null || description.isEmpty) {
+      throw UsageException(
+        'Pass --description to explain what this template is for.',
+        usage,
+      );
+    }
+    final formatTarget = (argResults!['format-target'] as String?)?.trim();
+    if (formatTarget == null || formatTarget.isEmpty) {
+      throw UsageException(
+        'Pass --format-target ($_formatTargetExamples, or a project-defined '
+        'target).',
+        usage,
+      );
+    }
+    if (!_idPattern.hasMatch(formatTarget)) {
+      throw UsageException(
+        'Template format target "$formatTarget" must match '
+        '${_idPattern.pattern}.',
+        usage,
+      );
+    }
     final force = argResults!['force'] as bool;
 
     final dir = Directory(
@@ -207,7 +245,14 @@ class _NewTemplate extends _TemplateSubcommand {
     }
 
     await dir.create(recursive: true);
-    await file.writeAsString(_skeleton(name: name, kind: kind));
+    await file.writeAsString(
+      _skeleton(
+        name: name,
+        kind: kind,
+        description: description,
+        formatTarget: formatTarget,
+      ),
+    );
 
     logger
       ..success('Scaffolded template "$name" at ${file.path}.')
@@ -220,13 +265,18 @@ class _NewTemplate extends _TemplateSubcommand {
     return ExitCode.success.code;
   }
 
-  String _skeleton({required String name, required String kind}) =>
+  String _skeleton({
+    required String name,
+    required String kind,
+    required String description,
+    required String formatTarget,
+  }) =>
       '''
 ---
 schema_version: 1
 name: $name
 kind: $kind
-description: Use for <artifact> in <context>. Not for <anti-context>.
+description: $description
 voice:
   temperature: neutral
   person: first-person-plural
@@ -237,16 +287,18 @@ structure:
 length:
   max_words: 300
 format:
-  target: markdown
+  target: $formatTarget
 constraints:
   always: []
   never: []
 examples: []
 ---
 
-Describe, in prose, how a "$kind" artifact should come out under this template:
-the tone to hold, phrasing to prefer and avoid, and the reasoning behind the
-structure above. An agent reads this before it writes.
+Blank template contract for "$kind".
+
+Describe, in prose, what this artifact is, how it should come out, the tone to
+hold, phrasing to prefer and avoid, and the reasoning behind the structure
+above. An agent reads this before it writes.
 ''';
 }
 

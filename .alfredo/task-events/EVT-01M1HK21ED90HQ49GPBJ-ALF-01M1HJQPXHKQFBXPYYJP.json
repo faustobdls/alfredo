@@ -1,0 +1,48 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HK21ED90HQ49GPBJ",
+  "task": "ALF-01M1HJQPXHKQFBXPYYJP",
+  "type": "checkpointed",
+  "created_at": "2026-09-02T17:35:52.269212Z",
+  "data": {
+    "completed": [
+      "added README and memory closure checks to master flow",
+      "documented closure checks in autopilot",
+      " team",
+      " plan",
+      " planner",
+      " and README set",
+      "made template new collect kind",
+      " purpose",
+      " and format target",
+      "documented project-root blank template scaffold and path reporting",
+      "recorded project memory note for the durable convention"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "mark verified and done"
+    ],
+    "changed_files": [
+      "docs/architecture/task-runtime.md",
+      "skills/autopilot/SKILL.md",
+      "skills/team/SKILL.md",
+      "skills/plan/SKILL.md",
+      "agents/planner.md",
+      "docs/architecture/templates.md",
+      "cli/lib/src/commands/template_command.dart",
+      "cli/test/src/commands/template_command_test.dart",
+      "cli/README.md",
+      "README.md",
+      "README.pt-BR.md",
+      "README.es.md",
+      "CHANGELOG.md",
+      ".alfredo/memory/notes/2026-09-02-flow-closure-checks.md"
+    ],
+    "validations": {
+      "dart format": "passed",
+      "dart analyze": "passed",
+      "dart test": "passed"
+    },
+    "next_action": null
+  }
+}

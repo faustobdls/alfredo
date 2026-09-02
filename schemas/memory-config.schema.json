@@ -30,7 +30,7 @@
         "targets": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "generic"] }
+          "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "devin", "generic", "gemini-cli", "via"] }
         }
       }
     },

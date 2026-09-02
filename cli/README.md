@@ -31,12 +31,13 @@ $ alfredo --version
 # Show usage help
 $ alfredo --help
 
-# Bootstrap the official source and install for every supported agent
+# Bootstrap the official source and install for every configured declared target
 $ alfredo setup --all
 
 # Or install for one or more selected agents
 $ alfredo setup --cursor
-$ alfredo setup --codex --claude
+$ alfredo setup --codex --gemini-cli
+$ alfredo setup --devin --via
 $ alfredo setup --antigravity --scope project
 
 # Scaffold a new Alfredo source repository
@@ -61,12 +62,17 @@ $ alfredo package status --target codex --scope user
 $ alfredo package diff --target codex --scope user
 $ alfredo package uninstall android-core --target codex --scope user
 
+# Author project-root output templates
+$ alfredo template new client-email --kind email --description "Use for client email. Not for internal chat." --format-target email
+$ alfredo template validate client-email
+$ alfredo template match email
+
 # Coordinate durable work
 $ alfredo run create --title "Implement multiplayer MVP"
 $ alfredo task create --title "Implement reconnect support"
 $ alfredo task ready
-$ alfredo session start --adapter claude
-$ alfredo task claim ALF-... --adapter claude --session SES-...
+$ alfredo session start --adapter codex
+$ alfredo task claim ALF-... --adapter codex --session SES-...
 $ alfredo task checkpoint ALF-... --next-action "write tests"
 $ alfredo session close SES-... --reason context-limit --capture-memory
 $ alfredo task resume ALF-...
@@ -96,9 +102,11 @@ release asset, verifies it against `SHA256SUMS`, and swaps the running
 executable. Override the release origin with `ALFREDO_GITHUB_REPOSITORY` or
 `ALFREDO_DOWNLOAD_BASE_URL`.
 
-Supported targets are `codex`, `claude-code`, `cursor`, `antigravity`, and
-`generic`. Installation is fail-closed on unmanaged or locally modified files;
-uninstall preserves modified managed files.
+Supported targets are `codex`, `claude-code`, `cursor`, `antigravity`, `devin`,
+`generic`, `gemini-cli`, and `via`. `setup --all` installs only targets that
+are both declared by the discovered official packages and already configured in
+the selected local scope. Installation is fail-closed on unmanaged or locally
+modified files; uninstall preserves modified managed files.
 
 ## Running Tests with coverage 🧪
 

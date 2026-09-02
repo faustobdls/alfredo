@@ -1,0 +1,41 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HK86X994RMRR0N7K",
+  "task": "ALF-01M1HK51GEHZW0NF0F0K",
+  "type": "checkpointed",
+  "created_at": "2026-09-02T17:39:14.473512Z",
+  "data": {
+    "completed": [
+      "opened template format target schema",
+      "changed template new to allow project-defined format targets",
+      "updated docs and README set to describe suggested",
+      " not closed",
+      " formats",
+      "added tests for custom format targets and adjusted schema contract tests",
+      "recorded project memory note for open template format targets"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "mark verified and done"
+    ],
+    "changed_files": [
+      "schemas/template.schema.json",
+      "cli/lib/src/commands/template_command.dart",
+      "cli/test/src/commands/template_command_test.dart",
+      "cli/test/contracts/schema_files_test.dart",
+      "docs/architecture/templates.md",
+      "README.md",
+      "README.pt-BR.md",
+      "README.es.md",
+      "skills/compose-from-template/SKILL.md",
+      "CHANGELOG.md",
+      ".alfredo/memory/notes/2026-09-02-open-template-format-targets.md"
+    ],
+    "validations": {
+      "dart format": "passed",
+      "dart analyze": "passed",
+      "dart test": "passed"
+    },
+    "next_action": null
+  }
+}

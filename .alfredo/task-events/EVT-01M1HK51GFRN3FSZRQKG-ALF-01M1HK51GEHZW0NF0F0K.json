@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HK51GFRN3FSZRQKG",
+  "task": "ALF-01M1HK51GEHZW0NF0F0K",
+  "type": "created",
+  "created_at": "2026-09-02T17:37:30.639259Z",
+  "data": {
+    "title": "Allow open template format targets"
+  }
+}

@@ -38,10 +38,10 @@ length, and format; this skill maps the content onto it and renders the result.
 4. **Apply the voice.** Hold `voice.temperature`, `voice.person`, and any
    `greeting` / `signoff`. Keep within `length`. Enforce every
    `constraints.always` and `constraints.never`.
-5. **Render to the target.** Produce `format.target` — plain Markdown, Marp,
-   `.pptx`, a slides connector, whatever the session has — styled by
-   `format.theme`. The template names the target; use the tool that is
-   available.
+5. **Render to the target.** Produce `format.target` — a known format, a pure
+   text file, a custom file contract, or a renderer-specific target — styled by
+   `format.theme` when present. The template names the target; use the tool
+   that is available and report when the target needs an external renderer.
 6. **Verify in a separate pass.** Check the artifact against the template:
    every required section present, tone held, length within bounds, nothing
    forbidden. Report the result of that check, not just the artifact.

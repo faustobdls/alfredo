@@ -24,7 +24,7 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "generic"] }
+      "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "devin", "generic", "gemini-cli", "via"] }
     },
     "sources": {
       "type": "array",

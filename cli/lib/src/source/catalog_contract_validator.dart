@@ -18,7 +18,10 @@ class CatalogContractValidator {
     'claude-code',
     'cursor',
     'antigravity',
+    'devin',
     'generic',
+    'gemini-cli',
+    'via',
   };
   static const _contentKinds = {
     'skills',

@@ -1,7 +1,7 @@
 schema_version: 1
 id: personas-core
 name: Personas Core
-version: 0.1.0
+version: 0.1.1
 description: Seed personas for Alfredo's voice and the user's durable preferences.
 license: MIT
 targets:
@@ -9,7 +9,10 @@ targets:
   - claude-code
   - cursor
   - antigravity
+  - devin
   - generic
+  - gemini-cli
+  - via
 contents:
   personas:
     - personas/alfredo.md

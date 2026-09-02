@@ -1,0 +1,69 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M1HK51GEHZW0NF0F0K",
+  "title": "Allow open template format targets",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-02T17:37:30.637944Z",
+  "updated_at": "2026-09-02T17:39:20.599381Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M1HK51GD879AB26XTE"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "template format target accepts project-defined values",
+    "docs present known formats as suggestions",
+    " not a closed enum"
+  ],
+  "context": {
+    "topics": [],
+    "files": [
+      "schemas/template.schema.json",
+      "cli/lib/src/commands/template_command.dart",
+      "cli/test/src/commands/template_command_test.dart",
+      "docs/architecture/templates.md",
+      "README.md",
+      "README.pt-BR.md",
+      "README.es.md"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      " formats",
+      " not closed",
+      "added tests for custom format targets and adjusted schema contract tests",
+      "changed template new to allow project-defined format targets",
+      "opened template format target schema",
+      "recorded project memory note for open template format targets",
+      "updated docs and README set to describe suggested"
+    ],
+    "current": "verification complete",
+    "remaining": [
+      "mark verified and done"
+    ],
+    "changed_files": [
+      ".alfredo/memory/notes/2026-09-02-open-template-format-targets.md",
+      "CHANGELOG.md",
+      "README.es.md",
+      "README.md",
+      "README.pt-BR.md",
+      "cli/lib/src/commands/template_command.dart",
+      "cli/test/contracts/schema_files_test.dart",
+      "cli/test/src/commands/template_command_test.dart",
+      "docs/architecture/templates.md",
+      "schemas/template.schema.json",
+      "skills/compose-from-template/SKILL.md"
+    ],
+    "validations": {
+      "dart format": "passed",
+      "dart analyze": "passed",
+      "dart test": "passed"
+    },
+    "next_action": null
+  },
+  "blocker": null
+}

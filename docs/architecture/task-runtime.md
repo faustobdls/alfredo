@@ -109,6 +109,44 @@ closure is satisfied.
 A task may belong to a run. Referencing an unknown run is rejected so the task
 graph does not accumulate orphan orchestration pointers.
 
+Ready work is ordered by priority first and creation time second. Recognized
+high-to-low labels are `critical`/`urgent`/`p0`, `high`/`p1`,
+`normal`/`medium`/`p2`, and `low`/`p3`; unknown labels sort after the known
+bands but remain valid user labels.
+
+## Master Task Flow
+
+When a user request is larger than one direct edit, the work runs as a master
+flow:
+
+1. Convert the request into a development plan grounded in the repository.
+   Before writing that plan, ask clarifying questions whenever the answer would
+   change scope, acceptance criteria, architecture, task boundaries, sequencing,
+   target environment, or safe parallelization.
+2. Review the plan for missing acceptance criteria, risky dependencies,
+   unclear ownership, and tasks that are too large or entangled.
+3. After approval, create durable Alfredo tasks under the run. Each task must be
+   atomic: one logical change, clear acceptance criteria, explicit dependencies,
+   and a path to one semantic commit.
+4. Move approved tasks into `BACKLOG`, which is the runtime's To Do state.
+5. Claim and run every `READY` task that can proceed without file or dependency
+   conflict. Independent tasks may run in parallel; dependent or overlapping
+   tasks wait.
+6. Checkpoint each task as it progresses, move it through `VERIFYING`, and mark
+   it `DONE` only after evidence passes.
+7. Before final completion, review the README set and update it when changed
+   behavior, commands, targets, setup, architecture, or user-facing workflow
+   would otherwise leave the docs stale. When localized READMEs exist, keep
+   their structure and content aligned.
+8. Review the changed items for memory relevance. Durable decisions, project
+   conventions, recurring pitfalls, and user preferences should be proposed for
+   project or user memory; transient execution details stay only in task
+   checkpoints.
+9. Commit completed work atomically using the repository's message convention
+   before taking the next ready task, when the workflow has commit authority.
+10. Continue until the master run has no open tasks, then report completion and
+   any deliberate follow-ups.
+
 ## Checkpoints
 
 Checkpoints are compact operational summaries. They may include completed work,

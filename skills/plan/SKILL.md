@@ -24,18 +24,27 @@ concrete one. It can also review a plan someone else wrote.
 ## Method
 
 **Mode.** Broad, ambiguous request → interview. Concrete request with anchors →
-direct. `--review` → evaluate the supplied plan.
+direct. `--review` → evaluate the supplied plan. If any material ambiguity
+remains, do not start the plan.
 
 **Interview.**
 1. Restate the goal in one sentence and confirm it.
 2. Have **explore** gather codebase facts before asking the user about them.
-3. Ask one question at a time. Stop once the remaining unknowns are cosmetic.
+3. Ask one question at a time. Ask before planning whenever the answer would
+   change scope, acceptance criteria, architecture, task boundaries, sequencing,
+   target environment, or parallelization. Stop once the remaining unknowns are
+   cosmetic.
 
 **Direct / after interview.**
 4. The **planner** writes the ordered steps — each with a target, an action, and
    a done-condition — plus a "risks and open questions" list and an explicit
-   out-of-scope list. Save to `.alfredo/work/plan/plan.md`.
+   out-of-scope list. For development flows, each step must be small enough to
+   become one Alfredo task and one semantic commit. Include a final closure
+   step that checks README freshness and whether changed items should update
+   memory. Save to `.alfredo/work/plan/plan.md`.
 5. The **architect** sanity-checks the plan against the codebase's structure.
+6. The plan is not moved into execution until review passes and the user or
+   governing workflow approves it.
 
 **Review.**
 6. The **critic** evaluates the plan: are the claims grounded in file and line,
@@ -45,8 +54,12 @@ direct. `--review` → evaluate the supplied plan.
 
 - Resolve ambiguity before writing the plan, not by putting "investigate X"
   steps into it.
+- Do not turn material ambiguity into assumptions. State the blocker and ask the
+  smallest question that can clear it.
 - Size the plan to the task. A one-file change gets a paragraph.
 - The plan does not include code; it ends with steps.
+- Approved development plans become `BACKLOG` tasks, which is the runtime's To
+  Do state.
 
 ## How I report back
 
