@@ -6,6 +6,21 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `capability-authoring`, `agent-instruction-review`, `prompt-refiner`,
+  `visual-verdict`, and `grill-me` workflow skills in `skills-core`.
+- `agent-instruction-reviewer` in `agents-core` for independent, read-only
+  review of agent and skill instructions.
+
+### Changed
+
+- `plan` and `planner` now produce grounded technical plans with explicit
+  scope, path impact, dependencies, acceptance criteria, verification, and
+  task-runtime handoff. Concrete high-impact decisions can be pressure-tested
+  through `grill-me` before planning.
+- Bumped `skills-core` to `0.3.2` and `agents-core` to `0.1.2`.
+
 ## [1.0.0] - 2026-09-02
 
 ### Added

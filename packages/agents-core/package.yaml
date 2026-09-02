@@ -1,7 +1,7 @@
 schema_version: 1
 id: agents-core
 name: Agents Core
-version: 0.1.1
+version: 0.1.2
 description: Alfredo's canonical sub-agent catalogue, answering in Alfredo's voice.
 license: MIT
 targets:

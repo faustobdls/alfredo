@@ -1,0 +1,68 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M1HWH2NPYY7JDDWQQ5",
+  "title": "Add generic authoring, review, planning, and visual skills",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-02T20:21:22.218857Z",
+  "updated_at": "2026-09-02T20:34:49.511553Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M1HWHFYNNHR68BGS0J"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "Five reusable skills and one read-only agent are added in canonical Alfredo layout",
+    "Planner and plan skill adopt the technical planning contract and grill-me uses Task Runtime state",
+    "Core package manifests",
+    " documentation",
+    " changelog",
+    " and contract tests are updated",
+    "Format",
+    " analysis",
+    " tests",
+    " package listing",
+    " and independent instruction review pass"
+  ],
+  "context": {
+    "topics": [
+      "skills",
+      "agents"
+    ],
+    "files": [
+      "skills/plan/SKILL.md",
+      "agents/planner.md",
+      "packages/skills-core/package.yaml"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      "Authored canonical skills and review agent",
+      "Completed full validation and independent instruction review",
+      "Refactored technical planner workflow",
+      "Updated core packages documentation and changelog"
+    ],
+    "current": "Ready for task verification",
+    "remaining": [
+      "Resolve validation findings if any"
+    ],
+    "changed_files": [
+      "agents/agent-instruction-reviewer.md",
+      "agents/planner.md",
+      "packages/skills-core/package.yaml",
+      "skills/plan/SKILL.md"
+    ],
+    "validations": {
+      "format": "pass",
+      "analysis": "pass",
+      "tests": "pass",
+      "manifest_contracts": "pass",
+      "instruction_review": "approved"
+    },
+    "next_action": "Move task to verification and completion"
+  },
+  "blocker": null
+}
