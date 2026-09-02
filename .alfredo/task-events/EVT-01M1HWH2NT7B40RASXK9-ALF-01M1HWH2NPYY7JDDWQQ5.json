@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HWH2NT7B40RASXK9",
+  "task": "ALF-01M1HWH2NPYY7JDDWQQ5",
+  "type": "created",
+  "created_at": "2026-09-02T20:21:22.234628Z",
+  "data": {
+    "title": "Add generic authoring, review, planning, and visual skills"
+  }
+}

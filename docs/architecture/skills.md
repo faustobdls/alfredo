@@ -49,7 +49,7 @@ and ADB device-fleet operation.
 
 **Workflow skills** teach an orchestration method — how to run a phased,
 verified process using Alfredo's [agent catalogue](agents.md). The `skills-core`
-package ships thirteen, in Alfredo's voice:
+package ships eighteen, in Alfredo's voice:
 
 | Skill | Method |
 | --- | --- |
@@ -59,13 +59,18 @@ package ships thirteen, in Alfredo's voice:
 | `ultrawork` | Parallel execution of independent units with a concurrency bound |
 | `ultraqa` | Test / diagnose / fix cycle until the acceptance criteria pass |
 | `team` | Coordinated agents on one shared task list with dependencies |
-| `plan` | Ordered work plan, by interview or directly; plan review |
+| `plan` | Grounded technical implementation plan after requirements are understood; plan review |
 | `deep-interview` | Socratic requirements crystallisation before autonomous work |
 | `trace` | Evidence-driven causal investigation with competing hypotheses |
 | `deslop` | Deletion-first, regression-safe cleanup of generated slop |
 | `map-project` | First-contact repo survey into a structured, reusable `docs/` map |
 | `web-research` | Fetch external content, record provenance, fold it into memory or a context topic |
 | `compose-from-template` | Shape existing source material into an authored artifact under an output template |
+| `capability-authoring` | Classify and author canonical agents, skills, rules, personas, templates, and packages |
+| `agent-instruction-review` | Review AI instruction artifacts against a portable governance checklist |
+| `prompt-refiner` | Turn a prompt draft into a copy-ready request without executing it |
+| `visual-verdict` | Compare a generated visual with references through a structured JSON verdict |
+| `grill-me` | Pressure-test a concrete plan or decision with the user before work starts |
 
 Workflow skills historically wrote working state under `.alfredo/work/<skill>/`
 so a run could resume after interruption. New workflow work should use Task
@@ -75,6 +80,9 @@ Runtime as the durable substrate:
 - `ultrawork` = dependency-aware ready tasks + bounded parallel workers.
 - `ralph` = task checkpoints + implementation/verification loop.
 - `ultraqa` = `VERIFYING` tasks + diagnose/fix/reverify.
+- `plan` = grounded technical plan + task-ready acceptance and verification.
+- `grill-me` = decision checkpoint + durable memory only when the decision
+  remains relevant beyond the current task.
 
 The `.alfredo/work/<skill>/` shape is a compatibility layer, not the future
 source of truth.
