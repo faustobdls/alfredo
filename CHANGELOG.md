@@ -6,6 +6,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-03
+
 ### Added
 
 - `capability-authoring`, `agent-instruction-review`, `prompt-refiner`,
@@ -227,7 +229,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/faustobdls/alfredo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/faustobdls/alfredo/compare/v0.0.7...v1.0.0
 [0.0.7]: https://github.com/faustobdls/alfredo/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/faustobdls/alfredo/compare/v0.0.5...v0.0.6
