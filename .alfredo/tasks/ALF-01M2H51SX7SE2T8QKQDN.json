@@ -1,0 +1,69 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M2H51SX7SE2T8QKQDN",
+  "title": "Fase 3.2: alfredo task board (snapshot terminal board)",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-14T23:46:46.298846Z",
+  "updated_at": "2026-09-14T23:48:44.941929Z",
+  "owner": {
+    "adapter": "claude",
+    "agent": "executor",
+    "session": "SES-01M2H520AJW5N1DS05DN"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "alfredo task board renderiza colunas READY",
+    " IN_PROGRESS",
+    " VERIFYING e BLOCKED com cores ANSI",
+    "alfredo task board --json emite estrutura equivalente para consumo programatico",
+    "alfredo task board --watch redesenha em intervalo configuravel ate interrupcao",
+    "Testes cobrindo agrupamento por status",
+    " dependencias pendentes",
+    " ordenacao por prioridade e modo --watch"
+  ],
+  "context": {
+    "topics": [],
+    "files": [
+      "cli/lib/src/task_runtime/task_runtime_board.dart",
+      "cli/lib/src/task_runtime/task_runtime.dart",
+      "cli/lib/src/commands/task_command.dart",
+      "cli/test/src/task_runtime/task_runtime_board_test.dart",
+      "cli/test/src/commands/task_runtime_command_test.dart",
+      "docs/PLANO_MELHORIA_EVOLUCAO_ALFREDO.md"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      " --json",
+      " --json e modo --watch com --interval e --max-iterations (oculto",
+      " --watch e validacao de --interval",
+      " entrega e snapshot textual colorido + polling --watch",
+      " nao um TUI interativo com input",
+      " ordenacao por prioridade",
+      " uso em testes)",
+      "9 testes novos em task_runtime_board_test.dart + 3 testes de CLI em task_runtime_command_test.dart cobrindo colunas",
+      "Escopo documentado: sem lib de TUI disponivel no pubspec",
+      "Modelo TaskBoard/TaskBoardColumn/TaskBoardEntry agrupando tasks em READY/IN_PROGRESS/VERIFYING/BLOCKED com contadores de waiting/done/cancelled",
+      "Subcomando alfredo task board com saida texto colorida (mason_logger/io ansi)"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/commands/task_command.dart",
+      "cli/lib/src/task_runtime/task_runtime.dart",
+      "cli/lib/src/task_runtime/task_runtime_board.dart",
+      "cli/test/src/commands/task_runtime_command_test.dart",
+      "cli/test/src/task_runtime/task_runtime_board_test.dart"
+    ],
+    "validations": {
+      "format": "dart format --set-exit-if-changed . -> 94 files",
+      "analyze": "dart analyze --fatal-infos --fatal-warnings -> No issues found",
+      "test": "dart test -> 293 tests passed (1 pre-existing unrelated skip)"
+    },
+    "next_action": "Atualizar docs/PLANO_MELHORIA_EVOLUCAO_ALFREDO.md item 3.2, verificar e concluir a task, fechar sessao e commitar"
+  },
+  "blocker": null
+}

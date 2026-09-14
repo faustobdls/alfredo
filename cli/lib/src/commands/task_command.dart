@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:alfredo_cli/src/task_runtime/task_runtime.dart';
@@ -24,6 +25,7 @@ class TaskCommand extends Command<int> {
     addSubcommand(_SimpleTaskTransition('cancel', store, logger));
     addSubcommand(_ResumeTask(store: store, logger: logger));
     addSubcommand(_ReportTasks(store: store, logger: logger));
+    addSubcommand(_TaskBoardCommand(store: store, logger: logger));
   }
 
   @override
@@ -534,3 +536,138 @@ String _owner(TaskOwner? owner) {
 }
 
 String _join(List<String> values) => values.isEmpty ? '-' : values.join(', ');
+
+class _TaskBoardCommand extends _TaskSubcommand {
+  _TaskBoardCommand({required super.store, required super.logger}) {
+    argParser
+      ..addFlag('json', negatable: false, help: 'Emit JSON.')
+      ..addFlag(
+        'watch',
+        negatable: false,
+        help: 'Redraw the board on an interval until interrupted.',
+      )
+      ..addOption(
+        'interval',
+        defaultsTo: '2',
+        help: 'Seconds between redraws in --watch mode.',
+      )
+      ..addOption(
+        'max-iterations',
+        hide: true,
+        help: 'Stops --watch after N redraws. Intended for tests only.',
+      );
+  }
+
+  @override
+  String get description =>
+      'Render READY, IN_PROGRESS, VERIFYING, and BLOCKED tasks as a '
+      'terminal board.';
+
+  @override
+  String get name => 'board';
+
+  @override
+  Future<int> run() async {
+    final asJson = argResults!['json'] as bool;
+    final watch = argResults!['watch'] as bool;
+    if (!watch) {
+      final board = TaskBoard.build(tasks: await store.listTasks());
+      _render(board, asJson: asJson);
+      return ExitCode.success.code;
+    }
+
+    final intervalSeconds = int.tryParse(argResults!['interval'] as String);
+    if (intervalSeconds == null || intervalSeconds <= 0) {
+      throw UsageException('--interval must be a positive integer.', usage);
+    }
+    final interval = Duration(seconds: intervalSeconds);
+    final maxIterationsText = argResults!['max-iterations'] as String?;
+    final maxIterations = maxIterationsText == null
+        ? null
+        : int.tryParse(maxIterationsText);
+    if (maxIterationsText != null && maxIterations == null) {
+      throw UsageException(
+        '--max-iterations must be an integer.',
+        usage,
+      );
+    }
+
+    var iteration = 0;
+    while (maxIterations == null || iteration < maxIterations) {
+      final board = TaskBoard.build(tasks: await store.listTasks());
+      if (!asJson && iteration > 0) logger.info(_clearScreen);
+      _render(board, asJson: asJson);
+      iteration++;
+      if (maxIterations != null && iteration >= maxIterations) break;
+      await Future<void>.delayed(interval);
+    }
+    return ExitCode.success.code;
+  }
+
+  void _render(TaskBoard board, {required bool asJson}) {
+    if (asJson) {
+      output(board.toJson(), asJson: true);
+    } else {
+      logger.info(_boardText(board));
+    }
+  }
+}
+
+/// ANSI clear-screen + cursor-home, used between --watch redraws so each
+/// snapshot replaces the previous one instead of scrolling the terminal.
+const _clearScreen = '\x1B[2J\x1B[H';
+
+String _boardText(TaskBoard board) {
+  final buffer = StringBuffer()
+    ..writeln('Task Board — ${board.generatedAt.toIso8601String()}');
+  for (final column in board.columns) {
+    final heading = _columnStyle(column.title).wrap(
+      '${column.title} (${column.entries.length})',
+    );
+    buffer
+      ..writeln()
+      ..writeln(heading);
+    if (column.entries.isEmpty) {
+      buffer.writeln('  (empty)');
+      continue;
+    }
+    for (final entry in column.entries) {
+      final owner = entry.task.owner == null
+          ? ''
+          : ' · ${entry.task.owner!.adapter}/${entry.task.owner!.agent}';
+      final blocker = entry.task.blocker == null
+          ? ''
+          : ' · blocked: ${entry.task.blocker}';
+      buffer.writeln(
+        '  ${entry.task.id} [${entry.task.priority}] ${entry.task.title}'
+        '$owner$blocker · age ${_formatBoardDuration(entry.age)}',
+      );
+    }
+  }
+  buffer
+    ..writeln()
+    ..writeln(
+      'Waiting on dependencies: ${board.waitingCount} · '
+      'Done: ${board.doneCount} · Cancelled: ${board.cancelledCount}',
+    );
+  return buffer.toString().trimRight();
+}
+
+AnsiCode _columnStyle(String title) {
+  return switch (title) {
+    'READY' => cyan,
+    'IN_PROGRESS' => yellow,
+    'VERIFYING' => magenta,
+    'BLOCKED' => red,
+    _ => styleBold,
+  };
+}
+
+String _formatBoardDuration(Duration duration) {
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  final seconds = duration.inSeconds.remainder(60);
+  if (hours > 0) return '${hours}h ${minutes}m';
+  if (minutes > 0) return '${minutes}m ${seconds}s';
+  return '${seconds}s';
+}
