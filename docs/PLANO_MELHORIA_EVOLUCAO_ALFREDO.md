@@ -63,8 +63,11 @@ O plano a seguir está organizado em 4 fases incrementais, priorizando estabilid
 ### Fase 2: Evolução do Memory Engine & Busca Híbrida Avançada
 *Meta: Aumentar a precisão e velocidade na recuperação de conhecimento do projeto.*
 
-- [ ] **2.1. Algoritmo de Ranking Híbrido Ajustável:**
-  - Implementar suporte a parâmetros de peso entre busca léxica (BM25/TF-IDF) e vetorial (`embeddings`) no comando `alfredo memory search`.
+- [x] **2.1. Algoritmo de Ranking Híbrido Ajustável:** ✅ Concluído (`ALF-01M2H2FDGR1B27APQCMP`, addendum `ALF-01M2H3BXCQ6DJE67GK82`)
+  - Substituída a contagem bruta de termos por um BM25 real em `cli/lib/src/memory/keyword_search.dart` (IDF por frequência de documento no corpus, saturação de frequência de termo com `k1=1.5`, normalização por tamanho de documento com `b=0.75`).
+  - Criado `cli/lib/src/memory/hybrid_search.dart` com `combineHybridHits`, que normaliza cada ranking (léxico e vetorial) ao seu próprio máximo antes de combiná-los, evitando misturar escalas incompatíveis (BM25 vs. cosseno).
+  - Adicionado o parâmetro `vectorWeight` em `MemoryStore.search` (0 = somente léxico, 1 = somente vetorial, padrão 1 para preservar compatibilidade) e a flag `--weight` em `alfredo memory search`.
+  - Validado com 13 novos testes (`hybrid_search_test.dart`, extensões em `vector_index_test.dart` e `memory_command_test.dart`, incluindo um teste de saturação BM25) e reescrita das asserções de `keyword_search_test.dart` que assumiam contagem bruta. Suíte completa: 282/282 testes passando via `scripts/dart-sandbox.sh test`; `dart analyze --fatal-infos --fatal-warnings` e `dart format --set-exit-if-changed` limpos.
 - [ ] **2.2. Sumarização Incremental de Diários (Memory Roll-up):**
   - Adicionar o comando `alfredo memory compact` para consolidar diários antigos (`journal/YYYY/MM/`) em notas de histórico de longo prazo, mantendo o consumo de tokens sob controle.
 

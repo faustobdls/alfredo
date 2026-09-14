@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:alfredo_cli/src/memory/embeddings_client.dart';
+import 'package:alfredo_cli/src/memory/hybrid_search.dart';
 import 'package:alfredo_cli/src/memory/keyword_search.dart';
 import 'package:alfredo_cli/src/memory/memory_config_store.dart';
 import 'package:alfredo_cli/src/memory/memory_models.dart';
@@ -220,27 +222,57 @@ class MemoryStore {
   }
 
   /// Ranks memory documents against [query], never failing on a provider error.
+  ///
+  /// [vectorWeight] tunes the blend between lexical and vector ranking: `0`
+  /// is keyword-only, `1` is vector-only (falling back to keyword when no
+  /// index or provider is available, as before), and any value in between
+  /// linearly blends both rankings via [combineHybridHits]. It is clamped
+  /// to `[0, 1]` and ignored when [keywordOnly] is set or no [embeddings]
+  /// client is supplied.
   Future<List<MemorySearchHit>> search(
     String query, {
     int limit = 8,
     bool keywordOnly = false,
     EmbeddingsClient? embeddings,
+    double vectorWeight = 1,
   }) async {
     final documents = await loadAll();
     if (keywordOnly || embeddings == null) {
       return keywordSearch(documents, query, limit: limit);
     }
+    final weight = vectorWeight.clamp(0.0, 1.0);
+    if (weight <= 0) {
+      return keywordSearch(documents, query, limit: limit);
+    }
+    // Pull a wider candidate pool than requested so blending has enough
+    // documents from each ranking to compare before the final trim.
+    final poolLimit = math.max(limit, 20);
     try {
       final index = await EmbeddingIndexStore(file: embeddingIndexFile).read();
       if (index != null) {
-        final hits = await embeddingSearch(
+        final vectorHits = await embeddingSearch(
           client: embeddings,
           index: index,
           documents: documents,
           query: query,
-          limit: limit,
+          limit: poolLimit,
         );
-        if (hits.isNotEmpty) return hits;
+        if (vectorHits.isNotEmpty) {
+          if (weight >= 1) {
+            return List.unmodifiable(vectorHits.take(limit.clamp(1, 20)));
+          }
+          final keywordHits = keywordSearch(
+            documents,
+            query,
+            limit: poolLimit,
+          );
+          return combineHybridHits(
+            keywordHits: keywordHits,
+            vectorHits: vectorHits,
+            vectorWeight: weight,
+            limit: limit,
+          );
+        }
       }
     } on Exception {
       return keywordSearch(documents, query, limit: limit);

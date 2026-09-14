@@ -335,6 +335,52 @@ void main() {
     expect(embeddings.embedCalls, greaterThan(1));
   });
 
+  test('--weight 0 skips embeddings and ranks by keyword only', () async {
+    embeddings = FakeEmbeddingsClient();
+    await runner.run([
+      'memory',
+      'add',
+      '--scope',
+      'user',
+      '--kind',
+      'note',
+      '--title',
+      'Alpha One',
+      'alpha alpha alpha',
+    ]);
+    await storeFor(userMemory).writeConfig(
+      const MemoryConfig(
+        embeddings: EmbeddingsConfig(enabled: true, model: 'fake-embed'),
+        capture: CaptureConfig(),
+        defaultScope: MemoryScope.user,
+      ),
+    );
+    await runner.run(['memory', 'index', '--scope', 'user']);
+    embeddings.embedCalls = 0;
+
+    expect(
+      await runner.run([
+        'memory',
+        'search',
+        'alpha',
+        '--scope',
+        'user',
+        '--weight',
+        '0',
+      ]),
+      ExitCode.success.code,
+    );
+
+    expect(embeddings.embedCalls, 0);
+  });
+
+  test('rejects a non-numeric --weight value', () async {
+    expect(
+      await runner.run(['memory', 'search', 'alpha', '--weight', 'nope']),
+      ExitCode.usage.code,
+    );
+  });
+
   test('refuses to index while embeddings are disabled', () async {
     await runner.run(['memory', 'add', '--scope', 'user', 'work']);
 

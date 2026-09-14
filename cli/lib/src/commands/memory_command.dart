@@ -177,6 +177,17 @@ abstract class _MemorySubcommand extends Command<int> {
     }
     return parsed ?? 0;
   }
+
+  /// Parses a `--$name` option as a double, or throws a usage error.
+  double doubleOption(String name, {required double defaultValue}) {
+    final value = argResults![name] as String?;
+    if (value == null) return defaultValue;
+    final parsed = double.tryParse(value);
+    if (parsed == null) {
+      throw UsageException('Invalid --$name value: $value', usage);
+    }
+    return parsed;
+  }
 }
 
 class _SetupMemory extends _MemorySubcommand {
@@ -533,6 +544,14 @@ class _SearchMemory extends _MemorySubcommand {
     addScopeOption(defaultsTo: 'all', includeAll: true);
     argParser
       ..addOption('limit', defaultsTo: '8', help: 'Maximum number of hits.')
+      ..addOption(
+        'weight',
+        defaultsTo: '1',
+        help:
+            'Vector weight in the hybrid blend, from 0 (keyword-only) to '
+            '1 (vector-only). Ignored with --keyword or when embeddings '
+            'are disabled or unavailable.',
+      )
       ..addFlag(
         'keyword',
         negatable: false,
@@ -551,6 +570,7 @@ class _SearchMemory extends _MemorySubcommand {
     final query = requireMessage();
     final limit = intOption('limit');
     final keywordOnly = argResults!['keyword'] == true;
+    final vectorWeight = doubleOption('weight', defaultValue: 1);
     final hits = <MemorySearchHit>[];
     for (final scope in selectedScopes()) {
       final store = storeFor(scope);
@@ -564,6 +584,7 @@ class _SearchMemory extends _MemorySubcommand {
         limit: limit,
         keywordOnly: keywordOnly,
         embeddings: client,
+        vectorWeight: vectorWeight,
       );
       hits.addAll(scoped.map((hit) => hit.withScopeLabel(scope.name)));
     }

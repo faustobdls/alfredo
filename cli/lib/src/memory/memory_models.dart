@@ -342,7 +342,9 @@ class MemorySearchHit {
   /// Single-line context around the first match.
   final String excerpt;
 
-  /// Ranking score; term counts for keyword search, cosine for embeddings.
+  /// Ranking score: BM25 for keyword search, cosine similarity for
+  /// embeddings, or a normalized weighted blend of both when the memory
+  /// store combines lexical and vector rankings.
   final double score;
 
   /// Human-readable owning scope, when a command merges several stores.
@@ -355,6 +357,18 @@ class MemorySearchHit {
     excerpt: excerpt,
     score: score,
     scopeLabel: label,
+  );
+
+  /// Returns a copy of this hit with its ranking [score] replaced.
+  ///
+  /// Used to rewrite the score after a hybrid keyword/embedding blend,
+  /// keeping the same path, title, excerpt, and scope label.
+  MemorySearchHit withScore(double score) => MemorySearchHit(
+    path: path,
+    title: title,
+    excerpt: excerpt,
+    score: score,
+    scopeLabel: scopeLabel,
   );
 }
 

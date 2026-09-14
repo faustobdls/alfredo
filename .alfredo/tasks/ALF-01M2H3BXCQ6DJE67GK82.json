@@ -1,0 +1,47 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M2H3BXCQ6DJE67GK82",
+  "title": "Fase 2.1 addendum: substituir contagem de termos por BM25 real",
+  "status": "DONE",
+  "priority": "normal",
+  "run": null,
+  "created_at": "2026-09-14T23:17:20.394372Z",
+  "updated_at": "2026-09-14T23:18:02.376025Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M2H3C5NKXWXNJH05VJ"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "keywordSearch usa BM25 (k1 b IDF normalizacao por tamanho) em vez de contagem bruta de termos",
+    "Testes cobrindo saturacao de frequencia de termo e ranking por mais termos distintos"
+  ],
+  "context": {
+    "topics": [],
+    "files": []
+  },
+  "checkpoint": {
+    "completed": [
+      "Adicionado teste de saturacao de frequencia de termo (BM25 nao cresce linearmente com repeticoes)",
+      "Atualizados testes de keyword_search_test.dart e vector_index_test.dart que assumiam contagem bruta de termos",
+      "Reescrito keyword_search.dart para BM25 real: IDF por documento-frequencia normalizacao por tamanho medio do corpus k1=1.5 b=0.75"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/memory/keyword_search.dart",
+      "cli/lib/src/memory/memory_models.dart",
+      "cli/test/src/memory/keyword_search_test.dart",
+      "cli/test/src/memory/vector_index_test.dart"
+    ],
+    "validations": {
+      "dart_analyze": "pass",
+      "dart_format": "pass",
+      "dart_test": "pass_282_tests"
+    },
+    "next_action": null
+  },
+  "blocker": null
+}
