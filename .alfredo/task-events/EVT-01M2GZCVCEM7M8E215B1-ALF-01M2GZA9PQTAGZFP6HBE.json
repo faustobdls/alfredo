@@ -1,0 +1,8 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2GZCVCEM7M8E215B1",
+  "task": "ALF-01M2GZA9PQTAGZFP6HBE",
+  "type": "done",
+  "created_at": "2026-09-14T22:07:56.814228Z",
+  "data": {}
+}

@@ -23,6 +23,7 @@ class TaskCommand extends Command<int> {
     addSubcommand(_SimpleTaskTransition('release', store, logger));
     addSubcommand(_SimpleTaskTransition('cancel', store, logger));
     addSubcommand(_ResumeTask(store: store, logger: logger));
+    addSubcommand(_ReportTasks(store: store, logger: logger));
   }
 
   @override
@@ -400,6 +401,91 @@ class _ResumeTask extends _TaskSubcommand {
     }
     return ExitCode.success.code;
   }
+}
+
+class _ReportTasks extends _TaskSubcommand {
+  _ReportTasks({required super.store, required super.logger}) {
+    argParser.addFlag('json', negatable: false, help: 'Emit JSON.');
+  }
+
+  @override
+  String get description =>
+      'Summarize time-in-status, blocking rate, and verification speed '
+      'across every durable task.';
+
+  @override
+  String get name => 'report';
+
+  @override
+  Future<int> run() async {
+    final tasks = await store.listTasks();
+    final eventsByTask = <String, List<TaskEvent>>{
+      for (final task in tasks) task.id: await store.listTaskEvents(task.id),
+    };
+    final report = TaskRuntimeReport.build(
+      tasks: tasks,
+      eventsByTask: eventsByTask,
+    );
+    if (argResults!['json'] as bool) {
+      output(report.toJson(), asJson: true);
+    } else {
+      logger.info(_reportText(report));
+    }
+    return ExitCode.success.code;
+  }
+}
+
+String _reportText(TaskRuntimeReport report) {
+  final buffer = StringBuffer()
+    ..writeln('Task Runtime Report — ${report.generatedAt.toIso8601String()}')
+    ..writeln('Total tasks: ${report.entries.length}')
+    ..writeln('Blocked at least once: ${report.blockedTasksCount}')
+    ..writeln(
+      'Average VERIFYING -> DONE: '
+      '${_formatDuration(report.averageVerifyDuration)}',
+    )
+    ..writeln()
+    ..writeln('By status:');
+  for (final status in TaskStatus.values) {
+    final count = report.countByStatus[status] ?? 0;
+    if (count == 0) continue;
+    final time = report.totalTimeByStatus[status] ?? Duration.zero;
+    buffer.writeln(
+      '  ${status.wireName}: $count task(s), '
+      '${_formatDuration(time)} total time',
+    );
+  }
+  if (report.doingTimeByAdapter.isNotEmpty) {
+    buffer
+      ..writeln()
+      ..writeln('DOING time by adapter:');
+    for (final entry in report.doingTimeByAdapter.entries) {
+      buffer.writeln('  ${entry.key}: ${_formatDuration(entry.value)}');
+    }
+  }
+  if (report.entries.isNotEmpty) {
+    buffer
+      ..writeln()
+      ..writeln('Tasks:');
+    for (final entry in report.entries) {
+      buffer.writeln(
+        '  ${entry.task.id} [${entry.task.status.wireName}] '
+        '${entry.task.title} — age ${_formatDuration(entry.age)}, '
+        'blocked ${entry.blockedCount}x',
+      );
+    }
+  }
+  return buffer.toString().trimRight();
+}
+
+String _formatDuration(Duration? duration) {
+  if (duration == null) return '-';
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  final seconds = duration.inSeconds.remainder(60);
+  if (hours > 0) return '${hours}h ${minutes}m';
+  if (minutes > 0) return '${minutes}m ${seconds}s';
+  return '${seconds}s';
 }
 
 Map<String, Object?> _resumeJson(AlfredoTask task) => {

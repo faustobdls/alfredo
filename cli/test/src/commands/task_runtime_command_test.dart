@@ -148,6 +148,20 @@ void main() {
     expect(await runner.run(['task', 'verify', taskId]), ExitCode.success.code);
     expect(await runner.run(['task', 'done', taskId]), ExitCode.success.code);
 
+    expect(await runner.run(['task', 'report']), ExitCode.success.code);
+    verify(
+      () => logger.info(any(that: contains('Total tasks: 1'))),
+    ).called(1);
+    expect(
+      await runner.run(['task', 'report', '--json']),
+      ExitCode.success.code,
+    );
+    final report = jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
+    expect(report['total_tasks'], 1);
+    final reportedTasks = report['tasks']! as List<dynamic>;
+    expect((reportedTasks.single as Map)['id'], taskId);
+    expect((reportedTasks.single as Map)['status'], 'DONE');
+
     expect(
       File(
         p.join(temporary.path, '.alfredo', 'tasks', '$taskId.json'),

@@ -215,3 +215,24 @@ dart format .
 dart analyze
 dart test
 ```
+
+### Running in restricted/sandboxed environments
+
+Version-manager wrappers (e.g. `fvm`) or CI runners with a read-only/limited
+`$HOME` can make `dart` fail with `Operation not permitted` while the wrapper
+touches its own installation cache (`bin/cache/engine.stamp.tmp.*`,
+`bin/cache/engine.realm`) or while the Dart CLI writes analytics/telemetry
+session files under `~/.dart-tool`. If that happens, use the bundled wrapper,
+which resolves the real Dart SDK binary directly and isolates `$HOME` to a
+git-ignored, project-local directory while preserving your real
+`PUB_CACHE`:
+
+```sh
+scripts/dart-sandbox.sh pub get
+scripts/dart-sandbox.sh analyze --fatal-infos --fatal-warnings
+scripts/dart-sandbox.sh test
+scripts/dart-sandbox.sh format .
+```
+
+Override `ALFREDO_DART_BIN` to force a specific Dart executable, or
+`ALFREDO_DART_SANDBOX_HOME` to change the isolated `$HOME` directory.

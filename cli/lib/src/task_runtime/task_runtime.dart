@@ -2,4 +2,5 @@
 library;
 
 export 'task_runtime_models.dart';
+export 'task_runtime_report.dart';
 export 'task_runtime_store.dart';
