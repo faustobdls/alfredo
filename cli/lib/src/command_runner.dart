@@ -72,7 +72,13 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         taskRuntime ??
         TaskRuntimeStore(projectRoot: defaultTaskRuntimeProjectRoot());
     addCommand(InitCommand(logger: _logger));
-    addCommand(SourceCommand(registry: registry, logger: _logger));
+    addCommand(
+      SourceCommand(
+        registry: registry,
+        logger: _logger,
+        catalog: catalog,
+      ),
+    );
     addCommand(
       SetupCommand(
         registry: registry,
