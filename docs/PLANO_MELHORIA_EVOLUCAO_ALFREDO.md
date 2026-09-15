@@ -85,8 +85,10 @@ O plano a seguir está organizado em 4 fases incrementais, priorizando estabilid
   - Adicionado o subcomando `alfredo task board` em `cli/lib/src/commands/task_command.dart`, com saída texto colorida por status via ANSI (`mason_logger`/`package:io`), `--json` para consumo programático, e `--watch --interval N` para redesenho periódico (com `--max-iterations` oculta, usada apenas em testes).
   - **Decisão de escopo registrada:** o plano pede um "modo interativo"; como o `pubspec.yaml` não traz nenhuma biblioteca de TUI (apenas `mason_logger`/`io` para ANSI), a entrega é um snapshot textual colorido com redesenho por polling (`--watch`), não uma TUI com captura de teclado/navegação. Adicionar uma lib de TUI completa (ex.: `dart_console`) ficaria fora do escopo atual sem justificativa de dependência nova.
   - Validado com 9 testes novos em `task_runtime_board_test.dart` (agrupamento por status, dependências pendentes, ordenação por prioridade, cálculo de idade, serialização JSON) e 3 testes de comando em `task_runtime_command_test.dart` (renderização texto/JSON, `--watch` com `--max-iterations`, validação de `--interval` inválido). Suíte completa: 293/293 testes passando (1 skip pré-existente não relacionado) via `scripts/dart-sandbox.sh test`; `dart analyze --fatal-infos --fatal-warnings` e `dart format --set-exit-if-changed` limpos.
-- [ ] **3.3. Git Hooks Nativos (`alfredo hooks install`):**
-  - Permitir a verificação automática de contratos de esquemas JSON e validação de tarefas em progresso antes de autorizar commits Git.
+- [x] **3.3. Git Hooks Nativos (`alfredo hooks install`):** ✅ Concluído (`ALF-01M2H7KEX40XQM2YBSEK`)
+  - Implementado `HooksCommand` (`cli/lib/src/commands/hooks_command.dart`) com subcomandos `install` e `uninstall`.
+  - Instala hook `pre-commit` com fallback inteligente (usa `scripts/dart-sandbox.sh` quando disponível no projeto para evitar bloqueios de I/O em ambientes isolados, ou `dart` padrão do sistema).
+  - Validado com testes unitários em `hooks_command_test.dart` simulando instalação/desinstalação em repositórios Git temporários. Suíte completa com 305/305 testes passando; `dart analyze` e `dart format` limpos.
 
 ### Fase 4: Arquitetura Plugável de Adaptações e Comunidade
 *Meta: Facilitar a criação de adaptadores customizados para novas ferramentas de IA.*

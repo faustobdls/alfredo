@@ -1,4 +1,5 @@
 import 'package:alfredo_cli/src/commands/context_command.dart';
+import 'package:alfredo_cli/src/commands/hooks_command.dart';
 import 'package:alfredo_cli/src/commands/init_command.dart';
 import 'package:alfredo_cli/src/commands/memory_command.dart';
 import 'package:alfredo_cli/src/commands/package_command.dart';
@@ -127,6 +128,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         memoryRoots: runtimeRoots,
       ),
     );
+    addCommand(HooksCommand(logger: _logger));
     addCommand(RunCommand(store: runtime, logger: _logger));
     addCommand(ContextCommand(store: runtime, logger: _logger));
     addCommand(
