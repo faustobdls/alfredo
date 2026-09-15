@@ -80,6 +80,13 @@ class MemoryCommand extends Command<int> {
         targetRoots: targetRoots,
       ),
     );
+    addSubcommand(
+      _CompactMemory(
+        roots: roots,
+        logger: logger,
+        embeddingsFactory: embeddings,
+      ),
+    );
   }
 
   @override
@@ -148,13 +155,16 @@ abstract class _MemorySubcommand extends Command<int> {
     return message;
   }
 
-  DateTime? sinceOption(DateTime now) {
-    final value = (argResults!['since'] as String?)?.trim();
+  DateTime? sinceOption(DateTime now) => relativeWindowOption('since', now);
+
+  /// Parses a `--$name` relative window option, such as `7d`, `2w`, or `3m`.
+  DateTime? relativeWindowOption(String name, DateTime now) {
+    final value = (argResults![name] as String?)?.trim();
     if (value == null || value.isEmpty) return null;
     final match = _sincePattern.firstMatch(value);
     if (match == null) {
       throw UsageException(
-        'Invalid --since value: $value. Use 7d, 2w, or 3m.',
+        'Invalid --$name value: $value. Use 7d, 2w, or 3m.',
         usage,
       );
     }
@@ -865,6 +875,68 @@ class _CaptureMemory extends _MemorySubcommand {
     } on Exception {
       return null;
     }
+  }
+}
+
+class _CompactMemory extends _MemorySubcommand {
+  _CompactMemory({
+    required super.roots,
+    required super.logger,
+    required super.embeddingsFactory,
+  }) {
+    addScopeOption(defaultsTo: 'all', includeAll: true);
+    argParser
+      ..addOption(
+        'older-than',
+        defaultsTo: '90d',
+        help:
+            'Relative age such as 90d, 12w, or 6m. Journal day-files '
+            'older than this are archived and summarized.',
+      )
+      ..addFlag(
+        'dry-run',
+        negatable: false,
+        help: 'Report what would be archived without changing any file.',
+      );
+  }
+
+  @override
+  String get description =>
+      'Fold old journal entries into a durable summary note.';
+
+  @override
+  String get name => 'compact';
+
+  @override
+  Future<int> run() async {
+    final olderThan = relativeWindowOption('older-than', DateTime.now());
+    final dryRun = argResults!['dry-run'] == true;
+    if (olderThan == null) {
+      throw UsageException('--older-than cannot be empty.', usage);
+    }
+    var compactedAny = false;
+    for (final scope in selectedScopes()) {
+      final store = storeFor(scope);
+      if (!store.directory.existsSync()) continue;
+      final report = await store.compactJournal(
+        olderThan: olderThan,
+        dryRun: dryRun,
+      );
+      if (report.archivedDays == 0) {
+        logger.info('${scope.name}: nothing older than --older-than.');
+        continue;
+      }
+      compactedAny = true;
+      final verb = dryRun ? 'would archive' : 'archived';
+      logger.success(
+        '${scope.name}: $verb ${report.archivedDays} journal day(s) '
+        '(${report.archivedEntries} entries) into ${report.notePath}.',
+      );
+    }
+    if (!compactedAny && !dryRun) {
+      logger.info('Nothing to compact.');
+    }
+    return ExitCode.success.code;
   }
 }
 

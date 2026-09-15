@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H5M0T4RDYS0FRXAK",
+  "task": "ALF-01M2H5M0T06N935CAKBG",
+  "type": "created",
+  "created_at": "2026-09-14T23:56:43.204056Z",
+  "data": {
+    "title": "Fase 2.2: alfredo memory compact (sumarizacao incremental de diarios)"
+  }
+}

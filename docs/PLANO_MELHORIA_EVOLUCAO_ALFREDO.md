@@ -68,8 +68,10 @@ O plano a seguir está organizado em 4 fases incrementais, priorizando estabilid
   - Criado `cli/lib/src/memory/hybrid_search.dart` com `combineHybridHits`, que normaliza cada ranking (léxico e vetorial) ao seu próprio máximo antes de combiná-los, evitando misturar escalas incompatíveis (BM25 vs. cosseno).
   - Adicionado o parâmetro `vectorWeight` em `MemoryStore.search` (0 = somente léxico, 1 = somente vetorial, padrão 1 para preservar compatibilidade) e a flag `--weight` em `alfredo memory search`.
   - Validado com 13 novos testes (`hybrid_search_test.dart`, extensões em `vector_index_test.dart` e `memory_command_test.dart`, incluindo um teste de saturação BM25) e reescrita das asserções de `keyword_search_test.dart` que assumiam contagem bruta. Suíte completa: 282/282 testes passando via `scripts/dart-sandbox.sh test`; `dart analyze --fatal-infos --fatal-warnings` e `dart format --set-exit-if-changed` limpos.
-- [ ] **2.2. Sumarização Incremental de Diários (Memory Roll-up):**
-  - Adicionar o comando `alfredo memory compact` para consolidar diários antigos (`journal/YYYY/MM/`) em notas de histórico de longo prazo, mantendo o consumo de tokens sob controle.
+- [x] **2.2. Sumarização Incremental de Diários (Memory Roll-up):** ✅ Concluído (`ALF-01M2H5M0T06N935CAKBG`)
+  - Implementado `MemoryStore.compactJournal` (`cli/lib/src/memory/memory_store.dart`) e o relatório `MemoryCompactReport` (`cli/lib/src/memory/memory_models.dart`), que arquivam day-files de journal mais antigos que `--older-than` movendo-os para `journal/.archive/` (mantendo integridade auditável sem nunca apagar arquivos silenciosamente) e foldando seu conteúdo em uma nota de resumo duradoura sob `notes/`.
+  - Adicionado o subcomando `alfredo memory compact` em `cli/lib/src/commands/memory_command.dart` com suporte a escopos (`--scope user|project|all`), `--older-than` (ex.: `90d`, `12w`, `6m`) e `--dry-run` para pré-visualização.
+  - Validado com 6 testes unitários novos em `memory_store_test.dart` e 4 testes de comando novos em `memory_command_test.dart`. Suíte completa com 303/303 testes passando (1 skip pré-existente); `dart analyze --fatal-infos --fatal-warnings` e `dart format --set-exit-if-changed` totalmente limpos.
 
 ### Fase 3: Expansão do Task Runtime (Métricas, Visualização e Hooks)
 *Meta: Transformar o Task Runtime em um centro de comando visual e auditável para múltiplos agentes.*

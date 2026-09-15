@@ -45,6 +45,15 @@ class MemoryStore {
   /// Durable note root.
   Directory get notesDirectory => Directory(p.join(directory.path, 'notes'));
 
+  /// Hidden archive of journal day-files folded into a compaction summary.
+  ///
+  /// Files here are moved, never deleted, so the raw history stays on disk
+  /// for audit; the leading dot excludes them from [loadAll], search, and
+  /// [listActivities]/[digest], the same convention [isExcludedMemoryPath]
+  /// already applies to any hidden directory.
+  Directory get journalArchiveDirectory =>
+      Directory(p.join(journalDirectory.path, '.archive'));
+
   /// Generated artifact root.
   Directory get generatedDirectory =>
       Directory(p.join(directory.path, 'index'));
@@ -280,6 +289,111 @@ class MemoryStore {
     return keywordSearch(documents, query, limit: limit);
   }
 
+  /// Consolidates journal entries older than [olderThan] into one durable
+  /// summary note and archives the source day-files.
+  ///
+  /// The journal stays append-only in spirit: day-files are never deleted,
+  /// only moved under [journalArchiveDirectory] (a hidden directory that
+  /// [loadAll], search, [listActivities], and [digest] all skip). Their
+  /// content is folded, oldest first, into one note under [notesDirectory]
+  /// so long-lived history keeps costing near-zero context instead of
+  /// growing the searchable journal without bound.
+  ///
+  /// Pass `dryRun: true` to preview the counts and note path without
+  /// touching disk. Returns a report with `archivedDays: 0` when nothing is
+  /// older than [olderThan].
+  Future<MemoryCompactReport> compactJournal({
+    required DateTime olderThan,
+    bool dryRun = false,
+  }) async {
+    if (!journalDirectory.existsSync()) {
+      return const MemoryCompactReport(
+        archivedDays: 0,
+        archivedEntries: 0,
+        notePath: null,
+      );
+    }
+    final cutoff = DateTime(olderThan.year, olderThan.month, olderThan.day);
+    final files =
+        (await journalDirectory
+                .list(recursive: true, followLinks: false)
+                .toList())
+            .whereType<File>()
+            .where((file) => p.extension(file.path) == '.md')
+            .where(
+              (file) => !p
+                  .split(p.relative(file.path, from: journalDirectory.path))
+                  .any((segment) => segment.startsWith('.')),
+            )
+            .toList()
+          ..sort((left, right) => left.path.compareTo(right.path));
+
+    final toArchive = <File>[];
+    final entries = <MemoryEntry>[];
+    for (final file in files) {
+      final day = _dateFromName(p.basenameWithoutExtension(file.path));
+      if (day == null || !day.isBefore(cutoff)) continue;
+      toArchive.add(file);
+      entries.addAll(_parseJournal(day, await file.readAsString()));
+    }
+
+    if (toArchive.isEmpty) {
+      return const MemoryCompactReport(
+        archivedDays: 0,
+        archivedEntries: 0,
+        notePath: null,
+      );
+    }
+    entries.sort((left, right) => left.at.compareTo(right.at));
+
+    final moment = _now();
+    final firstDay = _formatDate(entries.first.at);
+    final lastDay = _formatDate(entries.last.at);
+    final title = 'Journal summary $firstDay to $lastDay';
+    final baseSlug =
+        '${_formatDate(moment)}-journal-summary-$firstDay-to-$lastDay';
+    var noteFile = File(p.join(notesDirectory.path, '$baseSlug.md'));
+    if (dryRun) {
+      return MemoryCompactReport(
+        archivedDays: toArchive.length,
+        archivedEntries: entries.length,
+        notePath: p.posix.joinAll(
+          p.split(p.relative(noteFile.path, from: directory.path)),
+        ),
+      );
+    }
+
+    var suffix = 0;
+    while (noteFile.existsSync()) {
+      suffix++;
+      noteFile = File(p.join(notesDirectory.path, '$baseSlug-$suffix.md'));
+    }
+    await _writeAtomically(
+      noteFile,
+      '# $title\n\n'
+      'date: ${_formatDate(moment)}\n'
+      'tags: compaction, journal-summary\n'
+      '\n'
+      '${_renderCompactSummary(entries)}\n',
+    );
+
+    for (final file in toArchive) {
+      final relative = p.relative(file.path, from: journalDirectory.path);
+      final archived = File(p.join(journalArchiveDirectory.path, relative));
+      await archived.parent.create(recursive: true);
+      await file.rename(archived.path);
+    }
+    await regenerateIndexFile();
+
+    return MemoryCompactReport(
+      archivedDays: toArchive.length,
+      archivedEntries: entries.length,
+      notePath: p.posix.joinAll(
+        p.split(p.relative(noteFile.path, from: directory.path)),
+      ),
+    );
+  }
+
   /// Embeds new or changed documents and prunes vectors for deleted files.
   Future<MemoryIndexReport> updateIndex(
     EmbeddingsClient client, {
@@ -379,6 +493,11 @@ class MemoryStore {
                 .toList())
             .whereType<File>()
             .where((file) => p.extension(file.path) == '.md')
+            .where(
+              (file) => !p
+                  .split(p.relative(file.path, from: journalDirectory.path))
+                  .any((segment) => segment.startsWith('.')),
+            )
             .toList()
           ..sort((left, right) => left.path.compareTo(right.path));
     final entries = <MemoryEntry>[];
@@ -516,4 +635,28 @@ class MemoryStore {
 
   static String _singleLine(String value) =>
       value.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).join(' ');
+
+  /// Renders archived journal entries as one day-grouped Markdown body,
+  /// reusing the same layout [digest] shows for a live window so a
+  /// compacted note reads like a permanent digest of that period.
+  static String _renderCompactSummary(List<MemoryEntry> entries) {
+    final byDay = <String, List<MemoryEntry>>{};
+    for (final entry in entries) {
+      (byDay[_formatDate(entry.at)] ??= []).add(entry);
+    }
+    final days = byDay.keys.toList()..sort();
+    final buffer = StringBuffer();
+    for (final day in days) {
+      if (buffer.isNotEmpty) buffer.writeln();
+      buffer.writeln('## $day');
+      for (final entry in byDay[day]!) {
+        final tags = entry.tags.isEmpty ? '' : ' [${entry.tags.join(',')}]';
+        buffer.writeln(
+          '- ${_formatTime(entry.at, seconds: false)} ${entry.kind.name}: '
+          '${_singleLine(entry.message)}$tags',
+        );
+      }
+    }
+    return buffer.toString().trimRight();
+  }
 }

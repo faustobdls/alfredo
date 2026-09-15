@@ -372,6 +372,28 @@ class MemorySearchHit {
   );
 }
 
+/// The outcome of one journal compaction run.
+class MemoryCompactReport {
+  /// Creates a compaction report.
+  const MemoryCompactReport({
+    required this.archivedDays,
+    required this.archivedEntries,
+    required this.notePath,
+  });
+
+  /// Journal day-files moved into the archive by this run.
+  final int archivedDays;
+
+  /// Journal entries folded into the consolidated summary note.
+  final int archivedEntries;
+
+  /// Path, relative to the memory directory, of the written summary note.
+  ///
+  /// This is the path that would be written when `compactJournal` runs with
+  /// `dryRun: true`. `null` when there was nothing to compact.
+  final String? notePath;
+}
+
 void _rejectUnknownKeys(
   Map<String, Object?> value,
   Set<String> allowed,
