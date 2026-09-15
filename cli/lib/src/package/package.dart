@@ -1,6 +1,7 @@
 /// Deterministic discovery, resolution, and installation of Alfredo packages.
 library;
 
+export 'declarative_adapter_loader.dart';
 export 'installation_adapters.dart';
 export 'installation_state.dart';
 export 'package_catalog.dart';

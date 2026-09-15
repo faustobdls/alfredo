@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: devin
+user_directory: .devin
+project_directory: .devin
+configuration_markers: []

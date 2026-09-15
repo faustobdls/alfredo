@@ -93,8 +93,10 @@ O plano a seguir está organizado em 4 fases incrementais, priorizando estabilid
 ### Fase 4: Arquitetura Plugável de Adaptações e Comunidade
 *Meta: Facilitar a criação de adaptadores customizados para novas ferramentas de IA.*
 
-- [ ] **4.1. Framework de Adaptadores Declarativos:**
-  - Padronizar o diretório `adapters/` com especificações declarativas (`adapter.yaml`) para mapear regras, personas e skills em qualquer target desconhecido sem necessidade de alterar o código-fonte em Dart da CLI.
+- [x] **4.1. Framework de Adaptadores Declarativos:** ✅ Concluído (`ALF-01M2H7T7ZNZ9T10718EJ`)
+  - Criado `DeclarativeAdapterLoader` (`cli/lib/src/package/declarative_adapter_loader.dart`) para carregar adaptadores dinamicamente a partir de arquivos `adapter.yaml` no diretório `adapters/`.
+  - Padronizadas as especificações declarativas sob `adapters/` para todos os targets padrão (`claude-code`, `codex`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via`, `generic`).
+  - Validado com testes unitários em `declarative_adapter_loader_test.dart` cobrindo carregamento, fallback para built-ins e sobrescrita de adaptadores. Suíte completa com 308/308 testes passando; `dart analyze` e `dart format` limpos.
 - [ ] **4.2. Sistema de Publicação e Registro de Pacotes Terceiros:**
   - Expandir o comando `alfredo source` para permitir busca e sincronização de registros remotos públicos/privados de pacotes Alfredo.
 

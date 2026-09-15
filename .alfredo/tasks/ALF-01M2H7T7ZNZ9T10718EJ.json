@@ -1,0 +1,50 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M2H7T7ZNZ9T10718EJ",
+  "title": "Fase 4.1: Framework de Adaptadores Declarativos (adapters/)",
+  "status": "DONE",
+  "priority": "p3",
+  "run": null,
+  "created_at": "2026-09-15T00:35:04.289029Z",
+  "updated_at": "2026-09-15T00:38:21.001868Z",
+  "owner": {
+    "adapter": "claude",
+    "agent": "executor",
+    "session": "SES-01M2H7THCTB3FSN3B1DD"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "Padronizar o diretorio adapters/ com adapter.yaml declarativos",
+    "Suporte ao carregamento dinamico de TargetAdapter a partir de definicoes YAML",
+    "Criar especificacoes declarativas para os targets padrao",
+    "Testes automatizados cobrindo o carregamento de adapters declarativos"
+  ],
+  "context": {
+    "topics": [],
+    "files": []
+  },
+  "checkpoint": {
+    "completed": [
+      "Adicionados arquivos adapter.yaml padronizados sob adapters/ para codex claude-code cursor antigravity devin gemini-cli via e generic",
+      "Adicionados testes unitarios em declarative_adapter_loader_test.dart",
+      "Criado DeclarativeAdapterLoader em declarative_adapter_loader.dart para carregar e mesclar adaptadores declarativos de adapters/",
+      "Exportado DeclarativeAdapterLoader em package.dart",
+      "Validada suite completa com 308 testes passando e analise sem avisos"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/package/declarative_adapter_loader.dart",
+      "cli/lib/src/package/package.dart",
+      "cli/test/src/package/declarative_adapter_loader_test.dart"
+    ],
+    "validations": {
+      "format": "clean",
+      "analyze": "clean",
+      "tests": "308_passed"
+    },
+    "next_action": "Marcar tarefa como verify e done atualizar o checklist do plano e commitar"
+  },
+  "blocker": null
+}

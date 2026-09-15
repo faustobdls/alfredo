@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: codex
+user_directory: .codex
+project_directory: .agents
+configuration_markers: []
