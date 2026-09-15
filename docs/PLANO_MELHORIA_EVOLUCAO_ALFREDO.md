@@ -57,8 +57,8 @@ O plano a seguir está organizado em 4 fases incrementais, priorizando estabilid
   - Implementado `scripts/dart-sandbox.sh`: resolve o binário real do Dart SDK (bypass do wrapper `fvm`, que falha com `Operation not permitted` ao tentar gravar em seu próprio cache de instalação) e isola `$HOME` em `.alfredo/runtime/dart-sandbox-home` (git-ignored), preservando `PUB_CACHE` real para não perder pacotes já baixados.
   - Documentado o uso do wrapper em `README.md` (raiz) e `cli/README.md`.
   - Validado: `pub get`, `dart analyze --fatal-infos --fatal-warnings`, `dart format --set-exit-if-changed .` e `dart test` (265 testes) passam com exit 0 via o wrapper, neste mesmo ambiente que antes falhava.
-- [ ] **1.2. Automação de Scripts de Inicialização:**
-  - Refatorar `scripts/install.sh` e `scripts/install.ps1` para validar automaticamente permissões de pastas de cache e binários instalados.
+- [x] **1.2. Automação de Scripts de Inicialização:** ✅ Concluído (`ALF-01M2H820XGH00HZWYSFP`)
+  - Refatorados `scripts/install.sh` e `scripts/install.ps1` para validar permissões de escrita no diretório de destino antes de extrair arquivos, e executar um smoke check no binário recém-instalado (`alfredo --version`) para garantir que ele é executável no ambiente alvo.
 
 ### Fase 2: Evolução do Memory Engine & Busca Híbrida Avançada
 *Meta: Aumentar a precisão e velocidade na recuperação de conhecimento do projeto.*

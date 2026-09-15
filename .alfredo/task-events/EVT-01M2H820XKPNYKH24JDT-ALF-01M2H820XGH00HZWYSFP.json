@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H820XKPNYKH24JDT",
+  "task": "ALF-01M2H820XGH00HZWYSFP",
+  "type": "created",
+  "created_at": "2026-09-15T00:39:19.219414Z",
+  "data": {
+    "title": "Fase 1.2: Automacao e Resiliencia nos Scripts de Instalacao"
+  }
+}
