@@ -9,6 +9,6 @@ targets:
 contents:
   # Plugin registration
   plugin:
-    - src/index.js
+    - packages/alfredo-plugin/src/index.js
 dependencies: []
 conflicts: []

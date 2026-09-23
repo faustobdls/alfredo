@@ -117,6 +117,23 @@ irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps
 
 The installer downloads the latest GitHub release for the current platform, validates the SHA-256 checksum, installs into `~/.alfredo/bin`, and updates the current shell PATH. Set `ALFREDO_INSTALL_DIR` to choose another destination.
 
+### Install as a DeepSeek Harness Plugin
+
+To use Alfredo as a plugin inside the DeepSeek Harness (DSH) CLI, install it to DSH's plugin registry:
+
+```sh
+# Clone or navigate to the alfredo repository
+cd /path/to/alfredo
+
+# Register as a DSH plugin
+dsh plugin add alfredo --path .
+
+# Verify installation
+dsh plugin list
+```
+
+Then reference Alfredo task tools in DSH agent prompts and skills using the canonical Alfredo CLI interface.
+
 ## Setup Targets
 
 Install official packages into every configured target declared by those packages:

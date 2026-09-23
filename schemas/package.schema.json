@@ -25,7 +25,7 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "devin", "generic", "gemini-cli", "via"] }
+      "items": { "enum": ["codex", "claude-code", "cursor", "antigravity", "devin", "dsh", "generic", "gemini-cli", "via"] }
     },
     "contents": {
       "type": "object",
@@ -38,7 +38,8 @@
         "templates": { "$ref": "#/$defs/pathList" },
         "scripts": { "$ref": "#/$defs/pathList" },
         "assets": { "$ref": "#/$defs/pathList" },
-        "references": { "$ref": "#/$defs/pathList" }
+        "references": { "$ref": "#/$defs/pathList" },
+        "plugin": { "$ref": "#/$defs/pathList" }
       }
     },
     "dependencies": { "$ref": "#/$defs/dependencyList" },

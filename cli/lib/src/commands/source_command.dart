@@ -264,8 +264,7 @@ class _SearchSourcesCommand extends _SourceSubcommand {
   final PackageCatalog catalog;
 
   @override
-  String get description =>
-      'Search for packages across registered sources.';
+  String get description => 'Search for packages across registered sources.';
 
   @override
   String get name => 'search';
