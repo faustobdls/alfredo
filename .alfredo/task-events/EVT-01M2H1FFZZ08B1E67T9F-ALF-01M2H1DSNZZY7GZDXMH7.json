@@ -1,0 +1,31 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H1FFZZ08B1E67T9F",
+  "task": "ALF-01M2H1DSNZZY7GZDXMH7",
+  "type": "checkpointed",
+  "created_at": "2026-09-14T22:44:20.607602Z",
+  "data": {
+    "completed": [
+      "Implementado TaskRuntimeReport (task_runtime_report.dart) reconstruindo intervalos de status a partir dos task-events",
+      "Adicionado subcommand alfredo task report (texto e --json) em task_command.dart",
+      "Testes unitarios cobrindo lifecycle completo blocked/unblocked repetido e serializacao JSON"
+    ],
+    "current": "Rodando validacao final (analyze/format/test) antes de verify",
+    "remaining": [
+      "Nenhum"
+    ],
+    "changed_files": [
+      "cli/lib/src/task_runtime/task_runtime_report.dart",
+      "cli/lib/src/commands/task_command.dart",
+      "cli/lib/src/task_runtime/task_runtime.dart",
+      "cli/test/src/task_runtime/task_runtime_report_test.dart",
+      "cli/test/src/commands/task_runtime_command_test.dart"
+    ],
+    "validations": {
+      "dart_analyze": "pass",
+      "dart_format": "pass",
+      "dart_test": "pass (269 tests)"
+    },
+    "next_action": "verify e done"
+  }
+}

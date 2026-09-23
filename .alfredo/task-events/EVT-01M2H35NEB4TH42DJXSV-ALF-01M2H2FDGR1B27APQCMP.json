@@ -1,0 +1,33 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H35NEB4TH42DJXSV",
+  "task": "ALF-01M2H2FDGR1B27APQCMP",
+  "type": "checkpointed",
+  "created_at": "2026-09-14T23:13:55.660455Z",
+  "data": {
+    "completed": [
+      "Criado modulo hybrid_search.dart com combineHybridHits que normaliza e pondera keyword+vector scores",
+      "Adicionado parametro vectorWeight em MemoryStore.search com pool de candidatos ampliado antes do blend",
+      "Adicionada flag --weight em alfredo memory search (0=keyword-only 1=vector-only)",
+      "12 novos testes cobrindo hybrid_search vector_index e memory_command"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/memory/hybrid_search.dart",
+      "cli/lib/src/memory/memory.dart",
+      "cli/lib/src/memory/memory_models.dart",
+      "cli/lib/src/memory/memory_store.dart",
+      "cli/lib/src/commands/memory_command.dart",
+      "cli/test/src/memory/hybrid_search_test.dart",
+      "cli/test/src/memory/vector_index_test.dart",
+      "cli/test/src/commands/memory_command_test.dart"
+    ],
+    "validations": {
+      "dart_analyze": "pass",
+      "dart_format": "pass",
+      "dart_test": "pass_281_tests"
+    },
+    "next_action": null
+  }
+}

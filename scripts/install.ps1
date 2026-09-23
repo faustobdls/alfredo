@@ -46,7 +46,15 @@ try {
 
     Expand-Archive -Path $archive -DestinationPath $temporaryDir -Force
     New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-    Copy-Item -Path (Join-Path $temporaryDir "alfredo.exe") -Destination (Join-Path $installDir "alfredo.exe") -Force
+    
+    $installedBinary = Join-Path $installDir "alfredo.exe"
+    Copy-Item -Path (Join-Path $temporaryDir "alfredo.exe") -Destination $installedBinary -Force
+
+    try {
+        & $installedBinary --version | Out-Null
+    } catch {
+        Write-Warning "Installed binary at $installedBinary could not be executed directly."
+    }
 
     $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
     $normalizedInstallDir = $installDir.TrimEnd("\")

@@ -335,6 +335,52 @@ void main() {
     expect(embeddings.embedCalls, greaterThan(1));
   });
 
+  test('--weight 0 skips embeddings and ranks by keyword only', () async {
+    embeddings = FakeEmbeddingsClient();
+    await runner.run([
+      'memory',
+      'add',
+      '--scope',
+      'user',
+      '--kind',
+      'note',
+      '--title',
+      'Alpha One',
+      'alpha alpha alpha',
+    ]);
+    await storeFor(userMemory).writeConfig(
+      const MemoryConfig(
+        embeddings: EmbeddingsConfig(enabled: true, model: 'fake-embed'),
+        capture: CaptureConfig(),
+        defaultScope: MemoryScope.user,
+      ),
+    );
+    await runner.run(['memory', 'index', '--scope', 'user']);
+    embeddings.embedCalls = 0;
+
+    expect(
+      await runner.run([
+        'memory',
+        'search',
+        'alpha',
+        '--scope',
+        'user',
+        '--weight',
+        '0',
+      ]),
+      ExitCode.success.code,
+    );
+
+    expect(embeddings.embedCalls, 0);
+  });
+
+  test('rejects a non-numeric --weight value', () async {
+    expect(
+      await runner.run(['memory', 'search', 'alpha', '--weight', 'nope']),
+      ExitCode.usage.code,
+    );
+  });
+
   test('refuses to index while embeddings are disabled', () async {
     await runner.run(['memory', 'add', '--scope', 'user', 'work']);
 
@@ -710,6 +756,86 @@ void main() {
     ).called(1);
   });
 
+  test('compacts old journal entries into a summary note', () async {
+    await storeFor(userMemory).ensureSkeleton();
+    await storeFor(userMemory).appendActivity(
+      message: 'old work',
+      at: DateTime.now().subtract(const Duration(days: 200)),
+    );
+    await storeFor(userMemory).appendActivity(message: 'recent work');
+
+    expect(
+      await runner.run([
+        'memory',
+        'compact',
+        '--scope',
+        'user',
+        '--older-than',
+        '90d',
+      ]),
+      ExitCode.success.code,
+    );
+
+    verify(
+      () => logger.success(any(that: contains('archived 1 journal day'))),
+    ).called(1);
+    final activities = await storeFor(userMemory).listActivities();
+    expect(activities.map((entry) => entry.message), ['recent work']);
+    final notes = await storeFor(userMemory).listNotes();
+    expect(notes, hasLength(1));
+    expect(notes.single.title, contains('Journal summary'));
+  });
+  test('reports when nothing is old enough to compact', () async {
+    await storeFor(userMemory).ensureSkeleton();
+    await storeFor(userMemory).appendActivity(message: 'recent work');
+
+    expect(
+      await runner.run(['memory', 'compact', '--scope', 'user']),
+      ExitCode.success.code,
+    );
+
+    verify(
+      () => logger.info(
+        any(that: contains('nothing older than --older-than')),
+      ),
+    ).called(1);
+  });
+  test('previews compaction without touching disk in --dry-run', () async {
+    await storeFor(userMemory).ensureSkeleton();
+    await storeFor(userMemory).appendActivity(
+      message: 'old work',
+      at: DateTime.now().subtract(const Duration(days: 200)),
+    );
+
+    expect(
+      await runner.run([
+        'memory',
+        'compact',
+        '--scope',
+        'user',
+        '--older-than',
+        '90d',
+        '--dry-run',
+      ]),
+      ExitCode.success.code,
+    );
+
+    verify(
+      () => logger.success(any(that: contains('would archive 1 journal day'))),
+    ).called(1);
+    final activities = await storeFor(userMemory).listActivities();
+    expect(activities, hasLength(1));
+    expect(await storeFor(userMemory).listNotes(), isEmpty);
+  });
+  test('rejects an unparsable --older-than window', () async {
+    expect(
+      await runner.run(['memory', 'compact', '--older-than', 'ancient']),
+      ExitCode.usage.code,
+    );
+    verify(
+      () => logger.err(any(that: contains('Invalid --older-than value'))),
+    ).called(1);
+  });
   test('captures the end of a session without git', () async {
     expect(
       await runner.run(['memory', 'capture', '--scope', 'user']),

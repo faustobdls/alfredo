@@ -1,0 +1,54 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M2H5M0T06N935CAKBG",
+  "title": "Fase 2.2: alfredo memory compact (sumarizacao incremental de diarios)",
+  "status": "DONE",
+  "priority": "p3",
+  "run": null,
+  "created_at": "2026-09-14T23:56:43.187195Z",
+  "updated_at": "2026-09-15T00:30:11.192768Z",
+  "owner": {
+    "adapter": "claude",
+    "agent": "executor",
+    "session": "SES-01M2H5M7A8BAGESX6XVQ"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "Novo subcomando alfredo memory compact consolida entradas antigas do journal em um resumo compacto",
+    "Journal original preservado (append-only) ou movido para arquivo de arquivamento explicito",
+    " nunca apagado silenciosamente",
+    "Testes automatizados cobrindo o comportamento de compactacao",
+    "dart format/analyze/test limpos"
+  ],
+  "context": {
+    "topics": [],
+    "files": []
+  },
+  "checkpoint": {
+    "completed": [
+      "Adicionado subcomando alfredo memory compact com flags --older-than e --dry-run e suporte a escopos",
+      "Criado MemoryCompactReport em memory_models.dart",
+      "Escrita de testes de CLI cobrindo alfredo memory compact (4 testes novos)",
+      "Escrita de testes de unidade cobrindo MemoryStore.compactJournal (6 testes novos)",
+      "Implementado compactJournal em MemoryStore movendo day-files para .archive e gerando nota de resumo consolidada",
+      "Validacao completa com 303 de 303 testes passando e analyze/format limpos"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/commands/memory_command.dart",
+      "cli/lib/src/memory/memory_models.dart",
+      "cli/lib/src/memory/memory_store.dart",
+      "cli/test/src/commands/memory_command_test.dart",
+      "cli/test/src/memory/memory_store_test.dart"
+    ],
+    "validations": {
+      "format": "clean",
+      "analyze": "clean",
+      "tests": "303_passed"
+    },
+    "next_action": "Marcar tarefa como verify e done atualizar checklist do plano e commitar"
+  },
+  "blocker": null
+}

@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: cursor
+user_directory: .cursor
+project_directory: .cursor
+configuration_markers: []

@@ -1,0 +1,46 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M2H820XGH00HZWYSFP",
+  "title": "Fase 1.2: Automacao e Resiliencia nos Scripts de Instalacao",
+  "status": "DONE",
+  "priority": "p3",
+  "run": null,
+  "created_at": "2026-09-15T00:39:19.199471Z",
+  "updated_at": "2026-09-15T00:40:52.772496Z",
+  "owner": {
+    "adapter": "claude",
+    "agent": "executor",
+    "session": "SES-01M2H82ACH1MJBEZJ986"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "Validacao de permissoes de escrita no diretorio de instalacao em install.sh e install.ps1",
+    "Execucao de smoke check do binario recem-instalado (alfredo --version)",
+    "Tratamento gracioso de erros de permissao e download"
+  ],
+  "context": {
+    "topics": [],
+    "files": []
+  },
+  "checkpoint": {
+    "completed": [
+      "Adicionada verificacao de permissao de escrita no diretorio de instalacao em install.sh",
+      "Adicionado smoke test de execucao do binario pos-instalacao em install.sh e install.ps1",
+      "Suite completa de 308 testes passando",
+      "Validada sintaxe do script de shell com sh -n"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "scripts/install.ps1",
+      "scripts/install.sh"
+    ],
+    "validations": {
+      "syntax": "clean",
+      "tests": "308_passed"
+    },
+    "next_action": "Marcar tarefa como verify e done atualizar checklist do plano e commitar"
+  },
+  "blocker": null
+}

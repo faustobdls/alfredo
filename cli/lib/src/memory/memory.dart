@@ -3,6 +3,7 @@ library;
 
 export 'embeddings_client.dart';
 export 'hook_writer.dart';
+export 'hybrid_search.dart';
 export 'keyword_search.dart';
 export 'memory_config_store.dart';
 export 'memory_models.dart';

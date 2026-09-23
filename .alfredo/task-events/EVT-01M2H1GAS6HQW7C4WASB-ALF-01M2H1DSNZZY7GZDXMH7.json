@@ -1,0 +1,22 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H1GAS6HQW7C4WASB",
+  "task": "ALF-01M2H1DSNZZY7GZDXMH7",
+  "type": "checkpointed",
+  "created_at": "2026-09-14T22:44:48.038838Z",
+  "data": {
+    "completed": [
+      "Testes unitarios cobrindo lifecycle completo",
+      " blocked/unblocked repetido e serializacao JSON"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/test/src/task_runtime/task_runtime_report_test.dart"
+    ],
+    "validations": {
+      "dart_test": "pass_269_tests"
+    },
+    "next_action": null
+  }
+}

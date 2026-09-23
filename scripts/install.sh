@@ -62,8 +62,17 @@ if [ "$actual_checksum" != "$expected_checksum" ]; then
 fi
 
 mkdir -p "$install_dir"
+if [ ! -w "$install_dir" ]; then
+  echo "Error: Cannot write to installation directory: ${install_dir}" >&2
+  exit 1
+fi
 tar -xzf "${temporary_dir}/${asset}" -C "$temporary_dir"
 install -m 0755 "${temporary_dir}/alfredo" "${install_dir}/alfredo"
+
+# Smoke check installed binary
+if ! "${install_dir}/alfredo" --version >/dev/null 2>&1; then
+  echo "Warning: Installed binary at ${install_dir}/alfredo could not be executed directly." >&2
+fi
 
 shell_name="$(basename "${SHELL:-sh}")"
 case "$shell_name" in

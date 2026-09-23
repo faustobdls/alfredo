@@ -1,0 +1,33 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M1HNNWVXXFA2B11APV",
+  "task": "ALF-01M1HNMCG7XB2AGRVEFC",
+  "type": "checkpointed",
+  "created_at": "2026-09-02T18:21:40.093432Z",
+  "data": {
+    "completed": [
+      "bumped CLI version sources to 1.0.0",
+      "promoted changelog unreleased notes to 1.0.0",
+      "reviewed README impact: no release-specific README update needed"
+    ],
+    "current": "prepare release PR",
+    "remaining": [
+      "commit",
+      " push",
+      " open PR",
+      " merge"
+    ],
+    "changed_files": [
+      "cli/pubspec.yaml",
+      "cli/lib/src/version.dart",
+      "CHANGELOG.md"
+    ],
+    "validations": {
+      "dart format": "passed",
+      "dart analyze": "passed",
+      "dart test": "passed",
+      "git diff --check": "passed"
+    },
+    "next_action": null
+  }
+}

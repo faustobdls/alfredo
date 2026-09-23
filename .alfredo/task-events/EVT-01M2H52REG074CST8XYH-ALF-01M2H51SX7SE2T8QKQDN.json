@@ -1,0 +1,37 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H52REG074CST8XYH",
+  "task": "ALF-01M2H51SX7SE2T8QKQDN",
+  "type": "checkpointed",
+  "created_at": "2026-09-14T23:47:17.584760Z",
+  "data": {
+    "completed": [
+      "Modelo TaskBoard/TaskBoardColumn/TaskBoardEntry agrupando tasks em READY/IN_PROGRESS/VERIFYING/BLOCKED com contadores de waiting/done/cancelled",
+      "Subcomando alfredo task board com saida texto colorida (mason_logger/io ansi)",
+      " --json e modo --watch com --interval e --max-iterations (oculto",
+      " uso em testes)",
+      "Escopo documentado: sem lib de TUI disponivel no pubspec",
+      " entrega e snapshot textual colorido + polling --watch",
+      " nao um TUI interativo com input",
+      "9 testes novos em task_runtime_board_test.dart + 3 testes de CLI em task_runtime_command_test.dart cobrindo colunas",
+      " ordenacao por prioridade",
+      " --json",
+      " --watch e validacao de --interval"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/task_runtime/task_runtime_board.dart",
+      "cli/lib/src/task_runtime/task_runtime.dart",
+      "cli/lib/src/commands/task_command.dart",
+      "cli/test/src/task_runtime/task_runtime_board_test.dart",
+      "cli/test/src/commands/task_runtime_command_test.dart"
+    ],
+    "validations": {
+      "format": "dart format --set-exit-if-changed . -> 94 files",
+      "analyze": "dart analyze --fatal-infos --fatal-warnings -> No issues found",
+      "test": "dart test -> 293 tests passed (1 pre-existing unrelated skip)"
+    },
+    "next_action": "Atualizar docs/PLANO_MELHORIA_EVOLUCAO_ALFREDO.md item 3.2, verificar e concluir a task, fechar sessao e commitar"
+  }
+}

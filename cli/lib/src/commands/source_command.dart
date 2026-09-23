@@ -1,3 +1,4 @@
+import 'package:alfredo_cli/src/package/package.dart';
 import 'package:alfredo_cli/src/source/source.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
@@ -5,11 +6,24 @@ import 'package:mason_logger/mason_logger.dart';
 /// Manages the configured Alfredo catalog sources.
 class SourceCommand extends Command<int> {
   /// Creates the source command group.
-  SourceCommand({required SourceRegistry registry, required Logger logger}) {
+  SourceCommand({
+    required SourceRegistry registry,
+    required Logger logger,
+    PackageCatalog? catalog,
+  }) {
+    final packageCatalog = catalog ?? PackageCatalog(registry: registry);
     addSubcommand(_AddSourceCommand(registry: registry, logger: logger));
     addSubcommand(_ListSourcesCommand(registry: registry, logger: logger));
     addSubcommand(_ShowSourceCommand(registry: registry, logger: logger));
     addSubcommand(_TestSourceCommand(registry: registry, logger: logger));
+    addSubcommand(_SyncSourcesCommand(registry: registry, logger: logger));
+    addSubcommand(
+      _SearchSourcesCommand(
+        registry: registry,
+        catalog: packageCatalog,
+        logger: logger,
+      ),
+    );
     addSubcommand(_RemoveSourceCommand(registry: registry, logger: logger));
   }
 
@@ -197,6 +211,91 @@ class _TestSourceCommand extends _SourceSubcommand {
     logger.success(
       'Source $name is valid (${catalog.packages.length} packages).',
     );
+    return ExitCode.success.code;
+  }
+}
+
+class _SyncSourcesCommand extends _SourceSubcommand {
+  _SyncSourcesCommand({required super.registry, required super.logger});
+
+  @override
+  String get description =>
+      'Sync and revalidate one or all registered sources.';
+
+  @override
+  String get name => 'sync';
+
+  @override
+  Future<int> run() async {
+    final name = argResults!.rest.isNotEmpty ? argResults!.rest.first : null;
+    final sources = name != null
+        ? [await registry.get(name)]
+        : await registry.list();
+
+    if (sources.isEmpty) {
+      logger.info('No sources registered to sync.');
+      return ExitCode.success.code;
+    }
+
+    var failures = 0;
+    for (final source in sources) {
+      try {
+        final catalog = await registry.test(source.name);
+        logger.success(
+          'Synced ${source.name} (${catalog.packages.length} packages).',
+        );
+      } on Exception catch (error) {
+        failures++;
+        logger.err('Failed to sync ${source.name}: $error');
+      }
+    }
+
+    return failures == 0 ? ExitCode.success.code : ExitCode.software.code;
+  }
+}
+
+class _SearchSourcesCommand extends _SourceSubcommand {
+  _SearchSourcesCommand({
+    required super.registry,
+    required this.catalog,
+    required super.logger,
+  });
+
+  final PackageCatalog catalog;
+
+  @override
+  String get description => 'Search for packages across registered sources.';
+
+  @override
+  String get name => 'search';
+
+  @override
+  Future<int> run() async {
+    if (argResults!.rest.isEmpty) {
+      throw UsageException('Expected a search query.', usage);
+    }
+    final query = argResults!.rest.join(' ').toLowerCase();
+    final candidates = await catalog.discover();
+
+    final matches = candidates.where((candidate) {
+      final manifest = candidate.manifest;
+      return manifest.id.toLowerCase().contains(query) ||
+          manifest.name.toLowerCase().contains(query) ||
+          manifest.description.toLowerCase().contains(query);
+    }).toList();
+
+    if (matches.isEmpty) {
+      logger.info('No packages found matching "$query".');
+      return ExitCode.success.code;
+    }
+
+    for (final match in matches) {
+      final manifest = match.manifest;
+      logger.info(
+        '${manifest.id}\t${manifest.version}\t(${match.sourceName})\t'
+        '${manifest.name} - ${manifest.description}',
+      );
+    }
     return ExitCode.success.code;
   }
 }

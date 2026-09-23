@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: claude-code
+user_directory: .claude
+project_directory: .claude
+configuration_markers: []

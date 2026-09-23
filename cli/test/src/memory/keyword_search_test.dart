@@ -9,15 +9,29 @@ MemoryDocument _document(String path, String text) => MemoryDocument(
 );
 
 void main() {
-  test('scores documents by total term occurrences', () {
+  test('ranks documents with more term occurrences higher (BM25)', () {
     final hits = keywordSearch([
       _document('notes/a.md', 'rollback rollback rollback'),
       _document('notes/b.md', 'rollback once'),
     ], 'rollback');
 
     expect(hits.map((hit) => hit.path), ['notes/a.md', 'notes/b.md']);
-    expect(hits.first.score, 3);
-    expect(hits.last.score, 1);
+    expect(hits.first.score, greaterThan(hits.last.score));
+    expect(hits.last.score, greaterThan(0));
+  });
+
+  test('saturates term-frequency contribution instead of growing linearly', () {
+    final tripled = keywordSearch([
+      _document('notes/a.md', 'rollback rollback rollback'),
+    ], 'rollback').single.score;
+    final single = keywordSearch([
+      _document('notes/a.md', 'rollback'),
+    ], 'rollback').single.score;
+
+    // BM25's term-frequency saturation means tripling the raw occurrence
+    // count does not triple the score, unlike a flat term-count ranking.
+    expect(tripled, greaterThan(single));
+    expect(tripled, lessThan(single * 3));
   });
 
   test('breaks score ties with path order', () {
@@ -29,12 +43,15 @@ void main() {
     expect(hits.map((hit) => hit.path), ['notes/a.md', 'notes/z.md']);
   });
 
-  test('sums the counts of every query term', () {
-    final hits = keywordSearch([
+  test('scores a document higher when it matches more query terms', () {
+    final bothTerms = keywordSearch([
       _document('notes/a.md', 'rollback and staging'),
-    ], 'rollback staging');
+    ], 'rollback staging').single.score;
+    final oneTerm = keywordSearch([
+      _document('notes/a.md', 'rollback and staging'),
+    ], 'rollback').single.score;
 
-    expect(hits.single.score, 2);
+    expect(bothTerms, greaterThan(oneTerm));
   });
 
   test('drops single-character terms and empty queries', () {

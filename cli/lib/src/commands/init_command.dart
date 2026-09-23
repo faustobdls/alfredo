@@ -16,6 +16,12 @@ class InitCommand extends Command<int> {
 
   @override
   String get name => 'init';
+
+  @override
+  Future<int> run() async {
+    printUsage();
+    return ExitCode.success.code;
+  }
 }
 
 /// Identifier accepted by the source and package schemas.
@@ -56,10 +62,13 @@ class _InitSourceCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    if (argResults!.rest.length != 1) {
-      throw UsageException('Expected exactly one target path.', usage);
+    if (argResults!.rest.length > 1) {
+      throw UsageException('Expected at most one target path.', usage);
     }
-    final target = Directory(p.normalize(p.absolute(argResults!.rest.single)));
+    final targetPath = argResults!.rest.isNotEmpty
+        ? argResults!.rest.single
+        : '.';
+    final target = Directory(p.normalize(p.absolute(targetPath)));
     final id =
         (argResults!['id'] as String?)?.trim() ??
         _slugify(p.basename(target.path));

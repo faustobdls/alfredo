@@ -188,6 +188,13 @@ class TargetAdapters {
     configurationMarkers: ['skills', 'rules', 'agents', 'templates'],
   );
 
+  /// DeepSeek Harness adapter targeting `.dsh`.
+  static const dsh = TargetAdapter(
+    id: 'dsh',
+    userDirectoryName: '.dsh',
+    projectDirectoryName: '.dsh',
+  );
+
   /// Every built-in adapter, in stable identifier order.
   static const List<TargetAdapter> all = [
     codex,
@@ -195,6 +202,7 @@ class TargetAdapters {
     cursor,
     antigravity,
     devin,
+    dsh,
     generic,
     geminiCli,
     via,
@@ -207,6 +215,7 @@ class TargetAdapters {
     'cursor',
     'antigravity',
     'devin',
+    'dsh',
     'generic',
     'gemini-cli',
     'via',

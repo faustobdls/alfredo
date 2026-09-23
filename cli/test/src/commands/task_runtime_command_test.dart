@@ -148,6 +148,20 @@ void main() {
     expect(await runner.run(['task', 'verify', taskId]), ExitCode.success.code);
     expect(await runner.run(['task', 'done', taskId]), ExitCode.success.code);
 
+    expect(await runner.run(['task', 'report']), ExitCode.success.code);
+    verify(
+      () => logger.info(any(that: contains('Total tasks: 1'))),
+    ).called(1);
+    expect(
+      await runner.run(['task', 'report', '--json']),
+      ExitCode.success.code,
+    );
+    final report = jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
+    expect(report['total_tasks'], 1);
+    final reportedTasks = report['tasks']! as List<dynamic>;
+    expect((reportedTasks.single as Map)['id'], taskId);
+    expect((reportedTasks.single as Map)['status'], 'DONE');
+
     expect(
       File(
         p.join(temporary.path, '.alfredo', 'tasks', '$taskId.json'),
@@ -163,6 +177,128 @@ void main() {
     verify(
       () => logger.info(any(that: contains('Next action: write tests'))),
     ).called(1);
+  });
+
+  test('task board renders READY and IN_PROGRESS columns', () async {
+    expect(
+      await runner.run([
+        'task',
+        'create',
+        '--title',
+        'Ready task',
+        '--acceptance',
+        'noop',
+      ]),
+      ExitCode.success.code,
+    );
+    final readyId = captureSuccess(logger, 'Created ');
+
+    expect(
+      await runner.run([
+        'task',
+        'create',
+        '--title',
+        'In-progress task',
+        '--acceptance',
+        'noop',
+      ]),
+      ExitCode.success.code,
+    );
+    final doingId = captureSuccess(logger, 'Created ');
+
+    expect(
+      await runner.run(['session', 'start', '--adapter', 'codex', '--json']),
+      ExitCode.success.code,
+    );
+    final session =
+        jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
+    final sessionId = session['id']! as String;
+
+    expect(
+      await runner.run([
+        'task',
+        'claim',
+        doingId,
+        '--adapter',
+        'codex',
+        '--agent',
+        'executor',
+        '--session',
+        sessionId,
+      ]),
+      ExitCode.success.code,
+    );
+    expect(
+      await runner.run(['task', 'start', doingId]),
+      ExitCode.success.code,
+    );
+
+    expect(await runner.run(['task', 'board']), ExitCode.success.code);
+    final boardText = captureInfo(logger, 'Task Board');
+    expect(boardText, contains('READY (1)'));
+    expect(boardText, contains(readyId));
+    expect(boardText, contains('IN_PROGRESS (1)'));
+    expect(boardText, contains(doingId));
+
+    expect(
+      await runner.run(['task', 'board', '--json']),
+      ExitCode.success.code,
+    );
+    final board = jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
+    final columns = board['columns']! as List<dynamic>;
+    final ready = columns.firstWhere((c) => (c as Map)['title'] == 'READY');
+    expect((ready as Map)['count'], 1);
+    final inProgress = columns.firstWhere(
+      (c) => (c as Map)['title'] == 'IN_PROGRESS',
+    );
+    expect((inProgress as Map)['count'], 1);
+  });
+
+  test(
+    'task board --watch redraws until --max-iterations is reached',
+    () async {
+      expect(
+        await runner.run([
+          'task',
+          'create',
+          '--title',
+          'Watched task',
+          '--acceptance',
+          'noop',
+        ]),
+        ExitCode.success.code,
+      );
+
+      expect(
+        await runner.run([
+          'task',
+          'board',
+          '--watch',
+          '--interval',
+          '1',
+          '--max-iterations',
+          '2',
+          '--json',
+        ]),
+        ExitCode.success.code,
+      );
+      verify(() => logger.info(any(that: contains('"columns"')))).called(2);
+    },
+  );
+
+  test('task board rejects a non-positive --interval', () async {
+    expect(
+      await runner.run([
+        'task',
+        'board',
+        '--watch',
+        '--interval',
+        '0',
+        '--max-iterations',
+        '1',
+      ]),
+      ExitCode.usage.code,
+    );
   });
 
   test('session close captures memory when configured', () async {

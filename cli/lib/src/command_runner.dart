@@ -1,4 +1,5 @@
 import 'package:alfredo_cli/src/commands/context_command.dart';
+import 'package:alfredo_cli/src/commands/hooks_command.dart';
 import 'package:alfredo_cli/src/commands/init_command.dart';
 import 'package:alfredo_cli/src/commands/memory_command.dart';
 import 'package:alfredo_cli/src/commands/package_command.dart';
@@ -71,7 +72,13 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         taskRuntime ??
         TaskRuntimeStore(projectRoot: defaultTaskRuntimeProjectRoot());
     addCommand(InitCommand(logger: _logger));
-    addCommand(SourceCommand(registry: registry, logger: _logger));
+    addCommand(
+      SourceCommand(
+        registry: registry,
+        logger: _logger,
+        catalog: catalog,
+      ),
+    );
     addCommand(
       SetupCommand(
         registry: registry,
@@ -127,6 +134,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         memoryRoots: runtimeRoots,
       ),
     );
+    addCommand(HooksCommand(logger: _logger));
     addCommand(RunCommand(store: runtime, logger: _logger));
     addCommand(ContextCommand(store: runtime, logger: _logger));
     addCommand(
@@ -200,6 +208,17 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
     if (topLevelResults.command == null) {
       printUsage();
       return ExitCode.success.code;
+    }
+
+    if (topLevelResults.command?.name == 'init' &&
+        topLevelResults.command?.command == null) {
+      final args = List<String>.from(topLevelResults.arguments);
+      final index = args.indexOf('init');
+      if (index != -1) {
+        args.insert(index + 1, 'source');
+        final injectedResults = parse(args);
+        return super.runCommand(injectedResults);
+      }
     }
 
     return super.runCommand(topLevelResults);

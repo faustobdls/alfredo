@@ -117,6 +117,23 @@ irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps
 
 The installer downloads the latest GitHub release for the current platform, validates the SHA-256 checksum, installs into `~/.alfredo/bin`, and updates the current shell PATH. Set `ALFREDO_INSTALL_DIR` to choose another destination.
 
+### Install as a DeepSeek Harness Plugin
+
+To use Alfredo as a plugin inside the DeepSeek Harness (DSH) CLI, install it to DSH's plugin registry:
+
+```sh
+# Clone or navigate to the alfredo repository
+cd /path/to/alfredo
+
+# Register as a DSH plugin
+dsh plugin add alfredo --path .
+
+# Verify installation
+dsh plugin list
+```
+
+Then reference Alfredo task tools in DSH agent prompts and skills using the canonical Alfredo CLI interface.
+
 ## Setup Targets
 
 Install official packages into every configured target declared by those packages:
@@ -215,3 +232,24 @@ dart format .
 dart analyze
 dart test
 ```
+
+### Running in restricted/sandboxed environments
+
+Version-manager wrappers (e.g. `fvm`) or CI runners with a read-only/limited
+`$HOME` can make `dart` fail with `Operation not permitted` while the wrapper
+touches its own installation cache (`bin/cache/engine.stamp.tmp.*`,
+`bin/cache/engine.realm`) or while the Dart CLI writes analytics/telemetry
+session files under `~/.dart-tool`. If that happens, use the bundled wrapper,
+which resolves the real Dart SDK binary directly and isolates `$HOME` to a
+git-ignored, project-local directory while preserving your real
+`PUB_CACHE`:
+
+```sh
+scripts/dart-sandbox.sh pub get
+scripts/dart-sandbox.sh analyze --fatal-infos --fatal-warnings
+scripts/dart-sandbox.sh test
+scripts/dart-sandbox.sh format .
+```
+
+Override `ALFREDO_DART_BIN` to force a specific Dart executable, or
+`ALFREDO_DART_SANDBOX_HOME` to change the isolated `$HOME` directory.

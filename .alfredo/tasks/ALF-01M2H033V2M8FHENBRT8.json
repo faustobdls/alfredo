@@ -1,0 +1,54 @@
+{
+  "schema": "alfredo.task/v1",
+  "id": "ALF-01M2H033V2M8FHENBRT8",
+  "title": "Fase 1.1: Resiliência de I/O em sandboxes (dart env isolado)",
+  "status": "DONE",
+  "priority": "high",
+  "run": null,
+  "created_at": "2026-09-14T22:20:06.365336Z",
+  "updated_at": "2026-09-14T22:27:45.162227Z",
+  "owner": {
+    "adapter": "codex",
+    "agent": "executor",
+    "session": "SES-01M2H03CQ5HJGX8437E6"
+  },
+  "previous_owner": null,
+  "dependencies": [],
+  "acceptance": [
+    "Script/documentação isola HOME/PUB_CACHE do dart para não tocar ~/.dart-tool global",
+    "dart analyze e dart test rodam com sucesso via o novo mecanismo"
+  ],
+  "context": {
+    "topics": [],
+    "files": [
+      "cli/README.md",
+      "README.md",
+      "scripts"
+    ]
+  },
+  "checkpoint": {
+    "completed": [
+      " analyze --fatal-infos --fatal-warnings",
+      " format --set-exit-if-changed e test todos passam com exit 0 via o wrapper",
+      " preservando PUB_CACHE real",
+      "Criado scripts/dart-sandbox.sh: resolve o binario real do dart-sdk (bypass do wrapper fvm) e isola HOME em .alfredo/runtime/dart-sandbox-home (git-ignored)",
+      "Criado scripts/dart-sandbox.sh: resolve o binário real do dart-sdk (bypass do wrapper fvm) e isola $HOME em .alfredo/runtime/dart-sandbox-home (git-ignored)",
+      "Documentado uso do wrapper no README.md raiz e cli/README.md",
+      "Validado: pub get"
+    ],
+    "current": "Falta atualizar checklist do plano de melhoria (Fase 1.1) e commitar",
+    "remaining": [],
+    "changed_files": [
+      "README.md",
+      "cli/README.md",
+      "scripts/dart-sandbox.sh"
+    ],
+    "validations": {
+      "dart_analyze": "pass",
+      "dart_test": "pass",
+      "dart_format": "pass"
+    },
+    "next_action": null
+  },
+  "blocker": null
+}
