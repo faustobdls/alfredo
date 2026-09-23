@@ -1,0 +1,14 @@
+schema_version: 1
+id: alfredo-plugin
+name: Alfredo Cordis Plugin
+version: 0.1.0
+description: Alfredo integration via Cordis plugin
+license: MIT
+targets:
+  - dsh
+contents:
+  # Plugin registration
+  plugin:
+    - src/index.js
+dependencies: []
+conflicts: []

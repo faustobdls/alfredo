@@ -13,6 +13,7 @@ targets:
   - generic
   - gemini-cli
   - via
+  - dsh
 contents:
   rules:
     - rules/smallest-change.md
