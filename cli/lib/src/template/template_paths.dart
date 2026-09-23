@@ -57,9 +57,8 @@ const _agentDirectoryNames = <String>[
 /// Canonical `templates/` at the project root wins over installed copies, and
 /// project-scoped installs win over user-scoped ones.
 List<Directory> templateSearchDirs(TemplateRoots roots) {
-  Directory agentDir(String base, String name) => Directory(
-    p.joinAll([base, ...p.posix.split(name), 'templates']),
-  );
+  Directory agentDir(String base, String name) =>
+      Directory(p.joinAll([base, ...p.posix.split(name), 'templates']));
 
   return <Directory>[
     Directory(p.join(roots.projectRoot.path, 'templates')),

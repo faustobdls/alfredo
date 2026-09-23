@@ -54,9 +54,7 @@ Map<String, double> _normalizedScores(List<MemorySearchHit> hits) {
   if (hits.isEmpty) return const {};
   final maxScore = hits.map((hit) => hit.score).reduce(math.max);
   if (maxScore <= 0) return const {};
-  return {
-    for (final hit in hits) hit.path: hit.score / maxScore,
-  };
+  return {for (final hit in hits) hit.path: hit.score / maxScore};
 }
 
 List<MemorySearchHit> _limited(List<MemorySearchHit> hits, int limit) =>

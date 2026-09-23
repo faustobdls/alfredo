@@ -38,10 +38,7 @@ void main() {
       await runner.run(['source', 'add', 'primary', '--local', source.path]),
       ExitCode.success.code,
     );
-    expect(
-      await runner.run(['source', 'list']),
-      ExitCode.success.code,
-    );
+    expect(await runner.run(['source', 'list']), ExitCode.success.code);
     expect(
       await runner.run(['source', 'show', 'primary']),
       ExitCode.success.code,
@@ -54,10 +51,7 @@ void main() {
       await runner.run(['source', 'sync', 'primary']),
       ExitCode.success.code,
     );
-    expect(
-      await runner.run(['source', 'sync']),
-      ExitCode.success.code,
-    );
+    expect(await runner.run(['source', 'sync']), ExitCode.success.code);
     expect(
       await runner.run(['source', 'search', 'android']),
       ExitCode.success.code,
@@ -67,23 +61,17 @@ void main() {
       ExitCode.success.code,
     );
 
-    verify(
-      () => logger.success(any(that: contains('Added source primary'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('Added source primary'))))
+        .called(1);
     verify(() => logger.info(any(that: contains('primary\tlocal')))).called(1);
-    verify(
-      () => logger.info(any(that: contains('source_id: test-source'))),
-    ).called(1);
-    verify(
-      () => logger.success(any(that: contains('is valid (1 packages)'))),
-    ).called(1);
-    verify(
-      () => logger.success(any(that: contains('Synced primary'))),
-    ).called(2);
+    verify(() => logger.info(any(that: contains('source_id: test-source'))))
+        .called(1);
+    verify(() => logger.success(any(that: contains('is valid (1 packages)'))))
+        .called(1);
+    verify(() => logger.success(any(that: contains('Synced primary'))))
+        .called(2);
     // 1 package matching should be printed
-    verify(
-      () => logger.info(any(that: contains('android-core'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('android-core')))).called(1);
     verify(() => logger.success('Removed source primary.')).called(1);
   });
 
@@ -101,13 +89,8 @@ void main() {
   });
 
   test('requires one source name and exactly one transport', () async {
-    expect(
-      await runner.run(['source', 'add', 'primary']),
-      ExitCode.usage.code,
-    );
-    verify(
-      () => logger.err(any(that: contains('exactly one'))),
-    ).called(1);
+    expect(await runner.run(['source', 'add', 'primary']), ExitCode.usage.code);
+    verify(() => logger.err(any(that: contains('exactly one')))).called(1);
   });
 
   test('validates transport-specific pinning options', () async {
@@ -132,11 +115,9 @@ void main() {
       ExitCode.usage.code,
     );
 
-    verify(
-      () => logger.err(any(that: contains('--git requires --revision'))),
-    ).called(1);
-    verify(
-      () => logger.err(any(that: contains('--archive requires --sha256'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('--git requires --revision'))))
+        .called(1);
+    verify(() => logger.err(any(that: contains('--archive requires --sha256'))))
+        .called(1);
   });
 }

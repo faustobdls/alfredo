@@ -29,9 +29,7 @@ void main() {
 
     test('places claimable backlog tasks in READY', () {
       final board = TaskBoard.build(
-        tasks: [
-          _task(id: 'ALF-1', status: TaskStatus.backlog, createdAt: now),
-        ],
+        tasks: [_task(id: 'ALF-1', status: TaskStatus.backlog, createdAt: now)],
         now: now,
       );
 
@@ -133,11 +131,7 @@ void main() {
             createdAt: now.add(const Duration(minutes: 1)),
             priority: 'critical',
           ),
-          _task(
-            id: 'ALF-normal',
-            status: TaskStatus.backlog,
-            createdAt: now,
-          ),
+          _task(id: 'ALF-normal', status: TaskStatus.backlog, createdAt: now),
         ],
         now: now,
       );

@@ -24,10 +24,7 @@ void main() {
     });
     runner = AlfredoCliCommandRunner(
       logger: logger,
-      templateRoots: TemplateRoots(
-        projectRoot: temporary,
-        userRoot: temporary,
-      ),
+      templateRoots: TemplateRoots(projectRoot: temporary, userRoot: temporary),
     );
   });
 
@@ -195,10 +192,7 @@ kind: email
 description: missing closing fence
 ''');
 
-    expect(
-      await runner.run(['template', 'validate']),
-      ExitCode.config.code,
-    );
+    expect(await runner.run(['template', 'validate']), ExitCode.config.code);
   });
 
   test('match reports no result cleanly', () async {

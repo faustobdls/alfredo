@@ -106,10 +106,7 @@ void main() {
       await request.response.close();
     };
 
-    expect(await clientFor().listModels(), [
-      'nomic-embed-text',
-      'llama',
-    ]);
+    expect(await clientFor().listModels(), ['nomic-embed-text', 'llama']);
   });
 
   test('streams progress lines while pulling a model', () async {
@@ -127,10 +124,10 @@ void main() {
     await clientFor().pull('nomic-embed-text', onProgress: progress.add);
 
     expect(requestedPaths, ['/api/pull']);
-    expect(
-      jsonDecode(requestBodies.single),
-      {'name': 'nomic-embed-text', 'stream': true},
-    );
+    expect(jsonDecode(requestBodies.single), {
+      'name': 'nomic-embed-text',
+      'stream': true,
+    });
     expect(progress, ['pulling manifest', 'success']);
   });
 

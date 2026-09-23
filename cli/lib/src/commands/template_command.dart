@@ -227,9 +227,7 @@ class _NewTemplate extends _TemplateSubcommand {
     }
     final force = argResults!['force'] as bool;
 
-    final dir = Directory(
-      p.join(roots.projectRoot.path, 'templates', name),
-    );
+    final dir = Directory(p.join(roots.projectRoot.path, 'templates', name));
     final file = File(p.join(dir.path, 'TEMPLATE.md'));
     if (file.existsSync() && !force) {
       throw UsageException(

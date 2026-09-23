@@ -111,11 +111,7 @@ abstract class _MemorySubcommand extends Command<int> {
     argParser.addOption(
       'scope',
       defaultsTo: defaultsTo,
-      allowed: [
-        'user',
-        'project',
-        if (includeAll) 'all',
-      ],
+      allowed: ['user', 'project', if (includeAll) 'all'],
       help: 'Memory store to use.',
     );
   }
@@ -174,9 +170,11 @@ abstract class _MemorySubcommand extends Command<int> {
       'm' => amount * 30,
       _ => amount,
     };
-    return DateTime(now.year, now.month, now.day).subtract(
-      Duration(days: days),
-    );
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days));
   }
 
   int intOption(String name) {
@@ -837,9 +835,7 @@ class _CaptureMemory extends _MemorySubcommand {
 
     await store.appendActivity(
       message: 'session ended',
-      tags: const [
-        'session',
-      ],
+      tags: const ['session'],
     );
     if (config.capture.gitDiffStat) {
       final diff = await _gitDiffStat();
@@ -860,11 +856,10 @@ class _CaptureMemory extends _MemorySubcommand {
 
   Future<String?> _gitDiffStat() async {
     try {
-      final result = await Process.run(
-        'git',
-        const ['diff', '--stat'],
-        workingDirectory: targetRoots.projectRoot.path,
-      );
+      final result = await Process.run('git', const [
+        'diff',
+        '--stat',
+      ], workingDirectory: targetRoots.projectRoot.path);
       if (result.exitCode != 0) return null;
       final lines = '${result.stdout}'
           .split('\n')

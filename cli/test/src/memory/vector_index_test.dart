@@ -83,13 +83,11 @@ void main() {
     await store.writeNote(title: 'Beta One', body: 'beta');
     await store.updateIndex(client);
 
-    await File(
-      p.join(store.notesDirectory.path, '2026-08-31-beta-one.md'),
-    ).delete();
+    await File(p.join(store.notesDirectory.path, '2026-08-31-beta-one.md'))
+        .delete();
     final report = await store.updateIndex(client);
-    final index = await EmbeddingIndexStore(
-      file: store.embeddingIndexFile,
-    ).read();
+    final index = await EmbeddingIndexStore(file: store.embeddingIndexFile)
+        .read();
 
     expect(report.pruned, 1);
     expect(
@@ -107,9 +105,8 @@ void main() {
 
     expect(report.embedded, 1);
     expect(report.reused, 0);
-    final index = await EmbeddingIndexStore(
-      file: store.embeddingIndexFile,
-    ).read();
+    final index = await EmbeddingIndexStore(file: store.embeddingIndexFile)
+        .read();
     expect(index!.model, 'other-embed');
   });
 
@@ -117,9 +114,8 @@ void main() {
     await store.writeNote(title: 'Alpha One', body: 'alpha');
     await store.updateIndex(client);
 
-    final index = await EmbeddingIndexStore(
-      file: store.embeddingIndexFile,
-    ).read();
+    final index = await EmbeddingIndexStore(file: store.embeddingIndexFile)
+        .read();
 
     expect(index!.version, 1);
     expect(index.model, 'fake-embed');

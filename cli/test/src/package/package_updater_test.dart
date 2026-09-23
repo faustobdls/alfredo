@@ -61,9 +61,7 @@ void main() {
       scope: InstallationScope.user,
     );
 
-    sourceSkill = File(
-      p.join(source.path, 'skills', 'example', 'SKILL.md'),
-    );
+    sourceSkill = File(p.join(source.path, 'skills', 'example', 'SKILL.md'));
     installedSkill = File(
       p.join(temporary.path, 'user', '.codex', 'skills', 'example', 'SKILL.md'),
     );
@@ -97,9 +95,8 @@ void main() {
   test(
     'marks a package that vanished from its source as unavailable',
     () async {
-      await Directory(
-        p.join(source.path, 'packages', 'android-core'),
-      ).delete(recursive: true);
+      await Directory(p.join(source.path, 'packages', 'android-core'))
+          .delete(recursive: true);
 
       final report = await updater.run();
 

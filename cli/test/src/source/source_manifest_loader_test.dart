@@ -62,10 +62,7 @@ void main() {
       ),
     );
 
-    expect(
-      () => loader.load(source.path),
-      throwsA(isA<SourceException>()),
-    );
+    expect(() => loader.load(source.path), throwsA(isA<SourceException>()));
   });
 
   test('rejects traversal in the local source path', () async {
@@ -311,14 +308,10 @@ void main() {
 
   test('reports malformed YAML as a source error', () async {
     final source = await createSourceFixture(temporary);
-    await File(
-      p.join(source.path, 'alfredo-source.yaml'),
-    ).writeAsString('schema_version: [');
+    await File(p.join(source.path, 'alfredo-source.yaml'))
+        .writeAsString('schema_version: [');
 
-    expect(
-      () => loader.load(source.path),
-      throwsA(isA<SourceException>()),
-    );
+    expect(() => loader.load(source.path), throwsA(isA<SourceException>()));
   });
 
   test('rejects an invalid package version', () async {
@@ -341,14 +334,9 @@ void main() {
     final source = await createSourceFixture(temporary);
     final packages = Directory(p.join(source.path, 'packages'));
     await packages.delete(recursive: true);
-    final outside = await Directory(
-      p.join(temporary.path, 'outside'),
-    ).create();
+    final outside = await Directory(p.join(temporary.path, 'outside')).create();
     await Link(packages.path).create(outside.path);
 
-    expect(
-      () => loader.load(source.path),
-      throwsA(isA<SourceException>()),
-    );
+    expect(() => loader.load(source.path), throwsA(isA<SourceException>()));
   });
 }

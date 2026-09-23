@@ -24,9 +24,7 @@ void main() {
     String description = 'Use for something. Not for something else.',
     String body = 'Prose contract.',
   }) async {
-    final file = File(
-      p.join(temporary.path, dir, name, 'TEMPLATE.md'),
-    );
+    final file = File(p.join(temporary.path, dir, name, 'TEMPLATE.md'));
     await file.parent.create(recursive: true);
     await file.writeAsString('''
 ---

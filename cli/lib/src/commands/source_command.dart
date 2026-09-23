@@ -164,9 +164,7 @@ class _ListSourcesCommand extends _SourceSubcommand {
       return ExitCode.success.code;
     }
     for (final source in sources) {
-      logger.info(
-        '${source.name}\t${source.kind.name}\t${source.location}',
-      );
+      logger.info('${source.name}\t${source.kind.name}\t${source.location}');
     }
     return ExitCode.success.code;
   }

@@ -94,9 +94,8 @@ void main() {
       ).run(['memory', 'index', '--scope', 'user']);
 
       expect(result, ExitCode.config.code);
-      verify(
-        () => logger.err(any(that: contains('Embeddings are disabled'))),
-      ).called(1);
+      verify(() => logger.err(any(that: contains('Embeddings are disabled'))))
+          .called(1);
     });
 
     test('exposes the update and upgrade lifecycle commands', () {

@@ -70,9 +70,8 @@ void main() {
       '.via',
       p.join('.gemini', 'config'),
     ]) {
-      await Directory(p.join(roots.userRoot.path, directory)).create(
-        recursive: true,
-      );
+      await Directory(p.join(roots.userRoot.path, directory))
+          .create(recursive: true);
     }
 
     expect(await runner.run(['setup', '--all']), ExitCode.success.code);
@@ -99,9 +98,7 @@ void main() {
         isTrue,
       );
     }
-    for (final directory in [
-      p.join('.gemini', 'config'),
-    ]) {
+    for (final directory in [p.join('.gemini', 'config')]) {
       expect(
         File(
           p.join(
@@ -115,17 +112,15 @@ void main() {
         isFalse,
       );
     }
-    verify(
-      () => logger.success(any(that: contains('Installed 1 package'))),
-    ).called(7);
+    verify(() => logger.success(any(that: contains('Installed 1 package'))))
+        .called(7);
   });
 
   test(
     '--all skips targets that are not configured in the environment',
     () async {
-      await Directory(p.join(roots.userRoot.path, '.alfredo')).create(
-        recursive: true,
-      );
+      await Directory(p.join(roots.userRoot.path, '.alfredo'))
+          .create(recursive: true);
 
       expect(await runner.run(['setup', '--all']), ExitCode.success.code);
 
@@ -152,9 +147,8 @@ void main() {
           reason: directory,
         );
       }
-      verify(
-        () => logger.info(any(that: contains('No configured official'))),
-      ).called(1);
+      verify(() => logger.info(any(that: contains('No configured official'))))
+          .called(1);
     },
   );
 
@@ -163,13 +157,7 @@ void main() {
 
     expect(
       File(
-        p.join(
-          roots.userRoot.path,
-          '.cursor',
-          'skills',
-          'example',
-          'SKILL.md',
-        ),
+        p.join(roots.userRoot.path, '.cursor', 'skills', 'example', 'SKILL.md'),
       ).existsSync(),
       isTrue,
     );
@@ -227,9 +215,7 @@ void main() {
 
   test('requires all or at least one individual agent flag', () async {
     expect(await runner.run(['setup']), ExitCode.usage.code);
-    verify(
-      () => logger.err(any(that: contains('Select --all'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('Select --all')))).called(1);
   });
 
   test('rejects all combined with an individual agent flag', () async {
@@ -237,15 +223,13 @@ void main() {
       await runner.run(['setup', '--all', '--cursor']),
       ExitCode.usage.code,
     );
-    verify(
-      () => logger.err(any(that: contains('cannot be combined'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('cannot be combined'))))
+        .called(1);
   });
 
   test('keeps a locally modified managed file and warns', () async {
-    when(
-      () => logger.confirm(any(), defaultValue: any(named: 'defaultValue')),
-    ).thenReturn(false);
+    when(() => logger.confirm(any(), defaultValue: any(named: 'defaultValue')))
+        .thenReturn(false);
     expect(await runner.run(['setup', '--codex']), ExitCode.success.code);
     final installed = File(
       p.join(roots.userRoot.path, '.codex', 'skills', 'example', 'SKILL.md'),
@@ -255,9 +239,8 @@ void main() {
     expect(await runner.run(['setup', '--codex']), ExitCode.success.code);
 
     expect(await installed.readAsString(), 'hand edited\n');
-    verify(
-      () => logger.warn(any(that: contains('locally modified'))),
-    ).called(1);
+    verify(() => logger.warn(any(that: contains('locally modified'))))
+        .called(1);
   });
 
   test('--force overwrites a locally modified managed file', () async {

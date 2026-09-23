@@ -52,9 +52,8 @@ void main() {
         'app',
       ]);
       expect(
-        PackageLockfile.fromResolution(
-          resolution,
-        ).packages.map((item) => item.id),
+        PackageLockfile.fromResolution(resolution).packages
+            .map((item) => item.id),
         ['app', 'base'],
       );
     },
@@ -156,9 +155,7 @@ void main() {
     final second = await createPackageSourceFixture(
       temporary,
       sourceId: 'second-source',
-      packages: const [
-        PackageFixture(id: 'android-core', version: '2.0.0'),
-      ],
+      packages: const [PackageFixture(id: 'android-core', version: '2.0.0')],
     );
     await registry.addLocal('first', first.path);
     await registry.addLocal('second', second.path);

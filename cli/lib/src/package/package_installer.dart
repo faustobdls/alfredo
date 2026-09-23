@@ -18,8 +18,9 @@ enum ManagedFileConflict {
 
 /// Resolves a locally modified managed file at `path`. Callers that want the
 /// historical hard failure pass no resolver at all.
-typedef ManagedFileConflictResolver =
-    Future<ManagedFileConflict> Function(String path);
+typedef ManagedFileConflictResolver = Future<ManagedFileConflict> Function(
+  String path,
+);
 
 /// Installs resolved packages with staging, collision checks, and rollback.
 class PackageInstaller {
@@ -220,9 +221,8 @@ class PackageInstaller {
   ) async {
     final plan = <_PlannedFile>[];
     for (final candidate in resolution.packages) {
-      final sourceRoot = await Directory(
-        candidate.sourceRoot,
-      ).resolveSymbolicLinks();
+      final sourceRoot = await Directory(candidate.sourceRoot)
+          .resolveSymbolicLinks();
       for (final content in candidate.manifest.contents.entries) {
         final oneKindManifest = PackageManifest(
           id: candidate.manifest.id,

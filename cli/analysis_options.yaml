@@ -1,4 +1,11 @@
 include: package:very_good_analysis/analysis_options.yaml
 linter:
   rules:
+    async_return_with_no_await: false
+    empty_container_bodies: false
+    initialize_in_field_declaration: false
     public_member_api_docs: false
+    unnecessary_const_in_enum_constructor: false
+    unnecessary_primary_constructor_body: false
+    unnecessary_type_name_in_constructor: false
+    use_declaring_parameters: false

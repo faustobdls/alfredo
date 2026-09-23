@@ -43,10 +43,7 @@ void main() {
       temporary,
       sourceId: 'command-source',
       packages: const [
-        PackageFixture(
-          id: 'android-core',
-          targets: ['codex', 'generic'],
-        ),
+        PackageFixture(id: 'android-core', targets: ['codex', 'generic']),
       ],
     );
 
@@ -77,14 +74,7 @@ void main() {
     );
 
     final installed = File(
-      p.join(
-        temporary.path,
-        'user',
-        '.codex',
-        'skills',
-        'example',
-        'SKILL.md',
-      ),
+      p.join(temporary.path, 'user', '.codex', 'skills', 'example', 'SKILL.md'),
     );
     expect(installed.existsSync(), isTrue);
     expect(
@@ -123,13 +113,11 @@ void main() {
     );
     expect(installed.existsSync(), isFalse);
 
-    verify(
-      () => logger.success(any(that: contains('Installed 1 package'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('Installed 1 package'))))
+        .called(1);
     verify(() => logger.info('No managed file changes.')).called(1);
-    verify(
-      () => logger.success(any(that: contains('0 modified file'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('0 modified file'))))
+        .called(1);
   });
 
   test('returns a configuration exit code for an unknown package', () async {
@@ -147,10 +135,7 @@ void main() {
   });
 
   test('reports a usage error when target is missing', () async {
-    expect(
-      await runner.run(['package', 'status']),
-      ExitCode.usage.code,
-    );
+    expect(await runner.run(['package', 'status']), ExitCode.usage.code);
     verify(
       () => logger.err(any(that: contains('Missing required option --target'))),
     ).called(1);

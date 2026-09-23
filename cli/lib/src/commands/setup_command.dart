@@ -187,10 +187,7 @@ class SetupCommand extends Command<int> {
       );
     }
     if (!all && selected.isEmpty) {
-      throw UsageException(
-        'Select --all or at least one agent flag.',
-        usage,
-      );
+      throw UsageException('Select --all or at least one agent flag.', usage);
     }
     if (!all) return selected;
     final declared = {

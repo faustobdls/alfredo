@@ -38,9 +38,8 @@ contents:
 dependencies: []
 conflicts: []
 ''');
-  final skill = await Directory(
-    p.join(source.path, 'skills', 'alfredo-memory'),
-  ).create(recursive: true);
+  final skill = await Directory(p.join(source.path, 'skills', 'alfredo-memory'))
+      .create(recursive: true);
   await File(p.join(skill.path, 'SKILL.md')).writeAsString('''
 ---
 name: alfredo-memory
@@ -50,12 +49,10 @@ description: Record and recall Alfredo memory.
 # Alfredo Memory
 ''');
   final rules = await Directory(p.join(source.path, 'rules')).create();
-  await File(p.join(rules.path, 'memory-usage.md')).writeAsString(
-    '# Memory usage\n',
-  );
-  await File(p.join(rules.path, 'memory-hygiene.md')).writeAsString(
-    '# Memory hygiene\n',
-  );
+  await File(p.join(rules.path, 'memory-usage.md'))
+      .writeAsString('# Memory usage\n');
+  await File(p.join(rules.path, 'memory-hygiene.md'))
+      .writeAsString('# Memory hygiene\n');
   return source;
 }
 
