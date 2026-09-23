@@ -1,0 +1,9 @@
+schema: alfredo.adapter/v1
+id: generic
+user_directory: .alfredo
+project_directory: .alfredo
+configuration_markers:
+  - skills
+  - rules
+  - agents
+  - templates

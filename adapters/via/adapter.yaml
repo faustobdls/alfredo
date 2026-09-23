@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: via
+user_directory: .via
+project_directory: .via
+configuration_markers: []

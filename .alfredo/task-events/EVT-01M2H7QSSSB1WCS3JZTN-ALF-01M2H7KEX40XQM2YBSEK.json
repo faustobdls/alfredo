@@ -1,0 +1,29 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H7QSSSB1WCS3JZTN",
+  "task": "ALF-01M2H7KEX40XQM2YBSEK",
+  "type": "checkpointed",
+  "created_at": "2026-09-15T00:33:44.250442Z",
+  "data": {
+    "completed": [
+      "Criado HooksCommand com os subcomandos install e uninstall em cli/lib/src/commands/hooks_command.dart",
+      "Registrado HooksCommand em command_runner.dart",
+      "Criado pre-commit hook template padrao utilizando o wrapper de sandbox quando disponivel",
+      "Adicionados testes unitarios automatizados em hooks_command_test.dart",
+      "Validacao de 305 testes passando e analise estatica sem avisos"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/commands/hooks_command.dart",
+      "cli/lib/src/command_runner.dart",
+      "cli/test/src/commands/hooks_command_test.dart"
+    ],
+    "validations": {
+      "format": "clean",
+      "analyze": "clean",
+      "tests": "305_passed"
+    },
+    "next_action": "Marcar tarefa como verify e done atualizar o checklist do plano e commitar"
+  }
+}

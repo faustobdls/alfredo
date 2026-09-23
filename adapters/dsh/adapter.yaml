@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: dsh
+user_directory: .dsh
+project_directory: .dsh
+configuration_markers: []

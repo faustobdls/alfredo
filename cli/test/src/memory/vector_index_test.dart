@@ -178,7 +178,56 @@ void main() {
       embeddings: client,
     );
 
-    expect(hits.single.score, greaterThanOrEqualTo(1));
+    expect(hits.single.score, greaterThan(0));
+  });
+
+  test('uses vector-only ranking by default (vectorWeight 1)', () async {
+    await store.writeNote(title: 'Alpha One', body: 'alpha alpha alpha');
+    await store.writeNote(title: 'Beta One', body: 'beta beta beta');
+    await store.updateIndex(client);
+
+    final hits = await store.search('alpha', embeddings: client);
+
+    expect(hits.first.path, 'notes/2026-08-31-alpha-one.md');
+    expect(hits.first.score, greaterThan(0.9));
+  });
+
+  test(
+    'falls back to pure keyword ranking when vectorWeight is zero',
+    () async {
+      await store.writeNote(title: 'Alpha One', body: 'alpha alpha');
+      await store.writeNote(title: 'Beta One', body: 'beta');
+      await store.updateIndex(client);
+      final embedCallsAfterIndexing = client.embedCalls;
+
+      final hits = await store.search(
+        'alpha',
+        embeddings: client,
+        vectorWeight: 0,
+      );
+
+      expect(client.embedCalls, embedCallsAfterIndexing);
+      expect(hits.single.path, 'notes/2026-08-31-alpha-one.md');
+    },
+  );
+
+  test('blends keyword and vector rankings for a mid weight', () async {
+    await store.writeNote(title: 'Alpha One', body: 'alpha alpha alpha');
+    await store.writeNote(title: 'Beta One', body: 'beta beta beta');
+    await store.updateIndex(client);
+
+    final hits = await store.search(
+      'alpha',
+      embeddings: client,
+      vectorWeight: 0.5,
+    );
+
+    expect(hits, isNotEmpty);
+    expect(hits.first.path, 'notes/2026-08-31-alpha-one.md');
+    // A blended score is a weighted average of two [0, 1]-normalized
+    // components, so it never exceeds 1.
+    expect(hits.first.score, lessThanOrEqualTo(1));
+    expect(hits.first.score, greaterThan(0));
   });
 }
 

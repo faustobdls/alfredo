@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H033V30CGJRAAT1E",
+  "task": "ALF-01M2H033V2M8FHENBRT8",
+  "type": "created",
+  "created_at": "2026-09-14T22:20:06.371497Z",
+  "data": {
+    "title": "Fase 1.1: Resiliência de I/O em sandboxes (dart env isolado)"
+  }
+}

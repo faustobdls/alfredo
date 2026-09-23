@@ -19,6 +19,7 @@ class CatalogContractValidator {
     'cursor',
     'antigravity',
     'devin',
+    'dsh',
     'generic',
     'gemini-cli',
     'via',
@@ -32,6 +33,7 @@ class CatalogContractValidator {
     'scripts',
     'assets',
     'references',
+    'plugin',
   };
 
   /// Validates a source manifest consumed through `source add --local`.

@@ -22,6 +22,19 @@ dart pub get
 dart run bin/alfredo.dart --help
 ```
 
+Se `dart` falhar com `Operation not permitted` (comum em sandboxes de agentes,
+CI restrita ou `$HOME` somente leitura, quando um wrapper de version manager
+como o `fvm` tenta gravar em seu próprio cache de instalação ou em
+`~/.dart-tool`), use o wrapper resiliente que resolve o binário real do SDK e
+isola o `$HOME` em um diretório local ao projeto:
+
+```sh
+../scripts/dart-sandbox.sh pub get
+../scripts/dart-sandbox.sh analyze --fatal-infos --fatal-warnings
+../scripts/dart-sandbox.sh test
+../scripts/dart-sandbox.sh format .
+```
+
 ## Usage
 
 ```sh

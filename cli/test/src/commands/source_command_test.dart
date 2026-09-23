@@ -51,6 +51,18 @@ void main() {
       ExitCode.success.code,
     );
     expect(
+      await runner.run(['source', 'sync', 'primary']),
+      ExitCode.success.code,
+    );
+    expect(
+      await runner.run(['source', 'sync']),
+      ExitCode.success.code,
+    );
+    expect(
+      await runner.run(['source', 'search', 'android']),
+      ExitCode.success.code,
+    );
+    expect(
       await runner.run(['source', 'remove', 'primary']),
       ExitCode.success.code,
     );
@@ -64,6 +76,13 @@ void main() {
     ).called(1);
     verify(
       () => logger.success(any(that: contains('is valid (1 packages)'))),
+    ).called(1);
+    verify(
+      () => logger.success(any(that: contains('Synced primary'))),
+    ).called(2);
+    // 1 package matching should be printed
+    verify(
+      () => logger.info(any(that: contains('android-core'))),
     ).called(1);
     verify(() => logger.success('Removed source primary.')).called(1);
   });

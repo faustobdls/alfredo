@@ -1,0 +1,10 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H7KEX7J7QB3165AQ",
+  "task": "ALF-01M2H7KEX40XQM2YBSEK",
+  "type": "created",
+  "created_at": "2026-09-15T00:31:22.023493Z",
+  "data": {
+    "title": "Fase 3.3: Git Hooks Nativos (alfredo hooks install)"
+  }
+}

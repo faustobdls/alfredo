@@ -1,0 +1,5 @@
+schema: alfredo.adapter/v1
+id: gemini-cli
+user_directory: .gemini
+project_directory: .gemini
+configuration_markers: []

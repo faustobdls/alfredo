@@ -1,0 +1,28 @@
+{
+  "schema": "alfredo.task-event/v1",
+  "id": "EVT-01M2H3CNC0BC2K29PX9Z",
+  "task": "ALF-01M2H3BXCQ6DJE67GK82",
+  "type": "checkpointed",
+  "created_at": "2026-09-14T23:17:44.960606Z",
+  "data": {
+    "completed": [
+      "Reescrito keyword_search.dart para BM25 real: IDF por documento-frequencia normalizacao por tamanho medio do corpus k1=1.5 b=0.75",
+      "Atualizados testes de keyword_search_test.dart e vector_index_test.dart que assumiam contagem bruta de termos",
+      "Adicionado teste de saturacao de frequencia de termo (BM25 nao cresce linearmente com repeticoes)"
+    ],
+    "current": null,
+    "remaining": [],
+    "changed_files": [
+      "cli/lib/src/memory/keyword_search.dart",
+      "cli/lib/src/memory/memory_models.dart",
+      "cli/test/src/memory/keyword_search_test.dart",
+      "cli/test/src/memory/vector_index_test.dart"
+    ],
+    "validations": {
+      "dart_analyze": "pass",
+      "dart_format": "pass",
+      "dart_test": "pass_282_tests"
+    },
+    "next_action": null
+  }
+}

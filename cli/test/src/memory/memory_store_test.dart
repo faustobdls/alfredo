@@ -237,4 +237,163 @@ void main() {
       throwsA(isA<MemoryException>()),
     );
   });
+
+  // Cutoff used across compactJournal tests: July 15 has no default values for
+  // month or day (avoids the avoid_redundant_argument_values lint).
+  final cutoff = DateTime(2026, 7, 15);
+
+  group('compactJournal', () {
+    test('reports nothing to archive when the journal is empty', () async {
+      await store.ensureSkeleton();
+
+      final report = await store.compactJournal(olderThan: cutoff);
+
+      expect(report.archivedDays, 0);
+      expect(report.archivedEntries, 0);
+      expect(report.notePath, isNull);
+    });
+
+    test('archives only day-files older than the cutoff', () async {
+      await store.ensureSkeleton();
+      await store.appendActivity(
+        message: 'old work',
+        at: DateTime(2026, 1, 5, 9),
+      );
+      await store.appendActivity(
+        message: 'still recent',
+        at: DateTime(2026, 8, 31, 9),
+      );
+
+      final report = await store.compactJournal(olderThan: cutoff);
+
+      expect(report.archivedDays, 1);
+      expect(report.archivedEntries, 1);
+      expect(report.notePath, isNotNull);
+
+      final activities = await store.listActivities();
+      expect(activities.map((entry) => entry.message), ['still recent']);
+      expect(
+        File(
+          p.join(store.journalDirectory.path, '2026', '2026-01-05.md'),
+        ).existsSync(),
+        isFalse,
+      );
+      expect(
+        File(
+          p.join(
+            store.journalArchiveDirectory.path,
+            '2026',
+            '2026-01-05.md',
+          ),
+        ).existsSync(),
+        isTrue,
+      );
+    });
+
+    test('folds archived entries into one durable summary note', () async {
+      await store.ensureSkeleton();
+      await store.appendActivity(
+        message: 'shipped the installer',
+        tags: const ['release'],
+        at: DateTime(2026, 1, 5, 9),
+      );
+      await store.appendNote(
+        message: 'decided on atomic renames',
+        at: DateTime(2026, 1, 6, 10, 30),
+      );
+
+      final report = await store.compactJournal(olderThan: cutoff);
+
+      final notePath = report.notePath;
+      if (notePath == null) fail('expected notePath to be non-null');
+      final noteFile = File(p.join(store.directory.path, notePath));
+      expect(noteFile.existsSync(), isTrue);
+      final body = await noteFile.readAsString();
+      expect(body, contains('# Journal summary 2026-01-05 to 2026-01-06'));
+      expect(body, contains('## 2026-01-05'));
+      expect(
+        body,
+        contains(
+          '- 09:00 activity: shipped the installer [release]',
+        ),
+      );
+      expect(body, contains('## 2026-01-06'));
+      expect(
+        body,
+        contains('- 10:30 note: decided on atomic renames'),
+      );
+    });
+
+    test('changes nothing on disk in dry-run mode', () async {
+      await store.ensureSkeleton();
+      await store.appendActivity(
+        message: 'old work',
+        at: DateTime(2026, 1, 5, 9),
+      );
+
+      final report = await store.compactJournal(
+        olderThan: cutoff,
+        dryRun: true,
+      );
+
+      expect(report.archivedDays, 1);
+      expect(report.archivedEntries, 1);
+      expect(report.notePath, isNotNull);
+      expect(
+        File(
+          p.join(store.journalDirectory.path, '2026', '2026-01-05.md'),
+        ).existsSync(),
+        isTrue,
+      );
+      expect(store.journalArchiveDirectory.existsSync(), isFalse);
+      final notePath = report.notePath;
+      if (notePath == null) fail('expected notePath to be non-null');
+      expect(
+        File(p.join(store.directory.path, notePath)).existsSync(),
+        isFalse,
+      );
+    });
+
+    test(
+      'never overwrites an existing summary note with the same name',
+      () async {
+        await store.ensureSkeleton();
+        await store.appendActivity(
+          message: 'first batch',
+          at: DateTime(2026, 1, 5, 9),
+        );
+        await store.compactJournal(olderThan: cutoff);
+
+        await store.appendActivity(
+          message: 'second batch',
+          at: DateTime(2026, 1, 5, 10),
+        );
+        final second = await store.compactJournal(olderThan: cutoff);
+
+        final notes = store.notesDirectory
+            .listSync()
+            .map((entity) => p.basename(entity.path))
+            .toList();
+        expect(notes, hasLength(2));
+        expect(second.notePath, isNotNull);
+        expect(second.notePath, endsWith('-1.md'));
+      },
+    );
+
+    test('excludes archived journal files from search and digest', () async {
+      await store.ensureSkeleton();
+      await store.appendActivity(
+        message: 'old work',
+        at: DateTime(2026, 1, 5, 9),
+      );
+      await store.compactJournal(olderThan: cutoff);
+
+      final documents = await store.loadAll();
+      expect(
+        documents.any((document) => document.path.contains('.archive')),
+        isFalse,
+      );
+      expect(await store.digest(), isNot(contains('old work')));
+    });
+  });
 }
