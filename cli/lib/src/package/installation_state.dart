@@ -70,9 +70,8 @@ class InstalledStateStore {
       ..sort((left, right) => left.path.compareTo(right.path));
     try {
       await file.parent.create(recursive: true);
-      final serializedState = const JsonEncoder.withIndent('  ').convert(
-        InstalledState(target: state.target, files: files).toJson(),
-      );
+      final serializedState = const JsonEncoder.withIndent('  ')
+          .convert(InstalledState(target: state.target, files: files).toJson());
       await temporary.writeAsString('$serializedState\n', flush: true);
       await temporary.rename(file.path);
     } on FileSystemException catch (error) {
