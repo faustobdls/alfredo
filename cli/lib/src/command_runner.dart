@@ -210,6 +210,17 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
       return ExitCode.success.code;
     }
 
+    if (topLevelResults.command?.name == 'init' &&
+        topLevelResults.command?.command == null) {
+      final args = List<String>.from(topLevelResults.arguments);
+      final index = args.indexOf('init');
+      if (index != -1) {
+        args.insert(index + 1, 'source');
+        final injectedResults = parse(args);
+        return super.runCommand(injectedResults);
+      }
+    }
+
     return super.runCommand(topLevelResults);
   }
 
