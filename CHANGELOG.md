@@ -6,6 +6,13 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-24
+
+### Fixed
+
+- Fixed `Unsupported installation target: dsh` error by including the `dsh` target adapter mapping in `TargetAdapters.forId`.
+- Fixed CI release workflow Dart SDK version requirement (`3.12.0` → `3.13.4`).
+
 ## [1.2.0] - 2026-09-23
 
 ### Added
@@ -272,7 +279,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/faustobdls/alfredo/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/faustobdls/alfredo/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/faustobdls/alfredo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/faustobdls/alfredo/compare/v0.0.7...v1.0.0
