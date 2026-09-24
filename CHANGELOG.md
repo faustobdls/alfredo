@@ -14,7 +14,8 @@ All notable changes to Alfredo are documented in this file. The format follows
   Alfredo tab, authenticated CLI-backed host API, Kanban task surface,
   worker/session views, package catalog foundations, and debounced runtime
   refresh.
-- `alfredo setup --dsh` and DSH adapter/package support (`adapters/dsh.yaml`).
+- `alfredo setup --dsh` and DSH adapter/package support (`adapters/dsh.yaml`), including automatic installation of the Alfredo plugin into the DSH web interface via `dsh plugin --profile <profile> add`.
+- `--profile` option for `alfredo setup --dsh` (defaulting to `web`).
 - Optional task tracks with `alfredo task ready --track`, DSH session IDs, the
   `alfredo-worker` skill, and main-repository resolution from linked worktrees.
 - Colorized terminal task board via `alfredo task board` with `--json` and
