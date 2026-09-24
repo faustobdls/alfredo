@@ -89,14 +89,16 @@ void main() {
         containsAll([untracked.id, frontend.id, backend.id]),
       );
 
-      // With track filter 'frontend': frontend task AND untracked task are eligible, backend is excluded
+      // With track filter 'frontend': frontend task AND untracked task are
+      // eligible, backend is excluded.
       final frontendReady = await store.readyTasks(track: 'frontend');
       final frontendIds = frontendReady.map((t) => t.id).toList();
       expect(frontendIds, contains(frontend.id));
       expect(frontendIds, contains(untracked.id));
       expect(frontendIds, isNot(contains(backend.id)));
 
-      // With track filter 'backend': backend task AND untracked task are eligible, frontend is excluded
+      // With track filter 'backend': backend task AND untracked task are
+      // eligible, frontend is excluded.
       final backendReady = await store.readyTasks(track: 'backend');
       final backendIds = backendReady.map((t) => t.id).toList();
       expect(backendIds, contains(backend.id));
@@ -461,7 +463,8 @@ void main() {
     );
   });
 
-  test('claimTask creates git worktree and branch, cleanupTask removes them with dirty refusal', () async {
+  test('claimTask creates git worktree and branch, cleanupTask removes them '
+      'with dirty refusal', () async {
     final task = await store.createTask(title: 'Implement worktree feature');
     final session = await store.startSession(adapter: 'claude');
 
@@ -480,7 +483,7 @@ void main() {
     await dirtyFile.writeAsString('uncommitted change');
 
     await expectLater(
-      store.cleanupTask(task.id, force: false),
+      store.cleanupTask(task.id),
       throwsA(isA<TaskRuntimeException>()),
     );
 

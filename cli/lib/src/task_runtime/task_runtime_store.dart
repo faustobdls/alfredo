@@ -250,12 +250,12 @@ class TaskRuntimeStore {
         if (!worktreeDir.parent.existsSync()) {
           worktreeDir.parent.createSync(recursive: true);
         }
-        final checkBranch = await Process.run(
-          'git',
-          ['show-ref', '--verify', '--quiet', 'refs/heads/$branchName'],
-          workingDirectory: gitRoot.path,
-          runInShell: false,
-        );
+        final checkBranch = await Process.run('git', [
+          'show-ref',
+          '--verify',
+          '--quiet',
+          'refs/heads/$branchName',
+        ], workingDirectory: gitRoot.path);
         final branchExists = checkBranch.exitCode == 0;
         final gitArgs = branchExists
             ? ['worktree', 'add', worktreeDir.path, branchName]
@@ -265,7 +265,6 @@ class TaskRuntimeStore {
           'git',
           gitArgs,
           workingDirectory: gitRoot.path,
-          runInShell: false,
         );
         if (result.exitCode != 0) {
           throw TaskRuntimeException(
@@ -306,17 +305,16 @@ class TaskRuntimeStore {
       final branchName = task.branch;
 
       if (worktreePath != null && Directory(worktreePath).existsSync()) {
-        final statusResult = await Process.run(
-          'git',
-          ['status', '--porcelain'],
-          workingDirectory: worktreePath,
-          runInShell: false,
-        );
+        final statusResult = await Process.run('git', [
+          'status',
+          '--porcelain',
+        ], workingDirectory: worktreePath);
         if (statusResult.exitCode == 0) {
           final statusOutput = statusResult.stdout.toString().trim();
           if (statusOutput.isNotEmpty && !force) {
             throw TaskRuntimeException(
-              'Worktree is dirty: $worktreePath. Use --force to clean up anyway.',
+              'Worktree is dirty: $worktreePath. '
+              'Use --force to clean up anyway.',
             );
           }
         }
@@ -331,52 +329,48 @@ class TaskRuntimeStore {
           'git',
           removeArgs,
           workingDirectory: (_gitProjectRootOrNull() ?? projectRoot).path,
-          runInShell: false,
         );
         if (removeResult.exitCode != 0 && !force) {
           throw TaskRuntimeException(
-            'Failed to remove git worktree: ${removeResult.stderr.toString().trim()}',
+            'Failed to remove git worktree: '
+            '${removeResult.stderr.toString().trim()}',
           );
         }
 
-        await Process.run(
-          'git',
-          ['worktree', 'prune'],
-          workingDirectory: (_gitProjectRootOrNull() ?? projectRoot).path,
-          runInShell: false,
-        );
+        await Process.run('git', [
+          'worktree',
+          'prune',
+        ], workingDirectory: (_gitProjectRootOrNull() ?? projectRoot).path);
 
         if (Directory(worktreePath).existsSync()) {
           try {
             Directory(worktreePath).deleteSync(recursive: true);
-          } catch (_) {}
+          } on Object catch (_) {}
         }
       }
 
       final gitRoot = _gitProjectRootOrNull();
       if (branchName != null && gitRoot != null) {
-        final branchArgs = ['branch', force ? '-D' : '-d', branchName];
+        final branchArgs = ['branch', if (force) '-D' else '-d', branchName];
         final branchResult = await Process.run(
           'git',
           branchArgs,
           workingDirectory: gitRoot.path,
-          runInShell: false,
         );
         if (branchResult.exitCode != 0 && force) {
-          await Process.run(
-            'git',
-            ['branch', '-D', branchName],
-            workingDirectory: gitRoot.path,
-            runInShell: false,
-          );
+          await Process.run('git', [
+            'branch',
+            '-D',
+            branchName,
+          ], workingDirectory: gitRoot.path);
         }
       }
 
       final now = _now();
       final next = task.copyWith(updatedAt: now, worktree: null, branch: null);
       await _writeTask(next, 'cleaned', {
-        if (worktreePath != null) 'previous_worktree': worktreePath,
-        if (branchName != null) 'previous_branch': branchName,
+        'previous_worktree': ?worktreePath,
+        'previous_branch': ?branchName,
       });
       return next;
     });
@@ -424,7 +418,7 @@ class TaskRuntimeStore {
             );
           }
         }
-      } catch (_) {}
+      } on Object catch (_) {}
     }
     return Directory(p.join(projectRoot.parent.path, 'alfredo-worktrees'));
   }
@@ -432,7 +426,7 @@ class TaskRuntimeStore {
   static String _slugify(String title) {
     final slug = title
         .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp('[^a-z0-9]+'), '-')
         .replaceAll(RegExp(r'^-+|-+$'), '');
     return slug.isEmpty ? 'task' : slug;
   }
