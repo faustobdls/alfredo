@@ -1,7 +1,7 @@
 schema_version: 1
 id: alfredo-plugin
 name: Alfredo Cordis Plugin
-version: 0.1.1
+version: 0.1.2
 description: Alfredo integration via Cordis plugin with Kanban, workers, worktrees, and package catalog
 license: MIT
 targets:
