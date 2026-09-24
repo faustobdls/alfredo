@@ -45,6 +45,7 @@ class _StartSession extends _SessionSubcommand {
     argParser
       ..addOption('adapter', mandatory: true)
       ..addOption('agent', defaultsTo: 'executor')
+      ..addOption('dsh-session', help: 'Associate a DSH session ID.')
       ..addFlag('json', negatable: false, help: 'Emit JSON.');
   }
 
@@ -59,6 +60,7 @@ class _StartSession extends _SessionSubcommand {
     final session = await store.startSession(
       adapter: argResults!['adapter'] as String,
       agent: argResults!['agent'] as String,
+      dshSessionId: argResults!['dsh-session'] as String?,
     );
     if (argResults!['json'] as bool) {
       logger.info(prettyJson.convert(session.toJson()));

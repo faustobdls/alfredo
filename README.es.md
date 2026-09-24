@@ -81,7 +81,7 @@ Los paquetes agrupan contenido canónico en unidades instalables versionadas. Un
 
 ### Targets Y Adaptadores
 
-Un target es un ambiente explícito de agente, como `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via` o `generic`. Un adaptador mapea contenido canónico de Alfredo al layout de directorios de ese target.
+Un target es un ambiente explícito de agente, como `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via`, `generic` o `dsh`. Un adaptador mapea contenido canónico de Alfredo al layout de directorios de ese target. La integración DSH requiere DSH `0.1.5-rc.3` o posterior.
 
 `alfredo setup --all` instala solamente los targets declarados por los paquetes oficiales descubiertos que ya están configurados en el alcance local seleccionado. No instala en todos los adapters incorporados solo porque Alfredo sabe que existen.
 
@@ -135,6 +135,7 @@ alfredo setup --devin --via
 alfredo setup --claude-code
 alfredo setup --antigravity
 alfredo setup --generic
+alfredo setup --dsh
 ```
 
 Usa `--scope project` para instalar en el proyecto actual en vez del alcance de usuario, y `--force` para sobrescribir archivos administrados modificados localmente.

@@ -10,10 +10,102 @@ void main() {
 
   setUp(() async {
     temporary = await Directory.systemTemp.createTemp('alfredo-runtime-');
+    await Process.run('git', ['init'], workingDirectory: temporary.path);
+    await Process.run('git', [
+      'config',
+      'user.name',
+      'Test User',
+    ], workingDirectory: temporary.path);
+    await Process.run('git', [
+      'config',
+      'user.email',
+      'test@example.com',
+    ], workingDirectory: temporary.path);
+    await File(p.join(temporary.path, 'README.md'))
+        .writeAsString('# Test repo');
+    await Process.run('git', [
+      'add',
+      'README.md',
+    ], workingDirectory: temporary.path);
+    await Process.run('git', [
+      'commit',
+      '-m',
+      'Initial commit',
+    ], workingDirectory: temporary.path);
     store = TaskRuntimeStore(projectRoot: temporary);
   });
 
   tearDown(() async => temporary.delete(recursive: true));
+
+  test(
+    'persists optional DSH session metadata and reads legacy sessions',
+    () async {
+      final linked = await store.startSession(
+        adapter: 'claude',
+        dshSessionId: 'dsh-session-123',
+      );
+
+      expect(linked.dshSessionId, 'dsh-session-123');
+      expect(
+        (await store.readSession(linked.id)).dshSessionId,
+        'dsh-session-123',
+      );
+      expect(linked.toJson()['dsh_session_id'], 'dsh-session-123');
+
+      final legacyJson = Map<String, Object?>.from(linked.toJson())
+        ..remove('dsh_session_id');
+      final legacy = AlfredoSession.fromJson(legacyJson);
+      expect(legacy.dshSessionId, isNull);
+    },
+  );
+
+  test(
+    'supports optional task track and filters ready tasks by track',
+    () async {
+      final untracked = await store.createTask(title: 'Untracked task');
+      final frontend = await store.createTask(
+        title: 'Frontend task',
+        track: 'frontend',
+      );
+      final backend = await store.createTask(
+        title: 'Backend task',
+        track: 'backend',
+      );
+
+      expect(untracked.track, isNull);
+      expect(frontend.track, 'frontend');
+      expect(backend.track, 'backend');
+
+      expect((await store.readTask(frontend.id)).track, 'frontend');
+      expect(frontend.toJson()['track'], 'frontend');
+
+      final copied = frontend.copyWith(track: 'fullstack');
+      expect(copied.track, 'fullstack');
+
+      // Without track filter: all ready tasks
+      final allReady = await store.readyTasks();
+      expect(
+        allReady.map((t) => t.id),
+        containsAll([untracked.id, frontend.id, backend.id]),
+      );
+
+      // With track filter 'frontend': frontend task AND untracked task are
+      // eligible, backend is excluded.
+      final frontendReady = await store.readyTasks(track: 'frontend');
+      final frontendIds = frontendReady.map((t) => t.id).toList();
+      expect(frontendIds, contains(frontend.id));
+      expect(frontendIds, contains(untracked.id));
+      expect(frontendIds, isNot(contains(backend.id)));
+
+      // With track filter 'backend': backend task AND untracked task are
+      // eligible, frontend is excluded.
+      final backendReady = await store.readyTasks(track: 'backend');
+      final backendIds = backendReady.map((t) => t.id).toList();
+      expect(backendIds, contains(backend.id));
+      expect(backendIds, contains(untracked.id));
+      expect(backendIds, isNot(contains(frontend.id)));
+    },
+  );
 
   test('discovers the runtime project root from a nested directory', () async {
     await Directory(p.join(temporary.path, '.git')).create();
@@ -369,5 +461,62 @@ void main() {
       ),
       throwsA(isA<TaskRuntimeException>()),
     );
+  });
+
+  test('claimTask creates git worktree and branch, cleanupTask removes them '
+      'with dirty refusal', () async {
+    final task = await store.createTask(title: 'Implement worktree feature');
+    final session = await store.startSession(adapter: 'claude');
+
+    final claimed = await store.claimTask(
+      task.id,
+      adapter: 'claude',
+      agent: 'executor',
+      session: session.id,
+    );
+
+    expect(claimed.worktree, isNotNull);
+    expect(claimed.branch, startsWith('alf/${task.id}-'));
+    expect(Directory(claimed.worktree!).existsSync(), isTrue);
+
+    final dirtyFile = File(p.join(claimed.worktree!, 'dirty.txt'));
+    await dirtyFile.writeAsString('uncommitted change');
+
+    await expectLater(
+      store.cleanupTask(task.id),
+      throwsA(isA<TaskRuntimeException>()),
+    );
+
+    final cleaned = await store.cleanupTask(task.id, force: true);
+    expect(cleaned.worktree, isNull);
+    expect(cleaned.branch, isNull);
+    expect(Directory(claimed.worktree!).existsSync(), isFalse);
+  });
+
+  test('respects configurable worktree base in config.yaml', () async {
+    final customBaseDir = await Directory.systemTemp.createTemp('custom-base-');
+    try {
+      final configDir = Directory(p.join(temporary.path, '.alfredo'));
+      await configDir.create(recursive: true);
+      await File(p.join(configDir.path, 'config.yaml'))
+          .writeAsString('worktree_base: ${customBaseDir.path}\n');
+
+      final task = await store.createTask(title: 'Custom base task');
+      final session = await store.startSession(adapter: 'claude');
+
+      final claimed = await store.claimTask(
+        task.id,
+        adapter: 'claude',
+        agent: 'executor',
+        session: session.id,
+      );
+
+      expect(claimed.worktree, startsWith(customBaseDir.path));
+      expect(Directory(claimed.worktree!).existsSync(), isTrue);
+
+      await store.cleanupTask(task.id, force: true);
+    } finally {
+      await customBaseDir.delete(recursive: true);
+    }
   });
 }

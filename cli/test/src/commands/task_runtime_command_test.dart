@@ -275,6 +275,25 @@ void main() {
     );
   });
 
+  test('session start accepts DSH session metadata in JSON output', () async {
+    expect(
+      await runner.run([
+        'session',
+        'start',
+        '--adapter',
+        'claude',
+        '--dsh-session',
+        'dsh-session-123',
+        '--json',
+      ]),
+      ExitCode.success.code,
+    );
+
+    final session =
+        jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
+    expect(session['dsh_session_id'], 'dsh-session-123');
+  });
+
   test('session close captures memory when configured', () async {
     final projectMemory = MemoryStore(
       directory: Directory(p.join(temporary.path, '.alfredo', 'memory')),

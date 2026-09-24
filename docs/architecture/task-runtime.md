@@ -48,8 +48,21 @@ YAML is accepted for `context/index.yaml` because it is usually authored by
 humans.
 
 CLI commands discover the runtime project root by walking upward from the
-current directory until they find `.alfredo/` or `.git/`. That keeps state in the
-repository root even when a worker invokes `alfredo` from a subdirectory.
+current directory until they find `.alfredo/` or `.git/`. From a linked Git
+worktree, `.git` is a pointer file; Alfredo resolves it back to the common Git
+directory and selects the main working tree. Thus all worktrees read and write
+the single canonical `.alfredo/` tree in the main repository.
+
+## Task worktrees
+
+Each claimed task executes in its own Git worktree. Branches follow
+`alf/<ALF-id>-<slug>` and the external worktree base directory is configurable
+in `.alfredo/config.yaml`. The task records its branch and worktree path.
+Canonical tasks, events, sessions, locks, runs, and memory remain in the main
+repository; task branches must not modify `.alfredo/`. Completion never merges
+a branch automatically. After review and merge, `alfredo task cleanup <id>`
+removes the worktree and local branch. Dirty worktrees require explicit
+confirmation/force, including cancellation cleanup.
 
 ## IDs
 

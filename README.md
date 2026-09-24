@@ -81,7 +81,7 @@ Packages group canonical content into versioned installable units. A package dec
 
 ### Targets And Adapters
 
-A target is an explicit agent environment such as `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via`, or `generic`. An adapter maps canonical Alfredo content into that target's directory layout.
+A target is an explicit agent environment such as `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via`, `generic`, or `dsh`. An adapter maps canonical Alfredo content into that target's directory layout. The DSH integration requires DSH `0.1.5-rc.3` or newer.
 
 `alfredo setup --all` installs only targets that are both declared by the discovered official packages and already configured in the selected local scope. It does not install into every built-in adapter just because Alfredo knows about it.
 
@@ -151,6 +151,7 @@ alfredo setup --devin --via
 alfredo setup --claude-code
 alfredo setup --antigravity
 alfredo setup --generic
+alfredo setup --dsh
 ```
 
 Use `--scope project` to install into the current project instead of the user scope, and `--force` to overwrite locally modified managed files.

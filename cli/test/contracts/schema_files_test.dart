@@ -336,6 +336,7 @@ void main() {
       'id': sessionId,
       'adapter': 'claude',
       'agent': 'executor',
+      'dsh_session_id': 'dsh-session-123',
       'started_at': now,
       'updated_at': now,
       'status': 'ACTIVE',
@@ -386,6 +387,11 @@ void main() {
     expect(task.validate(validTask).isValid, isTrue);
     expect(event.validate(validEvent).isValid, isTrue);
     expect(session.validate(validSession).isValid, isTrue);
+    expect(
+      session.validate({...validSession}..remove('dsh_session_id')).isValid,
+      isTrue,
+      reason: 'legacy sessions without DSH metadata stay valid',
+    );
     expect(run.validate(validRun).isValid, isTrue);
     expect(context.validate(validContext).isValid, isTrue);
     expect(task.validate({...validTask, 'status': 'READY'}).isValid, isFalse);

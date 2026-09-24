@@ -15,6 +15,7 @@ class TaskCommand extends Command<int> {
     addSubcommand(_ShowTask(store: store, logger: logger));
     addSubcommand(_DependTask(store: store, logger: logger));
     addSubcommand(_ClaimTask(store: store, logger: logger));
+    addSubcommand(_CleanupTask(store: store, logger: logger));
     addSubcommand(_SimpleTaskTransition('start', store, logger));
     addSubcommand(_CheckpointTask(store: store, logger: logger));
     addSubcommand(_BlockTask(store: store, logger: logger));
@@ -63,6 +64,7 @@ class _CreateTask extends _TaskSubcommand {
       ..addOption('title', mandatory: true, help: 'Task title.')
       ..addOption('priority', defaultsTo: 'normal', help: 'Priority label.')
       ..addOption('run', help: 'Run ID.')
+      ..addOption('track', help: 'Task track.')
       ..addMultiOption('depends-on', help: 'Required dependency task IDs.')
       ..addMultiOption('acceptance', help: 'Acceptance criteria.')
       ..addMultiOption('topic', help: 'Context topic.')
@@ -82,6 +84,7 @@ class _CreateTask extends _TaskSubcommand {
       title: argResults!['title'] as String,
       priority: argResults!['priority'] as String,
       run: argResults!['run'] as String?,
+      track: argResults!['track'] as String?,
       dependencies: argResults!['depends-on'] as List<String>,
       acceptance: argResults!['acceptance'] as List<String>,
       context: TaskContextHints(
@@ -146,7 +149,9 @@ class _ListTasks extends _TaskSubcommand {
 
 class _ReadyTasks extends _TaskSubcommand {
   _ReadyTasks({required super.store, required super.logger}) {
-    argParser.addFlag('json', negatable: false, help: 'Emit JSON.');
+    argParser
+      ..addOption('track', help: 'Filter ready tasks by track.')
+      ..addFlag('json', negatable: false, help: 'Emit JSON.');
   }
 
   @override
@@ -157,7 +162,8 @@ class _ReadyTasks extends _TaskSubcommand {
 
   @override
   Future<int> run() async {
-    final tasks = await store.readyTasks();
+    final track = argResults!['track'] as String?;
+    final tasks = await store.readyTasks(track: track);
     if (argResults!['json'] as bool) {
       output([for (final task in tasks) task.toJson()], asJson: true);
     } else if (tasks.isEmpty) {
@@ -221,6 +227,38 @@ class _ClaimTask extends _TaskSubcommand {
       output(task.toJson(), asJson: true);
     } else {
       logger.success('Claimed ${task.id}.');
+    }
+    return ExitCode.success.code;
+  }
+}
+
+class _CleanupTask extends _TaskSubcommand {
+  _CleanupTask({required super.store, required super.logger}) {
+    argParser
+      ..addFlag(
+        'force',
+        negatable: false,
+        help: 'Force removal even if worktree is dirty.',
+      )
+      ..addFlag('json', negatable: false, help: 'Emit JSON.');
+  }
+
+  @override
+  String get description => 'Clean up task worktree and branch.';
+
+  @override
+  String get name => 'cleanup';
+
+  @override
+  Future<int> run() async {
+    final task = await store.cleanupTask(
+      requireTaskId(),
+      force: argResults!['force'] as bool,
+    );
+    if (argResults!['json'] as bool) {
+      output(task.toJson(), asJson: true);
+    } else {
+      logger.success('Cleaned up ${task.id}.');
     }
     return ExitCode.success.code;
   }

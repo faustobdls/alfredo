@@ -20,6 +20,9 @@
     "id": { "type": "string", "pattern": "^SES-[0-9A-HJKMNP-TV-Z]{20}$" },
     "adapter": { "$ref": "#/$defs/nonEmptyString" },
     "agent": { "$ref": "#/$defs/nonEmptyString" },
+    "dsh_session_id": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+    },
     "started_at": { "$ref": "#/$defs/dateTime" },
     "updated_at": { "$ref": "#/$defs/dateTime" },
     "status": { "enum": ["ACTIVE", "CLOSED"] },

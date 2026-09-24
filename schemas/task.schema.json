@@ -26,6 +26,9 @@
     },
     "priority": { "$ref": "#/$defs/nonEmptyString" },
     "run": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/runId" }] },
+    "track": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }] },
+    "worktree": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }] },
+    "branch": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }] },
     "created_at": { "$ref": "#/$defs/dateTime" },
     "updated_at": { "$ref": "#/$defs/dateTime" },
     "owner": {
