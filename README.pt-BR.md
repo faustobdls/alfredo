@@ -118,6 +118,26 @@ irm https://raw.githubusercontent.com/faustobdls/alfredo/main/scripts/install.ps
 
 O instalador baixa a release mais recente do GitHub para a plataforma atual, valida o checksum SHA-256, instala em `~/.alfredo/bin` e atualiza o PATH do shell atual. Defina `ALFREDO_INSTALL_DIR` para escolher outro destino.
 
+### Instalação no DeepSeek Harness (DSH)
+
+A integração com o DeepSeek Harness funciona em duas camadas complementares:
+
+1. **Plugin Web (Aba Alfredo e Kanban)**: Registre o plugin Cordis do Alfredo no perfil web do DSH apontando para o diretório do pacote ou clone local:
+   ```sh
+   # Adiciona o plugin web ao perfil do DSH
+   dsh plugin --profile web add /caminho/para/alfredo/packages/alfredo-plugin
+
+   # Inicia a interface web do DSH
+   dsh --profile web
+   ```
+2. **Skills e Adaptador de Agentes (`alfredo setup --dsh`)**: Renderiza as skills oficiais (incluindo `alfredo-worker`), regras e contexto em `.dsh/` para que agentes executando dentro do DSH descubram e operem tarefas autonomamente:
+   ```sh
+   # Instala skills e regras no target DSH (~/.dsh ou no projeto com --scope project)
+   alfredo setup --dsh
+   ```
+
+Ambos podem ser usados juntos para a experiência completa (interface visual no DSH Web + execução de workers por agentes no DSH).
+
 ## Setup De Targets
 
 Instale pacotes oficiais em todos os targets configurados e declarados por esses pacotes:
