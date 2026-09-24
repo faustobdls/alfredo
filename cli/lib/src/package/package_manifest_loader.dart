@@ -198,9 +198,7 @@ class PackageManifestLoader {
   }
 
   static Map<String, Object?> _plainMap(Map<Object?, Object?> input) =>
-      input.map(
-        (key, value) => MapEntry('$key', _plainValue(value)),
-      );
+      input.map((key, value) => MapEntry('$key', _plainValue(value)));
 
   static Object? _plainValue(Object? value) {
     if (value is Map<Object?, Object?>) return _plainMap(value);

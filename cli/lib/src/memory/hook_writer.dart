@@ -98,8 +98,6 @@ class HookWriter {
     if (matcher is! Map) return false;
     final hooks = matcher['hooks'];
     if (hooks is! List) return false;
-    return hooks.any(
-      (hook) => hook is Map && hook['command'] == command,
-    );
+    return hooks.any((hook) => hook is Map && hook['command'] == command);
   }
 }

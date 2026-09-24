@@ -35,14 +35,8 @@ void main() {
   });
 
   test('persists and lists local sources in name order', () async {
-    final sourceB = await createSourceFixture(
-      temporary,
-      sourceId: 'source-b',
-    );
-    final sourceA = await createSourceFixture(
-      temporary,
-      sourceId: 'source-a',
-    );
+    final sourceB = await createSourceFixture(temporary, sourceId: 'source-b');
+    final sourceA = await createSourceFixture(temporary, sourceId: 'source-a');
 
     await registry.addLocal('beta', sourceB.path);
     await registry.addLocal('alpha', sourceA.path);
@@ -95,10 +89,7 @@ void main() {
       await registry.addLocal('primary', source.path);
       final before = await registryFile.readAsString();
 
-      expect(
-        () => registry.remove('missing'),
-        throwsA(isA<SourceException>()),
-      );
+      expect(() => registry.remove('missing'), throwsA(isA<SourceException>()));
       expect(await registryFile.readAsString(), before);
     },
   );
@@ -132,9 +123,8 @@ void main() {
         ..add(
           ArchiveFile.string(
             'bundle/alfredo-source.yaml',
-            await File(
-              p.join(source.path, 'alfredo-source.yaml'),
-            ).readAsString(),
+            await File(p.join(source.path, 'alfredo-source.yaml'))
+                .readAsString(),
           ),
         )
         ..add(
@@ -148,11 +138,7 @@ void main() {
       final file = File(p.join(temporary.path, 'bundle.zip'));
       await file.writeAsBytes(ZipEncoder().encodeBytes(archive));
       final digest = sha256.convert(await file.readAsBytes()).toString();
-      await cachedRegistry.addArchive(
-        'bundle',
-        url: file.uri,
-        sha256: digest,
-      );
+      await cachedRegistry.addArchive('bundle', url: file.uri, sha256: digest);
 
       final refresh = await cachedRegistry.refresh('bundle');
 
@@ -166,14 +152,10 @@ void main() {
       await _git(['-C', source.path, 'config', 'user.name', 'Alfredo']);
       await _git(['-C', source.path, 'add', '.']);
       await _git(['-C', source.path, 'commit', '-m', 'one']);
-      await cachedRegistry.addGit(
-        'remote',
-        url: source.uri,
-        revision: 'main',
-      );
-      final firstResolved = (await cachedRegistry.get(
-        'remote',
-      )).transport!.resolvedRevision;
+      await cachedRegistry.addGit('remote', url: source.uri, revision: 'main');
+      final firstResolved = (await cachedRegistry.get('remote'))
+          .transport!
+          .resolvedRevision;
 
       expect(
         (await cachedRegistry.refresh('remote')).kind,

@@ -118,12 +118,10 @@ void main() {
   test(
     'rejects symbolic-link parents instead of writing outside target root',
     () async {
-      final outside = await Directory(
-        p.join(temporary.path, 'outside'),
-      ).create();
-      final codex = await Directory(
-        p.join(roots.userRoot.path, '.codex'),
-      ).create(recursive: true);
+      final outside = await Directory(p.join(temporary.path, 'outside'))
+          .create();
+      final codex = await Directory(p.join(roots.userRoot.path, '.codex'))
+          .create(recursive: true);
       await Link(p.join(codex.path, 'skills')).create(outside.path);
 
       await expectLater(
@@ -151,9 +149,8 @@ void main() {
     'does not commit content or state when lockfile writing fails',
     () async {
       await roots.userRoot.create(recursive: true);
-      await File(
-        p.join(roots.userRoot.path, '.alfredo'),
-      ).writeAsString('blocked');
+      await File(p.join(roots.userRoot.path, '.alfredo'))
+          .writeAsString('blocked');
 
       await expectLater(
         installer.install(

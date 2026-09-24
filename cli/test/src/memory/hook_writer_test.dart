@@ -81,12 +81,9 @@ void main() {
     });
     expect(hooks['PreToolUse'], isEmpty);
     expect(hooks['Stop'], hasLength(2));
-    expect(
-      ((hooks['Stop']! as List).first as Map)['hooks'],
-      [
-        {'type': 'command', 'command': 'other-tool'},
-      ],
-    );
+    expect(((hooks['Stop']! as List).first as Map)['hooks'], [
+      {'type': 'command', 'command': 'other-tool'},
+    ]);
   });
 
   test('copies a backup before the first modification', () async {

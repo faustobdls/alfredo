@@ -161,9 +161,8 @@ class TaskRuntimeStore {
   }
 
   static int _compareReadyTasks(AlfredoTask left, AlfredoTask right) {
-    final priority = _priorityRank(right.priority).compareTo(
-      _priorityRank(left.priority),
-    );
+    final priority = _priorityRank(right.priority)
+        .compareTo(_priorityRank(left.priority));
     if (priority != 0) return priority;
     final created = left.createdAt.compareTo(right.createdAt);
     if (created != 0) return created;
@@ -452,10 +451,8 @@ class TaskRuntimeStore {
     await _writeJson(_runFile(run.id), run.toJson());
     final runDir = Directory(p.join(_runs.path, run.id));
     await runDir.create(recursive: true);
-    await File(p.join(runDir.path, 'manifest.json')).writeAsString(
-      '${prettyJson.convert(run.toJson())}\n',
-      flush: true,
-    );
+    await File(p.join(runDir.path, 'manifest.json'))
+        .writeAsString('${prettyJson.convert(run.toJson())}\n', flush: true);
   }
 
   /// Lists runs.
@@ -577,13 +574,12 @@ class TaskRuntimeStore {
     final lock = File(p.join(_locks.path, '$name.lock'));
     await _acquireLock(lock, name);
     try {
-      await lock.writeAsString(
-        '${prettyJson.convert({
-          'pid': pid,
-          'created_at': _now().toUtc().toIso8601String(),
-        })}\n',
-        flush: true,
-      );
+      final lockPayload = {
+        'pid': pid,
+        'created_at': _now().toUtc().toIso8601String(),
+      };
+      final serializedLock = '${prettyJson.convert(lockPayload)}\n';
+      await lock.writeAsString(serializedLock, flush: true);
       return await callback();
     } finally {
       if (lock.existsSync()) await lock.delete();
@@ -725,10 +721,7 @@ class TaskRuntimeStore {
         TaskStatus.backlog,
         TaskStatus.cancelled,
       },
-      TaskStatus.blocked => {
-        TaskStatus.backlog,
-        TaskStatus.cancelled,
-      },
+      TaskStatus.blocked => {TaskStatus.backlog, TaskStatus.cancelled},
       TaskStatus.done => <TaskStatus>{},
       TaskStatus.cancelled => <TaskStatus>{},
     };

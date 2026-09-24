@@ -144,11 +144,7 @@ class PackageUpdater {
     bool refreshSources = true,
   }) async {
     final scopeSet =
-        scopes ??
-        {
-          InstallationScope.user,
-          InstallationScope.project,
-        };
+        scopes ?? {InstallationScope.user, InstallationScope.project};
     final installations = <_Installation>[];
     for (final adapter in TargetAdapters.all) {
       if (targets != null && !targets.contains(adapter.id)) continue;
@@ -326,11 +322,7 @@ class PackageUpdater {
         packageIds: changedIds,
         target: adapter.id,
       );
-      await installer.install(
-        resolution: applied,
-        roots: roots,
-        scope: scope,
-      );
+      await installer.install(resolution: applied, roots: roots, scope: scope);
     } on PackageException catch (error) {
       if (!error.message.contains('modified managed file')) rethrow;
       for (var index = 0; index < rows.length; index++) {

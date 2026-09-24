@@ -81,9 +81,9 @@ void main() {
     expect(outcome.latestVersion, '1.2.0');
     expect(await executable.readAsString(), 'NEW');
     expect(
-      Directory(
-        executable.parent.path,
-      ).listSync().map((e) => p.basename(e.path)),
+      Directory(executable.parent.path)
+          .listSync()
+          .map((e) => p.basename(e.path)),
       ['alfredo'],
     );
   });

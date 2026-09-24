@@ -70,12 +70,9 @@ class InstalledStateStore {
       ..sort((left, right) => left.path.compareTo(right.path));
     try {
       await file.parent.create(recursive: true);
-      await temporary.writeAsString(
-        '${const JsonEncoder.withIndent('  ').convert(
-          InstalledState(target: state.target, files: files).toJson(),
-        )}\n',
-        flush: true,
-      );
+      final serializedState = const JsonEncoder.withIndent('  ')
+          .convert(InstalledState(target: state.target, files: files).toJson());
+      await temporary.writeAsString('$serializedState\n', flush: true);
       await temporary.rename(file.path);
     } on FileSystemException catch (error) {
       throw PackageException('Cannot update installed state: ${error.message}');

@@ -57,10 +57,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         negatable: false,
         help: 'Print the current version.',
       )
-      ..addFlag(
-        'verbose',
-        help: 'Show detailed command information.',
-      );
+      ..addFlag('verbose', help: 'Show detailed command information.');
     final registry =
         sourceRegistry ?? SourceRegistry(file: defaultSourceRegistryFile());
     final catalog = packageCatalog ?? PackageCatalog(registry: registry);
@@ -73,11 +70,7 @@ class AlfredoCliCommandRunner extends CompletionCommandRunner<int> {
         TaskRuntimeStore(projectRoot: defaultTaskRuntimeProjectRoot());
     addCommand(InitCommand(logger: _logger));
     addCommand(
-      SourceCommand(
-        registry: registry,
-        logger: _logger,
-        catalog: catalog,
-      ),
+      SourceCommand(registry: registry, logger: _logger, catalog: catalog),
     );
     addCommand(
       SetupCommand(

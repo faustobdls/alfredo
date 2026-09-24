@@ -79,9 +79,8 @@ class TaskBoard {
     );
 
     int byPriorityThenAge(TaskBoardEntry left, TaskBoardEntry right) {
-      final priority = _priorityRank(
-        right.task.priority,
-      ).compareTo(_priorityRank(left.task.priority));
+      final priority = _priorityRank(right.task.priority)
+          .compareTo(_priorityRank(left.task.priority));
       if (priority != 0) return priority;
       final created = left.task.createdAt.compareTo(right.task.createdAt);
       if (created != 0) return created;

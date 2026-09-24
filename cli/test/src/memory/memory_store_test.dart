@@ -69,9 +69,7 @@ void main() {
     expect(contents, contains('## 12:30:45 note [a,b]'));
     expect(
       contents.indexOf('first entry'),
-      lessThan(
-        contents.indexOf('second entry'),
-      ),
+      lessThan(contents.indexOf('second entry')),
     );
   });
 
@@ -149,9 +147,7 @@ void main() {
     );
 
     final all = await store.listActivities();
-    final recent = await store.listActivities(
-      since: DateTime(2026, 8, 15),
-    );
+    final recent = await store.listActivities(since: DateTime(2026, 8, 15));
     final limited = await store.listActivities(limit: 1);
 
     expect(all.map((entry) => entry.message), [
@@ -185,9 +181,7 @@ void main() {
     expect(digest, contains('## 2026-08-30'));
     expect(
       digest.indexOf('2026-08-31'),
-      lessThan(
-        digest.indexOf('2026-08-30'),
-      ),
+      lessThan(digest.indexOf('2026-08-30')),
     );
     expect(truncated, endsWith('\n… (truncated)'));
     expect(truncated.length, 20 + '\n… (truncated)'.length);
@@ -273,18 +267,13 @@ void main() {
       final activities = await store.listActivities();
       expect(activities.map((entry) => entry.message), ['still recent']);
       expect(
-        File(
-          p.join(store.journalDirectory.path, '2026', '2026-01-05.md'),
-        ).existsSync(),
+        File(p.join(store.journalDirectory.path, '2026', '2026-01-05.md'))
+            .existsSync(),
         isFalse,
       );
       expect(
         File(
-          p.join(
-            store.journalArchiveDirectory.path,
-            '2026',
-            '2026-01-05.md',
-          ),
+          p.join(store.journalArchiveDirectory.path, '2026', '2026-01-05.md'),
         ).existsSync(),
         isTrue,
       );
@@ -313,15 +302,10 @@ void main() {
       expect(body, contains('## 2026-01-05'));
       expect(
         body,
-        contains(
-          '- 09:00 activity: shipped the installer [release]',
-        ),
+        contains('- 09:00 activity: shipped the installer [release]'),
       );
       expect(body, contains('## 2026-01-06'));
-      expect(
-        body,
-        contains('- 10:30 note: decided on atomic renames'),
-      );
+      expect(body, contains('- 10:30 note: decided on atomic renames'));
     });
 
     test('changes nothing on disk in dry-run mode', () async {
@@ -340,9 +324,8 @@ void main() {
       expect(report.archivedEntries, 1);
       expect(report.notePath, isNotNull);
       expect(
-        File(
-          p.join(store.journalDirectory.path, '2026', '2026-01-05.md'),
-        ).existsSync(),
+        File(p.join(store.journalDirectory.path, '2026', '2026-01-05.md'))
+            .existsSync(),
         isTrue,
       );
       expect(store.journalArchiveDirectory.existsSync(), isFalse);

@@ -18,9 +18,8 @@ path: .
 read_only: true
 packages_path: packages
 ''');
-  final package = await Directory(
-    p.join(source.path, 'packages', packageId),
-  ).create(recursive: true);
+  final package = await Directory(p.join(source.path, 'packages', packageId))
+      .create(recursive: true);
   await File(p.join(package.path, 'package.yaml')).writeAsString('''
 schema_version: 1
 id: $packageId

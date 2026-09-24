@@ -57,9 +57,7 @@ class UpgradeCommand extends Command<int> {
       return ExitCode.success.code;
     }
 
-    logger.info(
-      'Alfredo is already up to date (${outcome.previousVersion}).',
-    );
+    logger.info('Alfredo is already up to date (${outcome.previousVersion}).');
     return ExitCode.success.code;
   }
 }

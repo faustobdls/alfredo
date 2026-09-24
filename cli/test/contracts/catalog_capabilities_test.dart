@@ -20,9 +20,8 @@ void main() {
 
     for (final skill in skills) {
       expect(manifest, contains('- skills/$skill'));
-      final document = await File(
-        p.join(repoRoot, 'skills', skill, 'SKILL.md'),
-      ).readAsString();
+      final document = await File(p.join(repoRoot, 'skills', skill, 'SKILL.md'))
+          .readAsString();
       expect(document, contains('name: $skill'));
       expect(document, contains('description: Use '));
       expect(document, contains('. Not for '));

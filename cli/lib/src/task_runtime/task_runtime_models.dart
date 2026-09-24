@@ -285,9 +285,7 @@ class AlfredoTask {
       dependencies: _stringList(json, 'dependencies'),
       acceptance: _stringList(json, 'acceptance'),
       context: TaskContextHints.fromJson(_map(json['context'] ?? const {})),
-      checkpoint: TaskCheckpoint.fromJson(
-        _map(json['checkpoint'] ?? const {}),
-      ),
+      checkpoint: TaskCheckpoint.fromJson(_map(json['checkpoint'] ?? const {})),
       blocker: _optionalString(json, 'blocker'),
     );
   }

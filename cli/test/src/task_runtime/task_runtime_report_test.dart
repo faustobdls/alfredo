@@ -96,14 +96,8 @@ void main() {
       expect(entry.blockedCount, 0);
       expect(report.blockedTasksCount, 0);
       expect(report.countByStatus[TaskStatus.done], 1);
-      expect(
-        report.doingTimeByAdapter['codex'],
-        const Duration(minutes: 20),
-      );
-      expect(
-        report.averageVerifyDuration,
-        const Duration(minutes: 10),
-      );
+      expect(report.doingTimeByAdapter['codex'], const Duration(minutes: 20));
+      expect(report.averageVerifyDuration, const Duration(minutes: 10));
     });
 
     test('counts repeated BLOCKED transitions and uses now for open tasks', () {
@@ -166,10 +160,7 @@ void main() {
       expect(report.blockedTasksCount, 1);
       // Two BLOCKED intervals: 1h->1h30m (unblocked) and 2h30m->3h (now,
       // still open since there is no trailing event).
-      expect(
-        entry.timeInStatus[TaskStatus.blocked],
-        const Duration(hours: 1),
-      );
+      expect(entry.timeInStatus[TaskStatus.blocked], const Duration(hours: 1));
       expect(entry.age, const Duration(hours: 3));
       expect(entry.verifyDuration, isNull);
     });

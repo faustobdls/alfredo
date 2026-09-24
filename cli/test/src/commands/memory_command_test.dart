@@ -77,9 +77,8 @@ void main() {
     final entries = await storeFor(userMemory).listActivities();
     expect(entries.single.message, 'did the thing');
     expect(entries.single.kind, MemoryEntryKind.activity);
-    verify(
-      () => logger.success(any(that: contains(p.join('journal')))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains(p.join('journal')))))
+        .called(1);
   });
 
   test('records tags and honours the project scope', () async {
@@ -135,9 +134,8 @@ void main() {
 
   test('requires a message', () async {
     expect(await runner.run(['memory', 'add']), ExitCode.usage.code);
-    verify(
-      () => logger.err(any(that: contains('Expected a memory message'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('Expected a memory message'))))
+        .called(1);
   });
 
   test('rejects an unknown scope', () async {
@@ -152,9 +150,8 @@ void main() {
       await runner.run(['memory', 'list', '--since', 'yesterday']),
       ExitCode.usage.code,
     );
-    verify(
-      () => logger.err(any(that: contains('Invalid --since value'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('Invalid --since value'))))
+        .called(1);
   });
 
   test('lists and digests recent entries across scopes', () async {
@@ -180,12 +177,8 @@ void main() {
     verify(
       () => logger.info(any(that: contains('user\tactivity\t[]\tuser work'))),
     ).called(1);
-    verify(
-      () => logger.info(any(that: contains('# user'))),
-    ).called(1);
-    verify(
-      () => logger.info(any(that: contains('# project'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('# user')))).called(1);
+    verify(() => logger.info(any(that: contains('# project')))).called(1);
   });
 
   test('lists durable notes by default and can filter to activities', () async {
@@ -213,13 +206,11 @@ void main() {
       ExitCode.success.code,
     );
     verify(
-      () => logger.info(
-        any(that: contains('user\tnote\t[]\tRuntime Decision:')),
-      ),
+      () =>
+          logger.info(any(that: contains('user\tnote\t[]\tRuntime Decision:'))),
     ).called(1);
-    verify(
-      () => logger.info(any(that: contains('user\tactivity\t[]'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('user\tactivity\t[]'))))
+        .called(1);
 
     clearInteractions(logger);
     expect(
@@ -236,9 +227,8 @@ void main() {
       ExitCode.success.code,
     );
     verifyNever(
-      () => logger.info(
-        any(that: contains('user\tnote\t[]\tRuntime Decision:')),
-      ),
+      () =>
+          logger.info(any(that: contains('user\tnote\t[]\tRuntime Decision:'))),
     );
   });
 
@@ -271,9 +261,7 @@ void main() {
       ExitCode.success.code,
     );
 
-    verify(
-      () => logger.info(any(that: contains('user\tjournal/'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('user\tjournal/')))).called(1);
     expect(embeddings.embedCalls, 0);
   });
 
@@ -326,12 +314,10 @@ void main() {
       ExitCode.success.code,
     );
 
-    verify(
-      () => logger.success(any(that: contains('user: embedded 2'))),
-    ).called(1);
-    verify(
-      () => logger.info(any(that: contains('notes/'))),
-    ).called(greaterThanOrEqualTo(1));
+    verify(() => logger.success(any(that: contains('user: embedded 2'))))
+        .called(1);
+    verify(() => logger.info(any(that: contains('notes/'))))
+        .called(greaterThanOrEqualTo(1));
     expect(embeddings.embedCalls, greaterThan(1));
   });
 
@@ -388,9 +374,8 @@ void main() {
       await runner.run(['memory', 'index', '--scope', 'user']),
       ExitCode.config.code,
     );
-    verify(
-      () => logger.err(any(that: contains('Embeddings are disabled'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('Embeddings are disabled'))))
+        .called(1);
   });
 
   test('refuses to index while the provider is unreachable', () async {
@@ -407,9 +392,7 @@ void main() {
       await runner.run(['memory', 'index', '--scope', 'user']),
       ExitCode.config.code,
     );
-    verify(
-      () => logger.err(any(that: contains('not reachable'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('not reachable')))).called(1);
   });
 
   test('sets up a store, installs memory-core, and writes a hook', () async {
@@ -430,13 +413,9 @@ void main() {
       ExitCode.success.code,
     );
 
-    final config =
-        jsonDecode(
-              await File(
-                p.join(userMemory.path, 'config.json'),
-              ).readAsString(),
-            )
-            as Map<String, Object?>;
+    final config = jsonDecode(
+      await File(p.join(userMemory.path, 'config.json')).readAsString(),
+    ) as Map<String, Object?>;
     final settings = File(
       p.join(temporary.path, 'user', '.claude', 'settings.json'),
     );
@@ -494,11 +473,8 @@ void main() {
 
     final embeddingsConfig =
         (jsonDecode(
-                  await File(
-                    p.join(userMemory.path, 'config.json'),
-                  ).readAsString(),
-                )
-                as Map<String, Object?>)['embeddings']!
+              await File(p.join(userMemory.path, 'config.json')).readAsString(),
+            ) as Map<String, Object?>)['embeddings']!
             as Map<String, Object?>;
     expect(embeddingsConfig['enabled'], isTrue);
     expect(embeddingsConfig['model'], 'nomic-embed-text');
@@ -530,11 +506,9 @@ void main() {
 
       final embeddingsConfig =
           (jsonDecode(
-                    await File(
-                      p.join(userMemory.path, 'config.json'),
-                    ).readAsString(),
-                  )
-                  as Map<String, Object?>)['embeddings']!
+                await File(p.join(userMemory.path, 'config.json'))
+                    .readAsString(),
+              ) as Map<String, Object?>)['embeddings']!
               as Map<String, Object?>;
       expect(embeddingsConfig['enabled'], isTrue);
       expect(embeddingsConfig['model'], 'embeddinggemma');
@@ -550,9 +524,7 @@ void main() {
   );
 
   test('keeps keyword search when no known model is installed', () async {
-    embeddings = FakeEmbeddingsClient(
-      installedModels: const ['llama3:latest'],
-    );
+    embeddings = FakeEmbeddingsClient(installedModels: const ['llama3:latest']);
     await registerMemorySource();
 
     expect(
@@ -571,11 +543,8 @@ void main() {
 
     final embeddingsConfig =
         (jsonDecode(
-                  await File(
-                    p.join(userMemory.path, 'config.json'),
-                  ).readAsString(),
-                )
-                as Map<String, Object?>)['embeddings']!
+              await File(p.join(userMemory.path, 'config.json')).readAsString(),
+            ) as Map<String, Object?>)['embeddings']!
             as Map<String, Object?>;
     expect(embeddingsConfig['enabled'], isFalse);
     expect(embeddings.pullCalls, 0);
@@ -598,9 +567,8 @@ void main() {
     );
 
     expect(
-      File(
-        p.join(temporary.path, 'user', '.claude', 'settings.json'),
-      ).existsSync(),
+      File(p.join(temporary.path, 'user', '.claude', 'settings.json'))
+          .existsSync(),
       isFalse,
     );
   });
@@ -609,23 +577,13 @@ void main() {
     await registerMemorySource();
 
     expect(
-      await runner.run([
-        'memory',
-        'setup',
-        '--all',
-        '--source',
-        'memory',
-      ]),
+      await runner.run(['memory', 'setup', '--all', '--source', 'memory']),
       ExitCode.success.code,
     );
 
-    final config =
-        jsonDecode(
-              await File(
-                p.join(userMemory.path, 'config.json'),
-              ).readAsString(),
-            )
-            as Map<String, Object?>;
+    final config = jsonDecode(
+      await File(p.join(userMemory.path, 'config.json')).readAsString(),
+    ) as Map<String, Object?>;
     expect((config['capture']! as Map)['targets'], isEmpty);
     expect(
       Directory(p.join(temporary.path, 'user', '.claude')).existsSync(),
@@ -637,9 +595,8 @@ void main() {
     'unattended setup installs memory only into configured targets',
     () async {
       await registerMemorySource();
-      await Directory(p.join(targetRoots.userRoot.path, '.codex')).create(
-        recursive: true,
-      );
+      await Directory(p.join(targetRoots.userRoot.path, '.codex'))
+          .create(recursive: true);
 
       expect(
         await runner.run([
@@ -653,13 +610,9 @@ void main() {
         ExitCode.success.code,
       );
 
-      final config =
-          jsonDecode(
-                await File(
-                  p.join(userMemory.path, 'config.json'),
-                ).readAsString(),
-              )
-              as Map<String, Object?>;
+      final config = jsonDecode(
+        await File(p.join(userMemory.path, 'config.json')).readAsString(),
+      ) as Map<String, Object?>;
       expect((config['capture']! as Map)['targets'], ['codex']);
       expect(
         File(
@@ -730,9 +683,7 @@ void main() {
       ]),
       ExitCode.config.code,
     );
-    verify(
-      () => logger.err(any(that: contains('memory-core'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('memory-core')))).called(1);
   });
 
   test('reports a configuration error for an unknown source', () async {
@@ -776,9 +727,8 @@ void main() {
       ExitCode.success.code,
     );
 
-    verify(
-      () => logger.success(any(that: contains('archived 1 journal day'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('archived 1 journal day'))))
+        .called(1);
     final activities = await storeFor(userMemory).listActivities();
     expect(activities.map((entry) => entry.message), ['recent work']);
     final notes = await storeFor(userMemory).listNotes();
@@ -795,9 +745,7 @@ void main() {
     );
 
     verify(
-      () => logger.info(
-        any(that: contains('nothing older than --older-than')),
-      ),
+      () => logger.info(any(that: contains('nothing older than --older-than'))),
     ).called(1);
   });
   test('previews compaction without touching disk in --dry-run', () async {
@@ -832,9 +780,8 @@ void main() {
       await runner.run(['memory', 'compact', '--older-than', 'ancient']),
       ExitCode.usage.code,
     );
-    verify(
-      () => logger.err(any(that: contains('Invalid --older-than value'))),
-    ).called(1);
+    verify(() => logger.err(any(that: contains('Invalid --older-than value'))))
+        .called(1);
   });
   test('captures the end of a session without git', () async {
     expect(
@@ -850,8 +797,7 @@ void main() {
         'TODO: summarize what was done this session',
       ]),
     );
-    verify(
-      () => logger.success(any(that: contains('Captured session memory'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('Captured session memory'))))
+        .called(1);
   });
 }

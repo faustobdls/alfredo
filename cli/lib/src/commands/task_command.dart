@@ -258,11 +258,8 @@ class _DependTask extends _TaskSubcommand {
 }
 
 class _SimpleTaskTransition extends _TaskSubcommand {
-  _SimpleTaskTransition(
-    this.commandName,
-    TaskRuntimeStore store,
-    Logger logger,
-  ) : super(store: store, logger: logger) {
+  _SimpleTaskTransition(this.commandName, TaskRuntimeStore store, Logger logger)
+    : super(store: store, logger: logger) {
     argParser.addFlag('json', negatable: false, help: 'Emit JSON.');
   }
 
@@ -338,10 +335,7 @@ class _CheckpointTask extends _TaskSubcommand {
       ..addOption('current')
       ..addMultiOption('remaining')
       ..addMultiOption('file')
-      ..addMultiOption(
-        'validation',
-        help: 'Validation in name=value form.',
-      )
+      ..addMultiOption('validation', help: 'Validation in name=value form.')
       ..addOption('next-action')
       ..addFlag('json', negatable: false, help: 'Emit JSON.');
   }
@@ -586,10 +580,7 @@ class _TaskBoardCommand extends _TaskSubcommand {
         ? null
         : int.tryParse(maxIterationsText);
     if (maxIterationsText != null && maxIterations == null) {
-      throw UsageException(
-        '--max-iterations must be an integer.',
-        usage,
-      );
+      throw UsageException('--max-iterations must be an integer.', usage);
     }
 
     var iteration = 0;
@@ -621,9 +612,8 @@ String _boardText(TaskBoard board) {
   final buffer = StringBuffer()
     ..writeln('Task Board — ${board.generatedAt.toIso8601String()}');
   for (final column in board.columns) {
-    final heading = _columnStyle(column.title).wrap(
-      '${column.title} (${column.entries.length})',
-    );
+    final heading = _columnStyle(column.title)
+        .wrap('${column.title} (${column.entries.length})');
     buffer
       ..writeln()
       ..writeln(heading);

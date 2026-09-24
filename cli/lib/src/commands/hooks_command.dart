@@ -71,9 +71,7 @@ class _HooksInstallCommand extends Command<int> {
     final force = argResults!['force'] as bool;
 
     if (preCommitFile.existsSync() && !force) {
-      logger.err(
-        'Hook pre-commit already exists. Use --force to overwrite.',
-      );
+      logger.err('Hook pre-commit already exists. Use --force to overwrite.');
       return ExitCode.config.code;
     }
 

@@ -41,12 +41,8 @@ void main() {
     await _git(['-C', source.path, 'config', 'user.name', 'Alfredo Test']);
     await _git(['-C', source.path, 'add', '.']);
     await _git(['-C', source.path, 'commit', '-m', 'initial']);
-    final commit = (await _git([
-      '-C',
-      source.path,
-      'rev-parse',
-      'HEAD',
-    ])).trim();
+    final commit = (await _git(['-C', source.path, 'rev-parse', 'HEAD']))
+        .trim();
 
     final first = await cache.fetchGit(url: source.uri, revision: commit);
     await source.delete(recursive: true);
@@ -63,9 +59,8 @@ void main() {
     );
     expect(Directory(p.join(first.root, '.git')).existsSync(), isFalse);
     expect(
-      File(
-        p.join(cache.directory.path, 'git', first.cacheKey, '.complete'),
-      ).existsSync(),
+      File(p.join(cache.directory.path, 'git', first.cacheKey, '.complete'))
+          .existsSync(),
       isTrue,
     );
   });
@@ -112,9 +107,8 @@ void main() {
       throwsA(isA<SourceException>()),
     );
     expect(
-      Directory(
-        p.join(cache.directory.path, 'archive', incorrect),
-      ).existsSync(),
+      Directory(p.join(cache.directory.path, 'archive', incorrect))
+          .existsSync(),
       isFalse,
     );
   });
@@ -180,20 +174,14 @@ void main() {
     ).create(recursive: true);
     await File(p.join(incomplete.path, 'partial')).writeAsString('partial');
 
-    final snapshot = await cache.fetchArchive(
-      url: archive.uri,
-      sha256: digest,
-    );
+    final snapshot = await cache.fetchArchive(url: archive.uri, sha256: digest);
 
     expect(
       File(p.join(snapshot.root, 'alfredo-source.yaml')).existsSync(),
       isTrue,
     );
     expect(File(p.join(incomplete.path, 'partial')).existsSync(), isFalse);
-    expect(
-      File(p.join(incomplete.path, '.complete')).existsSync(),
-      isTrue,
-    );
+    expect(File(p.join(incomplete.path, '.complete')).existsSync(), isTrue);
   });
 
   test(
@@ -208,12 +196,8 @@ void main() {
       await _git(['-C', source.path, 'config', 'user.name', 'Alfredo Test']);
       await _git(['-C', source.path, 'add', '.']);
       await _git(['-C', source.path, 'commit', '-m', 'initial']);
-      final commit = (await _git([
-        '-C',
-        source.path,
-        'rev-parse',
-        'HEAD',
-      ])).trim();
+      final commit = (await _git(['-C', source.path, 'rev-parse', 'HEAD']))
+          .trim();
       final first = await cache.fetchGit(url: source.uri, revision: commit);
       final manifest = File(p.join(first.root, 'alfredo-source.yaml'));
       if (Platform.isWindows) {
@@ -271,12 +255,8 @@ void main() {
     await _git(['-C', source.path, 'config', 'user.name', 'Alfredo Test']);
     await _git(['-C', source.path, 'add', '.']);
     await _git(['-C', source.path, 'commit', '-m', 'initial']);
-    final commit = (await _git([
-      '-C',
-      source.path,
-      'rev-parse',
-      'HEAD',
-    ])).trim();
+    final commit = (await _git(['-C', source.path, 'rev-parse', 'HEAD']))
+        .trim();
     final registry = SourceRegistry(
       file: File(p.join(temporary.path, 'config', 'sources.json')),
       snapshots: cache,

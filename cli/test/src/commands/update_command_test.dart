@@ -75,9 +75,8 @@ void main() {
 
     expect(code, ExitCode.success.code);
     expect(await installedSkill.readAsString(), 'android-core:NEW\n');
-    verify(
-      () => logger.success(any(that: contains('Updated 1 package'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('Updated 1 package'))))
+        .called(1);
   });
 
   test('dry run leaves files untouched', () async {
@@ -91,17 +90,14 @@ void main() {
       await installedSkill.readAsString(),
       'android-core:skills/example/SKILL.md\n',
     );
-    verify(
-      () => logger.info(any(that: contains('would refresh content'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('would refresh content'))))
+        .called(1);
   });
 
   test('reports when nothing is installed', () async {
     final code = await runner.run(['update']);
 
     expect(code, ExitCode.success.code);
-    verify(
-      () => logger.info('No installed Alfredo packages found.'),
-    ).called(1);
+    verify(() => logger.info('No installed Alfredo packages found.')).called(1);
   });
 }

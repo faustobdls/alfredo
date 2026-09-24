@@ -25,9 +25,7 @@ class SourceManifestLoader {
     final root = await directory.resolveSymbolicLinks();
     final manifest = File(p.join(root, 'alfredo-source.yaml'));
     if (!manifest.existsSync()) {
-      throw const SourceException(
-        'Source is missing alfredo-source.yaml.',
-      );
+      throw const SourceException('Source is missing alfredo-source.yaml.');
     }
 
     final source = _parseYamlMap(
@@ -46,9 +44,7 @@ class SourceManifestLoader {
       p.joinAll([root, ...p.posix.split(packagesPath)]),
     );
     if (!packagesDirectory.existsSync()) {
-      throw SourceException(
-        'Packages directory does not exist: $packagesPath',
-      );
+      throw SourceException('Packages directory does not exist: $packagesPath');
     }
     final resolvedPackagesDirectory = await packagesDirectory
         .resolveSymbolicLinks();
@@ -97,10 +93,7 @@ class SourceManifestLoader {
     );
   }
 
-  Future<SourcePackage> _loadPackage(
-    File file,
-    String relativePath,
-  ) async {
+  Future<SourcePackage> _loadPackage(File file, String relativePath) async {
     final package = _parseYamlMap(
       await file.readAsString(),
       context: 'package manifest $relativePath',

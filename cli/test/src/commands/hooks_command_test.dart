@@ -29,9 +29,8 @@ void main() {
       Directory.current = temporary;
       final exitCode = await runner.run(['hooks', 'install']);
       expect(exitCode, ExitCode.usage.code);
-      verify(
-        () => logger.err(any(that: contains('Not a git repository'))),
-      ).called(1);
+      verify(() => logger.err(any(that: contains('Not a git repository'))))
+          .called(1);
     } finally {
       Directory.current = originalDir;
     }
@@ -56,17 +55,15 @@ void main() {
         contains('Alfredo pre-commit hook'),
       );
 
-      verify(
-        () => logger.success(any(that: contains('Installed Git hooks'))),
-      ).called(1);
+      verify(() => logger.success(any(that: contains('Installed Git hooks'))))
+          .called(1);
 
       // Uninstall
       final uninstallCode = await runner.run(['hooks', 'uninstall']);
       expect(uninstallCode, ExitCode.success.code);
       expect(hookFile.existsSync(), isFalse);
-      verify(
-        () => logger.success(any(that: contains('Uninstalled Git hooks'))),
-      ).called(1);
+      verify(() => logger.success(any(that: contains('Uninstalled Git hooks'))))
+          .called(1);
     } finally {
       Directory.current = originalDir;
     }

@@ -270,11 +270,7 @@ class MemoryStore {
           if (weight >= 1) {
             return List.unmodifiable(vectorHits.take(limit.clamp(1, 20)));
           }
-          final keywordHits = keywordSearch(
-            documents,
-            query,
-            limit: poolLimit,
-          );
+          final keywordHits = keywordSearch(documents, query, limit: poolLimit);
           return combineHybridHits(
             keywordHits: keywordHits,
             vectorHits: vectorHits,

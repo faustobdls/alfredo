@@ -475,10 +475,7 @@ void main() {
       }).isValid,
       isTrue,
     );
-    expect(
-      schema.validate({...valid, 'kind': 'Email Blast'}).isValid,
-      isFalse,
-    );
+    expect(schema.validate({...valid, 'kind': 'Email Blast'}).isValid, isFalse);
     expect(schema.validate({...valid, 'schema_version': 2}).isValid, isFalse);
     expect(
       schema.validate({

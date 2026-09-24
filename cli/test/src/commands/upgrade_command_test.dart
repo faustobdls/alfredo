@@ -44,9 +44,8 @@ void main() {
     final code = await runner().run(['upgrade']);
 
     expect(code, ExitCode.success.code);
-    verify(
-      () => logger.success(any(that: contains('Upgraded Alfredo 0.0.1'))),
-    ).called(1);
+    verify(() => logger.success(any(that: contains('Upgraded Alfredo 0.0.1'))))
+        .called(1);
   });
 
   test('--check announces an available release without applying it', () async {
@@ -81,9 +80,8 @@ void main() {
     final code = await runner().run(['upgrade']);
 
     expect(code, ExitCode.success.code);
-    verify(
-      () => logger.info(any(that: contains('already up to date'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('already up to date'))))
+        .called(1);
   });
 
   test('maps an UpgradeException to an unavailable exit code', () async {

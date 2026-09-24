@@ -17,9 +17,8 @@ void main() {
 
   test('discovers the runtime project root from a nested directory', () async {
     await Directory(p.join(temporary.path, '.git')).create();
-    final nested = await Directory(
-      p.join(temporary.path, 'cli', 'test'),
-    ).create(recursive: true);
+    final nested = await Directory(p.join(temporary.path, 'cli', 'test'))
+        .create(recursive: true);
     await Directory(p.join(temporary.path, 'cli', '.alfredo')).create();
 
     final root = defaultTaskRuntimeProjectRoot(start: nested);
@@ -38,9 +37,8 @@ void main() {
     expect(events.single.type, 'created');
     expect(events.single.task, task.id);
 
-    await File(
-      p.join(temporary.path, '.alfredo', 'tasks', '${task.id}.json'),
-    ).writeAsString('{');
+    await File(p.join(temporary.path, '.alfredo', 'tasks', '${task.id}.json'))
+        .writeAsString('{');
 
     await expectLater(
       store.readTask(task.id),
@@ -82,9 +80,8 @@ void main() {
     expect((await store.readTask(task.id)).run, run.id);
     expect((await store.readRun(run.id)).tasks, [task.id]);
     expect(
-      File(
-        p.join(temporary.path, '.alfredo', 'runs', run.id, 'manifest.json'),
-      ).readAsStringSync(),
+      File(p.join(temporary.path, '.alfredo', 'runs', run.id, 'manifest.json'))
+          .readAsStringSync(),
       contains(task.id),
     );
     await expectLater(
@@ -214,10 +211,11 @@ void main() {
     final normal = await store.createTask(title: 'Normal');
     final urgent = await store.createTask(title: 'Urgent', priority: 'urgent');
 
-    expect(
-      (await store.readyTasks()).map((task) => task.id),
-      [urgent.id, normal.id, low.id],
-    );
+    expect((await store.readyTasks()).map((task) => task.id), [
+      urgent.id,
+      normal.id,
+      low.id,
+    ]);
   });
 
   test('rejects dependency cycles', () async {
@@ -289,9 +287,9 @@ void main() {
     await File(p.join(temporary.path, '.alfredo', 'personas', 'alfredo.md'))
         .create(recursive: true)
         .then((file) => file.writeAsString('Alfredo voice'));
-    await File(
-      p.join(temporary.path, '.alfredo', 'personas', 'user.md'),
-    ).create(recursive: true).then((file) => file.writeAsString('User voice'));
+    await File(p.join(temporary.path, '.alfredo', 'personas', 'user.md'))
+        .create(recursive: true)
+        .then((file) => file.writeAsString('User voice'));
     await File(p.join(temporary.path, '.alfredo', 'context', 'index.yaml'))
         .create(recursive: true)
         .then(
@@ -329,9 +327,7 @@ void main() {
   });
 
   test('folds a matched template into the context package', () async {
-    await File(
-          p.join(temporary.path, 'templates', 'bank-email', 'TEMPLATE.md'),
-        )
+    await File(p.join(temporary.path, 'templates', 'bank-email', 'TEMPLATE.md'))
         .create(recursive: true)
         .then(
           (file) => file.writeAsString(

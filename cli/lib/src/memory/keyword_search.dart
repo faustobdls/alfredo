@@ -64,9 +64,7 @@ List<MemorySearchHit> keywordSearch(
 
   // Document frequency: how many documents in the corpus contain each term
   // at least once, used below to weight rarer terms more heavily (IDF).
-  final documentFrequency = <String, int>{
-    for (final term in terms) term: 0,
-  };
+  final documentFrequency = <String, int>{for (final term in terms) term: 0};
   for (final term in terms) {
     for (final document in corpus) {
       if (haystacks[document]!.contains(term)) {

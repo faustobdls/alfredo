@@ -81,26 +81,18 @@ void main() {
   });
 
   test('walks up to the directory that contains .git', () async {
-    final repository = await Directory(
-      p.join(temporary.path, 'repo'),
-    ).create();
+    final repository = await Directory(p.join(temporary.path, 'repo')).create();
     await Directory(p.join(repository.path, '.git')).create();
-    final nested = await Directory(
-      p.join(repository.path, 'cli', 'lib'),
-    ).create(recursive: true);
+    final nested = await Directory(p.join(repository.path, 'cli', 'lib'))
+        .create(recursive: true);
 
     final directory = projectMemoryDirectory(nested, environment: const {});
 
-    expect(
-      directory.path,
-      p.join(repository.path, '.alfredo', 'memory'),
-    );
+    expect(directory.path, p.join(repository.path, '.alfredo', 'memory'));
   });
 
   test('prefers ALFREDO_PROJECT_ROOT over the repository walk', () async {
-    final repository = await Directory(
-      p.join(temporary.path, 'repo'),
-    ).create();
+    final repository = await Directory(p.join(temporary.path, 'repo')).create();
     await Directory(p.join(repository.path, '.git')).create();
 
     final directory = projectMemoryDirectory(

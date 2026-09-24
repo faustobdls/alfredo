@@ -153,9 +153,7 @@ class SourceSnapshotCache {
     await stagingDirectory.create(recursive: true);
     // Keep this segment short: on Windows the staging tree hosts a full Git
     // checkout, and a cacheKey-prefixed name pushes deep paths past MAX_PATH.
-    final stage = Directory(
-      p.join(stagingDirectory.path, _nonce()),
-    );
+    final stage = Directory(p.join(stagingDirectory.path, _nonce()));
     final target = Directory(p.join(kindDirectory.path, cacheKey));
     try {
       await stage.create();
@@ -232,9 +230,7 @@ class SourceSnapshotCache {
       );
       if (!sourceRoot.existsSync() ||
           !File(p.join(sourceRoot.path, 'alfredo-source.yaml')).existsSync()) {
-        throw SourceException(
-          'Source snapshot is invalid: ${target.path}',
-        );
+        throw SourceException('Source snapshot is invalid: ${target.path}');
       }
       await _protectSnapshot(target);
       return SourceSnapshot(
@@ -432,10 +428,7 @@ class SourceSnapshotCache {
     }
   }
 
-  Future<void> _extractArchive(
-    List<int> bytes,
-    Directory destination,
-  ) async {
+  Future<void> _extractArchive(List<int> bytes, Directory destination) async {
     Archive archive;
     try {
       if (_isZip(bytes)) {
@@ -526,9 +519,7 @@ class SourceSnapshotCache {
     const allowedSchemes = {'file', 'http', 'https', 'ssh', 'git'};
     if (!allowedSchemes.contains(url.scheme.toLowerCase())) {
       final scheme = url.scheme.isEmpty ? '(none)' : url.scheme;
-      throw SourceException(
-        'Unsupported Git URL scheme: $scheme',
-      );
+      throw SourceException('Unsupported Git URL scheme: $scheme');
     }
   }
 

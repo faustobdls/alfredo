@@ -56,12 +56,10 @@ packages_path: packages
       p.join(source.path, 'packages', fixture.id),
     ).create(recursive: true);
     final contents = fixture.contents.entries
-        .map(
-          (entry) {
-            final paths = entry.value.map((path) => "'$path'").join(', ');
-            return '${entry.key}: [$paths]';
-          },
-        )
+        .map((entry) {
+          final paths = entry.value.map((path) => "'$path'").join(', ');
+          return '${entry.key}: [$paths]';
+        })
         .join('\n  ');
     final dependencies = fixture.dependencies
         .map((entry) => '{id: ${entry['id']}, version: ${entry['version']}}')

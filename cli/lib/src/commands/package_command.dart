@@ -44,11 +44,7 @@ class PackageCommand extends Command<int> {
       ),
     );
     addSubcommand(
-      _UninstallPackage(
-        installer: installer,
-        roots: roots,
-        logger: logger,
-      ),
+      _UninstallPackage(installer: installer, roots: roots, logger: logger),
     );
   }
 

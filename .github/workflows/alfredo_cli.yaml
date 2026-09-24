@@ -46,7 +46,7 @@ jobs:
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.8.1
         with:
-          sdk: "3.12.0"
+          sdk: "3.13.4"
 
       - name: Validate Windows installer syntax
         if: runner.os == 'Windows'

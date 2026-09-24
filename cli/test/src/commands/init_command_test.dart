@@ -36,9 +36,8 @@ void main() {
 
     expect(File(p.join(target, 'alfredo-source.yaml')).existsSync(), isTrue);
     expect(
-      File(
-        p.join(target, 'packages', 'example-core', 'package.yaml'),
-      ).existsSync(),
+      File(p.join(target, 'packages', 'example-core', 'package.yaml'))
+          .existsSync(),
       isTrue,
     );
     expect(
@@ -80,9 +79,8 @@ void main() {
       ExitCode.success.code,
     );
 
-    final manifest = File(
-      p.join(target, 'alfredo-source.yaml'),
-    ).readAsStringSync();
+    final manifest = File(p.join(target, 'alfredo-source.yaml'))
+        .readAsStringSync();
     expect(manifest, contains('id: team-tools'));
     expect(manifest, contains('name: Team Tools'));
   });

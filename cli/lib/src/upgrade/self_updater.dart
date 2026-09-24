@@ -130,9 +130,7 @@ class SelfUpdater {
       throw UpgradeException('No checksum published for $asset.');
     }
     if (expected != actual) {
-      throw UpgradeException(
-        'Checksum verification failed for $asset.',
-      );
+      throw UpgradeException('Checksum verification failed for $asset.');
     }
   }
 

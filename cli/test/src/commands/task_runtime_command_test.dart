@@ -55,20 +55,11 @@ void main() {
     expect(await runner.run(['task', 'ready']), ExitCode.success.code);
 
     expect(
-      await runner.run([
-        'session',
-        'start',
-        '--adapter',
-        'claude',
-        '--json',
-      ]),
+      await runner.run(['session', 'start', '--adapter', 'claude', '--json']),
       ExitCode.success.code,
     );
     final session =
-        jsonDecode(
-              captureInfo(logger, '{'),
-            )
-            as Map<String, dynamic>;
+        jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
     final sessionId = session['id']! as String;
 
     expect(
@@ -117,20 +108,11 @@ void main() {
     );
     expect(await runner.run(['task', 'resume', taskId]), ExitCode.success.code);
     expect(
-      await runner.run([
-        'session',
-        'start',
-        '--adapter',
-        'codex',
-        '--json',
-      ]),
+      await runner.run(['session', 'start', '--adapter', 'codex', '--json']),
       ExitCode.success.code,
     );
     final codexSession =
-        jsonDecode(
-              captureInfo(logger, '{'),
-            )
-            as Map<String, dynamic>;
+        jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
     final codexSessionId = codexSession['id']! as String;
     expect(
       await runner.run([
@@ -149,9 +131,7 @@ void main() {
     expect(await runner.run(['task', 'done', taskId]), ExitCode.success.code);
 
     expect(await runner.run(['task', 'report']), ExitCode.success.code);
-    verify(
-      () => logger.info(any(that: contains('Total tasks: 1'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('Total tasks: 1')))).called(1);
     expect(
       await runner.run(['task', 'report', '--json']),
       ExitCode.success.code,
@@ -163,20 +143,17 @@ void main() {
     expect((reportedTasks.single as Map)['status'], 'DONE');
 
     expect(
-      File(
-        p.join(temporary.path, '.alfredo', 'tasks', '$taskId.json'),
-      ).existsSync(),
+      File(p.join(temporary.path, '.alfredo', 'tasks', '$taskId.json'))
+          .existsSync(),
       isTrue,
     );
     expect(
-      Directory(
-        p.join(temporary.path, '.alfredo', 'memory', 'journal'),
-      ).existsSync(),
+      Directory(p.join(temporary.path, '.alfredo', 'memory', 'journal'))
+          .existsSync(),
       isTrue,
     );
-    verify(
-      () => logger.info(any(that: contains('Next action: write tests'))),
-    ).called(1);
+    verify(() => logger.info(any(that: contains('Next action: write tests'))))
+        .called(1);
   });
 
   test('task board renders READY and IN_PROGRESS columns', () async {
@@ -228,10 +205,7 @@ void main() {
       ]),
       ExitCode.success.code,
     );
-    expect(
-      await runner.run(['task', 'start', doingId]),
-      ExitCode.success.code,
-    );
+    expect(await runner.run(['task', 'start', doingId]), ExitCode.success.code);
 
     expect(await runner.run(['task', 'board']), ExitCode.success.code);
     final boardText = captureInfo(logger, 'Task Board');
@@ -315,20 +289,11 @@ void main() {
     );
 
     expect(
-      await runner.run([
-        'session',
-        'start',
-        '--adapter',
-        'codex',
-        '--json',
-      ]),
+      await runner.run(['session', 'start', '--adapter', 'codex', '--json']),
       ExitCode.success.code,
     );
     final session =
-        jsonDecode(
-              captureInfo(logger, '{'),
-            )
-            as Map<String, dynamic>;
+        jsonDecode(captureInfo(logger, '{')) as Map<String, dynamic>;
 
     expect(
       await runner.run([
@@ -351,16 +316,16 @@ void main() {
 
 String captureSuccess(Logger logger, String prefix) {
   final captured =
-      verify(
-            () => logger.success(captureAny(that: startsWith(prefix))),
-          ).captured.last!
+      verify(() => logger.success(captureAny(that: startsWith(prefix))))
+              .captured
+              .last!
           as String;
   return captured.split(':').first.substring(prefix.length);
 }
 
 String captureInfo(Logger logger, String prefix) {
-  return verify(
-        () => logger.info(captureAny(that: startsWith(prefix))),
-      ).captured.last!
+  return verify(() => logger.info(captureAny(that: startsWith(prefix))))
+          .captured
+          .last!
       as String;
 }

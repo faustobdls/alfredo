@@ -36,11 +36,8 @@ void main() {
         contentRoot: source.path,
         manifest: manifest,
       );
-      await File(
-        p.join(source.path, 'skills', 'example', 'SKILL.md'),
-      ).writeAsString(
-        'changed\n',
-      );
+      await File(p.join(source.path, 'skills', 'example', 'SKILL.md'))
+          .writeAsString('changed\n');
       final second = await loader.digest(
         packageDirectory: packageRoot,
         contentRoot: source.path,

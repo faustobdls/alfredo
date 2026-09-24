@@ -62,10 +62,9 @@ void main() {
   test('leaves no temporary residue after a write', () async {
     await store.write(const MemoryConfig.defaults());
 
-    expect(
-      temporary.listSync().map((entity) => p.basename(entity.path)),
-      ['config.json'],
-    );
+    expect(temporary.listSync().map((entity) => p.basename(entity.path)), [
+      'config.json',
+    ]);
   });
 
   test('rejects an unsupported schema version', () async {
