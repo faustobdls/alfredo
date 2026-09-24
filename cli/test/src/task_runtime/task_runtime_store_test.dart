@@ -11,29 +11,27 @@ void main() {
   setUp(() async {
     temporary = await Directory.systemTemp.createTemp('alfredo-runtime-');
     await Process.run('git', ['init'], workingDirectory: temporary.path);
-    await Process.run(
-      'git',
-      ['config', 'user.name', 'Test User'],
-      workingDirectory: temporary.path,
-    );
-    await Process.run(
-      'git',
-      ['config', 'user.email', 'test@example.com'],
-      workingDirectory: temporary.path,
-    );
-    await File(
-      p.join(temporary.path, 'README.md'),
-    ).writeAsString('# Test repo');
-    await Process.run(
-      'git',
-      ['add', 'README.md'],
-      workingDirectory: temporary.path,
-    );
-    await Process.run(
-      'git',
-      ['commit', '-m', 'Initial commit'],
-      workingDirectory: temporary.path,
-    );
+    await Process.run('git', [
+      'config',
+      'user.name',
+      'Test User',
+    ], workingDirectory: temporary.path);
+    await Process.run('git', [
+      'config',
+      'user.email',
+      'test@example.com',
+    ], workingDirectory: temporary.path);
+    await File(p.join(temporary.path, 'README.md'))
+        .writeAsString('# Test repo');
+    await Process.run('git', [
+      'add',
+      'README.md',
+    ], workingDirectory: temporary.path);
+    await Process.run('git', [
+      'commit',
+      '-m',
+      'Initial commit',
+    ], workingDirectory: temporary.path);
     store = TaskRuntimeStore(projectRoot: temporary);
   });
 
@@ -497,9 +495,8 @@ void main() {
     try {
       final configDir = Directory(p.join(temporary.path, '.alfredo'));
       await configDir.create(recursive: true);
-      await File(p.join(configDir.path, 'config.yaml')).writeAsString(
-        'worktree_base: ${customBaseDir.path}\n',
-      );
+      await File(p.join(configDir.path, 'config.yaml'))
+          .writeAsString('worktree_base: ${customBaseDir.path}\n');
 
       final task = await store.createTask(title: 'Custom base task');
       final session = await store.startSession(adapter: 'claude');

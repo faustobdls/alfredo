@@ -239,8 +239,11 @@ class TaskRuntimeStore {
       final gitRoot = _gitProjectRootOrNull();
       final slug = _slugify(task.title);
       final branchName = task.branch ?? 'alf/${task.id}-$slug';
-      final worktreePath = task.worktree ??
-          (gitRoot == null ? null : p.join(_worktreeBase.path, '${task.id}-$slug'));
+      final worktreePath =
+          task.worktree ??
+          (gitRoot == null
+              ? null
+              : p.join(_worktreeBase.path, '${task.id}-$slug'));
       final worktreeDir = worktreePath == null ? null : Directory(worktreePath);
 
       if (gitRoot != null && worktreeDir != null && !worktreeDir.existsSync()) {
@@ -370,11 +373,7 @@ class TaskRuntimeStore {
       }
 
       final now = _now();
-      final next = task.copyWith(
-        updatedAt: now,
-        worktree: null,
-        branch: null,
-      );
+      final next = task.copyWith(updatedAt: now, worktree: null, branch: null);
       await _writeTask(next, 'cleaned', {
         if (worktreePath != null) 'previous_worktree': worktreePath,
         if (branchName != null) 'previous_branch': branchName,
@@ -409,9 +408,12 @@ class TaskRuntimeStore {
       try {
         final doc = loadYaml(configFile.readAsStringSync());
         if (doc is Map) {
-          final base = doc['worktree_base'] ??
+          final base =
+              doc['worktree_base'] ??
               doc['worktrees'] ??
-              (doc['worktree'] is Map ? (doc['worktree'] as Map)['base'] : null);
+              (doc['worktree'] is Map
+                  ? (doc['worktree'] as Map)['base']
+                  : null);
           if (base is String && base.trim().isNotEmpty) {
             final trimmed = base.trim();
             if (p.isAbsolute(trimmed)) {
