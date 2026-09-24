@@ -6,21 +6,48 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-23
+
 ### Added
 
-- DeepSeek Harness plugin bundle with the official `conversation.view` Alfredo
-  tab, authenticated CLI-backed host API, Kanban surface, worker/session views,
-  package catalog foundations, and debounced runtime refresh.
+- DeepSeek Harness (DSH) plugin bundle with the official `conversation.view`
+  Alfredo tab, authenticated CLI-backed host API, Kanban task surface,
+  worker/session views, package catalog foundations, and debounced runtime
+  refresh.
+- `alfredo setup --dsh` and DSH adapter/package support (`adapters/dsh.yaml`), including automatic installation of the Alfredo plugin into the DSH web interface via `dsh plugin --profile <profile> add`.
+- `--profile` option for `alfredo setup --dsh` (defaulting to `web`).
 - Optional task tracks with `alfredo task ready --track`, DSH session IDs, the
   `alfredo-worker` skill, and main-repository resolution from linked worktrees.
-- `alfredo setup --dsh` and DSH adapter/package support.
-- DSH plugin package metadata now declares the minimum supported DSH release
-  (0.1.5-rc.3) and includes the browser client bundle.
+- Colorized terminal task board via `alfredo task board` with `--json` and
+  `--watch` options.
+- Task runtime metrics and performance analytics with `alfredo task report`.
+- Real BM25 hybrid ranking (combining BM25 term weighting with vector
+  similarity) in `alfredo memory search`.
+- Incremental journal compaction via `alfredo memory compact`.
+- Declarative target adapters framework (`adapters/`) for extensible agent
+  target definitions.
+- Third-party package discovery and source synchronization with `alfredo source sync`
+  and `alfredo source search`.
+- Native Git hooks integration via `alfredo hooks install`.
+- Dart sandbox execution resilience via `scripts/dart-sandbox.sh`.
+- DSH plugin package metadata declaring minimum supported DSH release
+  (0.1.5-rc.3) and browser client bundle.
 
 ### Changed
 
+- `alfredo init` now defaults to initializing the current working directory
+  when invoked without a subcommand or path argument.
 - Task Runtime documents the one-worktree-per-task execution contract and keeps
   `.alfredo/` canonical state in the main repository.
+- Robust permission verification and smoke checks in `scripts/install.sh` and
+  `scripts/install.ps1`.
+- Bumped CLI dependencies to `very_good_analysis 11.0.0`, `archive 4.3.0`,
+  `mason_logger 0.3.6`, `build_runner 2.16.1`, and `test 1.32.0`.
+
+### Fixed
+
+- CLI formatting, linter warnings, and strict static analysis rules across task
+  runtime stores and tests.
 
 ## [1.1.0] - 2026-09-03
 
@@ -245,7 +272,8 @@ All notable changes to Alfredo are documented in this file. The format follows
 - Portable Android engineering skills and the `android-core` package.
 - FastAPI HUD monorepo application and CI workflows.
 
-[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/faustobdls/alfredo/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/faustobdls/alfredo/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/faustobdls/alfredo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/faustobdls/alfredo/compare/v0.0.7...v1.0.0
 [0.0.7]: https://github.com/faustobdls/alfredo/compare/v0.0.6...v0.0.7

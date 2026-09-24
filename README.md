@@ -119,20 +119,23 @@ The installer downloads the latest GitHub release for the current platform, vali
 
 ### Install as a DeepSeek Harness Plugin
 
-To use Alfredo as a plugin inside the DeepSeek Harness (DSH) CLI, install it to DSH's plugin registry:
+The DeepSeek Harness integration operates on two complementary layers:
 
-```sh
-# Clone or navigate to the alfredo repository
-cd /path/to/alfredo
+1. **GUI Plugin (Kanban & Conversation Tab)**: Register the Alfredo Cordis plugin into your DSH web profile directly pointing to the repository/package path or Git clone:
+   ```sh
+   # Install plugin from cloned repo or package path
+   dsh plugin --profile web add /path/to/alfredo/packages/alfredo-plugin
+   
+   # Or directly start DSH web
+   dsh --profile web
+   ```
+2. **Agent Skills & Adapters (`alfredo setup --dsh`)**: Renders canonical skills (including `alfredo-worker`), rules, and instructions into `.dsh/` so agents inside DSH can autonomously discover, claim, and execute tasks:
+   ```sh
+   # Render skills and rules into ~/.dsh (or project scope with --scope project)
+   alfredo setup --dsh
+   ```
 
-# Register as a DSH plugin
-dsh plugin add alfredo --path .
-
-# Verify installation
-dsh plugin list
-```
-
-Then reference Alfredo task tools in DSH agent prompts and skills using the canonical Alfredo CLI interface.
+Both methods can be used together for the full experience (UI tab in DSH Web + autonomous worker skills in DSH agents).
 
 ## Setup Targets
 
