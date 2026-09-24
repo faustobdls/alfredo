@@ -1,8 +1,28 @@
-import { watch, readdirSync, readFileSync } from 'node:fs';
+import { watch, readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 
 const API_PATH = '/api/alfredo';
+
+// DSH Fetch routes are exact paths; wildcards are rejected at load time.
+const ROUTES = {
+  GET: ['tasks', 'ready', 'sessions', 'packages', 'task-events'],
+  POST: ['tasks', 'cancel', 'done', 'approve', 'cleanup', 'sessions', 'session/close',
+    'packages/install', 'packages/uninstall', 'packages/update', 'worker'],
+};
+
+// DSH runs from an arbitrary directory; the Alfredo project is a registered
+// workspace that holds `.alfredo/`, most recently updated first.
+function resolveCwd(ctx, config) {
+  if (config.cwd) return config.cwd;
+  try {
+    const found = (ctx.workspaceRegistry?.list() ?? [])
+      .filter((w) => existsSync(join(w.path, '.alfredo')))
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)))[0];
+    if (found) return found.path;
+  } catch (_) {}
+  return process.cwd();
+}
 
 function runAlfredo(args, cwd, signal) {
   return new Promise((resolve, reject) => {
@@ -99,24 +119,32 @@ async function commandResponse(request, cwd) {
 
   try {
     const output = await runAlfredo(args, cwd, request.signal);
-    return Response.json(output ? JSON.parse(output) : null, { headers: { 'cache-control': 'no-store' } });
+    let data = null;
+    if (output) {
+      // Package commands print plain text rather than JSON.
+      try { data = JSON.parse(output); } catch (_) { data = { ok: true, output }; }
+    }
+    return Response.json(data, { headers: { 'cache-control': 'no-store' } });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 400 });
   }
 }
 
 export function apply(ctx, config = {}) {
-  const cwd = config.cwd || process.cwd();
-  ctx.connection.fetch.register({
-    path: `${API_PATH}/*`,
-    methods: ['GET', 'POST'],
-    requestBody: 'buffered',
-    fetch: (request) => commandResponse(request, cwd),
-  });
+  const cwd = () => resolveCwd(ctx, config);
+  const resources = new Set([...ROUTES.GET, ...ROUTES.POST]);
+  for (const resource of resources) {
+    ctx.connection.fetch.register({
+      path: `${API_PATH}/${resource}`,
+      methods: ['GET', 'POST'].filter((m) => ROUTES[m].includes(resource)),
+      requestBody: 'buffered',
+      fetch: (request) => commandResponse(request, cwd()),
+    });
+  }
   let timer;
   let watcher;
   try {
-    watcher = watch(join(cwd, '.alfredo'), { recursive: true }, (_, filename) => {
+    watcher = watch(join(cwd(), '.alfredo'), { recursive: true }, (_, filename) => {
       if (!filename || (!filename.startsWith('tasks/') && !filename.startsWith('task-events/'))) return;
       clearTimeout(timer);
       timer = setTimeout(() => ctx.emit('alfredo/update', filename), 250);
@@ -128,4 +156,4 @@ export function apply(ctx, config = {}) {
 }
 
 export const name = 'alfredo-plugin';
-export const inject = ['connection'];
+export const inject = ['connection', 'workspaceRegistry'];

@@ -216,6 +216,10 @@ class _ClaimTask extends _TaskSubcommand {
   String get name => 'claim';
 
   @override
+  String get invocation =>
+      super.invocation.replaceFirst('[arguments]', '<task> [arguments]');
+
+  @override
   Future<int> run() async {
     final task = await store.claimTask(
       requireTaskId(),
