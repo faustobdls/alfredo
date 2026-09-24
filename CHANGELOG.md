@@ -6,6 +6,23 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-09-24
+
+### Fixed
+
+- Fixed the DSH plugin failing to load with `invalid exact Fetch route "/api/alfredo/*"`
+  by registering one exact route per API resource.
+- Fixed the DSH plugin browser bundle: `lib/client.js` is now built by
+  `packages/alfredo-plugin/build.mjs` in the ModuleLoader factory format DSH
+  expects, and the plugin stylesheet is injected.
+- Fixed the DSH Kanban showing no tasks when `dsh` runs outside the project by
+  resolving the Alfredo workspace from the DSH workspace registry.
+- Fixed package install, uninstall, and update actions in the DSH plugin
+  returning an error for plain-text CLI output.
+- `alfredo task claim` now reports a clear error, instead of an unhandled
+  exception, when the worktree directory cannot be created, and its usage shows
+  the required `<task>` argument.
+
 ## [1.2.1] - 2026-09-24
 
 ### Fixed
