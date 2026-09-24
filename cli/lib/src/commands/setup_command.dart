@@ -59,7 +59,9 @@ class SetupCommand extends Command<int> {
       ..addOption(
         'profile',
         defaultsTo: 'web',
-        help: 'DSH profile used when installing the Alfredo plugin into the web interface.',
+        help:
+            'DSH profile used when installing the Alfredo plugin into the web '
+            'interface.',
       )
       ..addOption(
         'scope',
@@ -134,10 +136,7 @@ class SetupCommand extends Command<int> {
       return ExitCode.success.code;
     }
     if (argResults!.wasParsed('profile') && !targets.contains('dsh')) {
-      throw UsageException(
-        '--profile can only be used with --dsh.',
-        usage,
-      );
+      throw UsageException('--profile can only be used with --dsh.', usage);
     }
     final onModifiedFile = managedFileConflictResolver(
       logger: logger,
@@ -178,15 +177,21 @@ class SetupCommand extends Command<int> {
             .firstOrNull;
         if (pluginCandidate != null) {
           final profile = argResults!['profile'] as String;
-          logger.info('Installing Alfredo DSH plugin into profile "$profile"...');
+          logger.info(
+            'Installing Alfredo DSH plugin into profile "$profile"...',
+          );
           try {
-            final dshResult = await Process.run(
-              'dsh',
-              ['plugin', '--profile', profile, 'add', pluginCandidate.packageRoot],
-            );
+            final dshResult = await Process.run('dsh', [
+              'plugin',
+              '--profile',
+              profile,
+              'add',
+              pluginCandidate.packageRoot,
+            ]);
             if (dshResult.exitCode != 0) {
               logger.err(
-                'Failed to install DSH plugin: ${dshResult.stderr.toString().trim()}',
+                'Failed to install DSH plugin: '
+                '${dshResult.stderr.toString().trim()}',
               );
             } else {
               logger.success(
