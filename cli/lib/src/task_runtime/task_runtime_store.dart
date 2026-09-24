@@ -16,8 +16,24 @@ Directory defaultTaskRuntimeProjectRoot({Directory? start}) {
         Directory(p.join(current.path, '.alfredo')).existsSync()) {
       nearestRuntimeRoot = current;
     }
-    if (Directory(p.join(current.path, '.git')).existsSync()) {
+    final gitEntry = File(p.join(current.path, '.git'));
+    if (Directory(gitEntry.path).existsSync()) {
       return current;
+    }
+    // Linked worktrees have a .git file pointing into the main repository's
+    // .git/worktrees/<name>; canonical Alfredo state belongs to that main root.
+    if (gitEntry.existsSync()) {
+      final text = gitEntry.readAsStringSync().trim();
+      if (text.startsWith('gitdir:')) {
+        final gitDir = p.normalize(
+          p.absolute(current.path, text.substring(7).trim()),
+        );
+        final commonGit = Directory(p.dirname(p.dirname(gitDir)));
+        final mainRoot = Directory(p.dirname(commonGit.path));
+        if (Directory(p.join(mainRoot.path, '.git')).existsSync()) {
+          return mainRoot;
+        }
+      }
     }
     final parent = current.parent;
     if (parent.path == current.path) {
@@ -58,6 +74,7 @@ class TaskRuntimeStore {
     required String title,
     String priority = 'normal',
     String? run,
+    String? track,
     List<String> dependencies = const [],
     List<String> acceptance = const [],
     TaskContextHints context = const TaskContextHints(),
@@ -75,6 +92,7 @@ class TaskRuntimeStore {
         status: TaskStatus.backlog,
         priority: priority,
         run: run,
+        track: track,
         createdAt: now,
         updatedAt: now,
         dependencies: _sortedUnique(dependencies),
@@ -147,7 +165,7 @@ class TaskRuntimeStore {
   }
 
   /// Returns claimable tasks. READY is derived here.
-  Future<List<AlfredoTask>> readyTasks() async {
+  Future<List<AlfredoTask>> readyTasks({String? track}) async {
     final tasks = await listTasks();
     final done = {
       for (final task in tasks)
@@ -155,7 +173,12 @@ class TaskRuntimeStore {
     };
     final ready = [
       for (final task in tasks)
-        if (task.isClaimable(done)) task,
+        if (task.isClaimable(done))
+          if (track == null ||
+              track.isEmpty ||
+              task.track == null ||
+              task.track == track)
+            task,
     ]..sort(_compareReadyTasks);
     return ready;
   }
@@ -212,14 +235,56 @@ class TaskRuntimeStore {
           'Session $session belongs to ${ownerSession.adapter}, not $adapter.',
         );
       }
+
+      final gitRoot = _gitProjectRootOrNull();
+      final slug = _slugify(task.title);
+      final branchName = task.branch ?? 'alf/${task.id}-$slug';
+      final worktreePath = task.worktree ??
+          (gitRoot == null ? null : p.join(_worktreeBase.path, '${task.id}-$slug'));
+      final worktreeDir = worktreePath == null ? null : Directory(worktreePath);
+
+      if (gitRoot != null && worktreeDir != null && !worktreeDir.existsSync()) {
+        if (!worktreeDir.parent.existsSync()) {
+          worktreeDir.parent.createSync(recursive: true);
+        }
+        final checkBranch = await Process.run(
+          'git',
+          ['show-ref', '--verify', '--quiet', 'refs/heads/$branchName'],
+          workingDirectory: gitRoot.path,
+          runInShell: false,
+        );
+        final branchExists = checkBranch.exitCode == 0;
+        final gitArgs = branchExists
+            ? ['worktree', 'add', worktreeDir.path, branchName]
+            : ['worktree', 'add', '-b', branchName, worktreeDir.path];
+
+        final result = await Process.run(
+          'git',
+          gitArgs,
+          workingDirectory: gitRoot.path,
+          runInShell: false,
+        );
+        if (result.exitCode != 0) {
+          throw TaskRuntimeException(
+            'Failed to create git worktree: ${result.stderr.toString().trim()}',
+          );
+        }
+      }
+
       _ensureTransition(task.status, TaskStatus.claimed);
       final now = _now();
       final next = task.copyWith(
         status: TaskStatus.claimed,
         updatedAt: now,
         owner: TaskOwner(adapter: adapter, agent: agent, session: session),
+        worktree: worktreeDir?.path,
+        branch: worktreeDir == null ? null : branchName,
       );
-      await _writeTask(next, 'claimed', {'session': session});
+      await _writeTask(next, 'claimed', {
+        'session': session,
+        if (worktreeDir != null) 'worktree': worktreeDir.path,
+        if (worktreeDir != null) 'branch': branchName,
+      });
       await _writeSession(
         ownerSession.copyWith(
           updatedAt: now,
@@ -228,6 +293,146 @@ class TaskRuntimeStore {
       );
       return next;
     });
+  }
+
+  /// Cleans up task worktree and branch.
+  Future<AlfredoTask> cleanupTask(String id, {bool force = false}) {
+    return withLock('task-$id', () async {
+      final task = await readTask(id);
+      final worktreePath = task.worktree;
+      final branchName = task.branch;
+
+      if (worktreePath != null && Directory(worktreePath).existsSync()) {
+        final statusResult = await Process.run(
+          'git',
+          ['status', '--porcelain'],
+          workingDirectory: worktreePath,
+          runInShell: false,
+        );
+        if (statusResult.exitCode == 0) {
+          final statusOutput = statusResult.stdout.toString().trim();
+          if (statusOutput.isNotEmpty && !force) {
+            throw TaskRuntimeException(
+              'Worktree is dirty: $worktreePath. Use --force to clean up anyway.',
+            );
+          }
+        }
+
+        final removeArgs = [
+          'worktree',
+          'remove',
+          if (force) '--force',
+          worktreePath,
+        ];
+        final removeResult = await Process.run(
+          'git',
+          removeArgs,
+          workingDirectory: (_gitProjectRootOrNull() ?? projectRoot).path,
+          runInShell: false,
+        );
+        if (removeResult.exitCode != 0 && !force) {
+          throw TaskRuntimeException(
+            'Failed to remove git worktree: ${removeResult.stderr.toString().trim()}',
+          );
+        }
+
+        await Process.run(
+          'git',
+          ['worktree', 'prune'],
+          workingDirectory: (_gitProjectRootOrNull() ?? projectRoot).path,
+          runInShell: false,
+        );
+
+        if (Directory(worktreePath).existsSync()) {
+          try {
+            Directory(worktreePath).deleteSync(recursive: true);
+          } catch (_) {}
+        }
+      }
+
+      final gitRoot = _gitProjectRootOrNull();
+      if (branchName != null && gitRoot != null) {
+        final branchArgs = ['branch', force ? '-D' : '-d', branchName];
+        final branchResult = await Process.run(
+          'git',
+          branchArgs,
+          workingDirectory: gitRoot.path,
+          runInShell: false,
+        );
+        if (branchResult.exitCode != 0 && force) {
+          await Process.run(
+            'git',
+            ['branch', '-D', branchName],
+            workingDirectory: gitRoot.path,
+            runInShell: false,
+          );
+        }
+      }
+
+      final now = _now();
+      final next = task.copyWith(
+        updatedAt: now,
+        worktree: null,
+        branch: null,
+      );
+      await _writeTask(next, 'cleaned', {
+        if (worktreePath != null) 'previous_worktree': worktreePath,
+        if (branchName != null) 'previous_branch': branchName,
+      });
+      return next;
+    });
+  }
+
+  Directory? _gitProjectRootOrNull() {
+    final gitDirectory = Directory(p.join(projectRoot.path, '.git'));
+    final gitFile = File(p.join(projectRoot.path, '.git'));
+    if (gitDirectory.existsSync()) return projectRoot;
+    if (gitFile.existsSync()) {
+      final text = gitFile.readAsStringSync().trim();
+      if (text.startsWith('gitdir:')) {
+        final gitDir = p.normalize(
+          p.absolute(projectRoot.path, text.substring(7).trim()),
+        );
+        final commonGit = Directory(p.dirname(p.dirname(gitDir)));
+        final mainRoot = Directory(p.dirname(commonGit.path));
+        if (Directory(p.join(mainRoot.path, '.git')).existsSync()) {
+          return mainRoot;
+        }
+      }
+    }
+    return null;
+  }
+
+  Directory get _worktreeBase {
+    final configFile = File(p.join(root.path, 'config.yaml'));
+    if (configFile.existsSync()) {
+      try {
+        final doc = loadYaml(configFile.readAsStringSync());
+        if (doc is Map) {
+          final base = doc['worktree_base'] ??
+              doc['worktrees'] ??
+              (doc['worktree'] is Map ? (doc['worktree'] as Map)['base'] : null);
+          if (base is String && base.trim().isNotEmpty) {
+            final trimmed = base.trim();
+            if (p.isAbsolute(trimmed)) {
+              return Directory(p.normalize(trimmed));
+            }
+            return Directory(
+              p.normalize(p.join(projectRoot.parent.path, trimmed)),
+            );
+          }
+        }
+      } catch (_) {}
+    }
+    return Directory(p.join(projectRoot.parent.path, 'alfredo-worktrees'));
+  }
+
+  static String _slugify(String title) {
+    final slug = title
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+    return slug.isEmpty ? 'task' : slug;
   }
 
   /// Adds dependencies to an existing task.
@@ -370,12 +575,14 @@ class TaskRuntimeStore {
   Future<AlfredoSession> startSession({
     required String adapter,
     String agent = 'executor',
+    String? dshSessionId,
   }) async {
     final now = _now();
     final session = AlfredoSession(
       id: _newId('SES'),
       adapter: adapter,
       agent: agent,
+      dshSessionId: dshSessionId,
       startedAt: now,
       updatedAt: now,
       status: SessionStatus.active,

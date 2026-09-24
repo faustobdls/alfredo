@@ -254,6 +254,9 @@ class AlfredoTask {
     required this.createdAt,
     required this.updatedAt,
     this.run,
+    this.track,
+    this.worktree,
+    this.branch,
     this.owner,
     this.previousOwner,
     this.dependencies = const [],
@@ -276,6 +279,9 @@ class AlfredoTask {
       status: TaskStatus.parse(_string(json, 'status')),
       priority: _string(json, 'priority'),
       run: _optionalString(json, 'run'),
+      track: _optionalString(json, 'track'),
+      worktree: _optionalString(json, 'worktree'),
+      branch: _optionalString(json, 'branch'),
       createdAt: DateTime.parse(_string(json, 'created_at')),
       updatedAt: DateTime.parse(_string(json, 'updated_at')),
       owner: owner == null ? null : TaskOwner.fromJson(_map(owner)),
@@ -307,6 +313,15 @@ class AlfredoTask {
 
   /// Optional run ID.
   final String? run;
+
+  /// Optional track label.
+  final String? track;
+
+  /// Optional git worktree path.
+  final String? worktree;
+
+  /// Optional git branch name.
+  final String? branch;
 
   /// Creation timestamp.
   final DateTime createdAt;
@@ -350,6 +365,9 @@ class AlfredoTask {
     'status': status.wireName,
     'priority': priority,
     'run': run,
+    'track': track,
+    'worktree': worktree,
+    'branch': branch,
     'created_at': createdAt.toUtc().toIso8601String(),
     'updated_at': updatedAt.toUtc().toIso8601String(),
     'owner': owner?.toJson(),
@@ -367,6 +385,9 @@ class AlfredoTask {
     TaskStatus? status,
     String? priority,
     Object? run = _sentinel,
+    Object? track = _sentinel,
+    Object? worktree = _sentinel,
+    Object? branch = _sentinel,
     DateTime? updatedAt,
     Object? owner = _sentinel,
     Object? previousOwner = _sentinel,
@@ -382,6 +403,11 @@ class AlfredoTask {
       status: status ?? this.status,
       priority: priority ?? this.priority,
       run: identical(run, _sentinel) ? this.run : run as String?,
+      track: identical(track, _sentinel) ? this.track : track as String?,
+      worktree: identical(worktree, _sentinel)
+          ? this.worktree
+          : worktree as String?,
+      branch: identical(branch, _sentinel) ? this.branch : branch as String?,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       owner: identical(owner, _sentinel) ? this.owner : owner as TaskOwner?,
@@ -421,6 +447,7 @@ class AlfredoSession {
     required this.startedAt,
     required this.updatedAt,
     required this.status,
+    this.dshSessionId,
     this.endedAt,
     this.closeReason,
     this.tasksClaimed = const [],
@@ -437,6 +464,7 @@ class AlfredoSession {
       id: _string(json, 'id'),
       adapter: _string(json, 'adapter'),
       agent: _string(json, 'agent'),
+      dshSessionId: _optionalString(json, 'dsh_session_id'),
       startedAt: DateTime.parse(_string(json, 'started_at')),
       updatedAt: DateTime.parse(_string(json, 'updated_at')),
       status: switch (_string(json, 'status')) {
@@ -468,6 +496,9 @@ class AlfredoSession {
   /// Agent role.
   final String agent;
 
+  /// DSH session identifier, when provided by the caller.
+  final String? dshSessionId;
+
   /// Start time.
   final DateTime startedAt;
 
@@ -498,6 +529,7 @@ class AlfredoSession {
     'id': id,
     'adapter': adapter,
     'agent': agent,
+    'dsh_session_id': dshSessionId,
     'started_at': startedAt.toUtc().toIso8601String(),
     'updated_at': updatedAt.toUtc().toIso8601String(),
     'status': status.wireName,
@@ -512,6 +544,7 @@ class AlfredoSession {
   AlfredoSession copyWith({
     DateTime? updatedAt,
     SessionStatus? status,
+    Object? dshSessionId = _sentinel,
     Object? endedAt = _sentinel,
     Object? closeReason = _sentinel,
     List<String>? tasksClaimed,
@@ -522,6 +555,9 @@ class AlfredoSession {
       id: id,
       adapter: adapter,
       agent: agent,
+      dshSessionId: identical(dshSessionId, _sentinel)
+          ? this.dshSessionId
+          : dshSessionId as String?,
       startedAt: startedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       status: status ?? this.status,

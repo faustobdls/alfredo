@@ -6,6 +6,22 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- DeepSeek Harness plugin bundle with the official `conversation.view` Alfredo
+  tab, authenticated CLI-backed host API, Kanban surface, worker/session views,
+  package catalog foundations, and debounced runtime refresh.
+- Optional task tracks with `alfredo task ready --track`, DSH session IDs, the
+  `alfredo-worker` skill, and main-repository resolution from linked worktrees.
+- `alfredo setup --dsh` and DSH adapter/package support.
+- DSH plugin package metadata now declares the minimum supported DSH release
+  (0.1.5-rc.3) and includes the browser client bundle.
+
+### Changed
+
+- Task Runtime documents the one-worktree-per-task execution contract and keeps
+  `.alfredo/` canonical state in the main repository.
+
 ## [1.1.0] - 2026-09-03
 
 ### Added

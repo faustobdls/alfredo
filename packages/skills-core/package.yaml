@@ -1,7 +1,7 @@
 schema_version: 1
 id: skills-core
 name: Skills Core
-version: 0.3.2
+version: 0.3.3
 description: Alfredo's workflow skills — orchestration methods, in Alfredo's voice.
 license: MIT
 targets:
@@ -34,5 +34,6 @@ contents:
     - skills/prompt-refiner
     - skills/visual-verdict
     - skills/grill-me
+    - skills/alfredo-worker
 dependencies: []
 conflicts: []

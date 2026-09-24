@@ -1,0 +1,5 @@
+# Alfredo plugin overlay for DSH web.
+# The host route is mounted by src/index.js; the browser module is loaded by dsh.client.
+- insert:
+    - id: alfredo-client
+      name: 'alfredo-plugin'

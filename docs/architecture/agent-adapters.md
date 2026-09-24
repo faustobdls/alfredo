@@ -19,6 +19,16 @@ authoritative work stores.
 | Gemini CLI | `.gemini/` | `.gemini/` | canonical `skills/` tree |
 | Via | `.via/` | `.via/` | canonical `skills/` tree |
 | Generic | `.alfredo/` | `.alfredo/` | canonical content tree |
+| DeepSeek Harness | `.dsh/` | `.dsh/` | DSH profile skill/instruction tree and plugin bundle |
+
+## DeepSeek Harness (`dsh`)
+
+The DSH adapter is installed through `alfredo setup --dsh` and renders the
+canonical Alfredo catalog into the profile's supported skill/instruction
+locations. The `packages/alfredo-plugin` bundle requires DSH >= 0.1.5-rc.3 and
+uses only the official bundle, client-module, authenticated fetch, and
+`conversation.view` slot seams. DSH remains an adapter; `.alfredo/` remains the
+runtime source of truth.
 
 Installation preserves each canonical content path verbatim under the target
 root, so `skills/<name>/SKILL.md` lands at `<target>/skills/<name>/SKILL.md`,

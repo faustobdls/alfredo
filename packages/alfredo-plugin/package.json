@@ -1,0 +1,30 @@
+{
+  "name": "alfredo-plugin",
+  "version": "0.1.1",
+  "engines": { "dsh": ">=0.1.5-rc.3" },
+  "description": "Alfredo Kanban, worker, worktree, and package catalog integration for DSH",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./client": "./src/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": ["src/index.js", "src/client.js", "src/alfredo.css", "src/patch.yaml"],
+  "dsh": {
+    "bundle": { "patch": "./src/patch.yaml" },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "4.0.2"
+  }
+}

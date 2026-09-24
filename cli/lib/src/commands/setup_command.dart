@@ -53,6 +53,7 @@ class SetupCommand extends Command<int> {
         help: 'Install for a generic Alfredo directory target.',
       )
       ..addFlag('via', negatable: false, help: 'Install for Via.')
+      ..addFlag('dsh', negatable: false, help: 'Install for DeepSeek Harness.')
       ..addOption(
         'scope',
         defaultsTo: 'user',
@@ -174,6 +175,7 @@ class SetupCommand extends Command<int> {
       'generic': 'generic',
       'gemini': 'gemini-cli',
       'via': 'via',
+      'dsh': 'dsh',
     };
     final all = argResults!['all'] as bool;
     final selected = [
