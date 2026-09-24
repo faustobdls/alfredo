@@ -238,6 +238,7 @@ class TargetAdapters {
       'cursor' => cursor,
       'antigravity' => antigravity,
       'devin' => devin,
+      'dsh' => dsh,
       'generic' => generic,
       'gemini-cli' => geminiCli,
       'via' => via,
