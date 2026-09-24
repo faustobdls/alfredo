@@ -248,7 +248,16 @@ class TaskRuntimeStore {
 
       if (gitRoot != null && worktreeDir != null && !worktreeDir.existsSync()) {
         if (!worktreeDir.parent.existsSync()) {
-          worktreeDir.parent.createSync(recursive: true);
+          try {
+            worktreeDir.parent.createSync(recursive: true);
+          } on FileSystemException catch (error) {
+            throw TaskRuntimeException(
+              'Cannot create worktree directory ${worktreeDir.parent.path}: '
+              '${error.osError?.message ?? error.message}. Grant write access '
+              'there or set worktree_base in '
+              '${p.join(root.path, 'config.yaml')}.',
+            );
+          }
         }
         final checkBranch = await Process.run('git', [
           'show-ref',
