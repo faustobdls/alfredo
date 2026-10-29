@@ -10,7 +10,7 @@ dependencies:
   archive: ^4.3.0
   args: ^2.7.0
   cli_completion: ^0.6.0
-  crypto: ^3.0.6
+  crypto: ^3.0.8
   mason_logger: ^0.3.6
   path: ^1.9.1
   yaml: ^3.1.4
