@@ -8,7 +8,7 @@ Los agentes y chats son temporales. La memoria del proyecto, el estado de tareas
 
 ## Qué Entrega Alfredo
 
-- Setup portable para Codex, Claude Code, Cursor, Antigravity/GCA, Devin, Gemini CLI, Via y targets genéricos basados en directorios.
+- Setup portable para Codex, Claude Code, Cursor, Antigravity/GCA, Devin, Gemini CLI, Via, OpenBot y targets genéricos basados en directorios.
 - Memoria durable para conocimiento de usuario y proyecto fuera del chat actual.
 - Paquetes de contexto determinísticos para una tarea específica.
 - Skills, reglas, personas, sub-agentes, templates, scripts, assets y referencias portables.
@@ -28,7 +28,7 @@ fuentes, paquetes, memoria, tareas, contexto
 adaptadores de target
         |
         v
-Codex / Claude Code / Cursor / Antigravity / Devin / Gemini CLI / Via / genérico
+Codex / Claude Code / Cursor / Antigravity / Devin / Gemini CLI / Via / OpenBot / genérico
 ```
 
 Directorios de provider como `.codex/`, `.claude/`, `.cursor/`, `.gemini/`, `.devin/`, `.via/`, `.agents/` y `.alfredo/` son salidas de adaptadores. No son el tablero canónico, la memoria ni la fuente de verdad.
@@ -81,7 +81,23 @@ Los paquetes agrupan contenido canónico en unidades instalables versionadas. Un
 
 ### Targets Y Adaptadores
 
-Un target es un ambiente explícito de agente, como `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via`, `generic` o `dsh`. Un adaptador mapea contenido canónico de Alfredo al layout de directorios de ese target. La integración DSH requiere DSH `0.1.5-rc.3` o posterior.
+Un target es un ambiente explícito de agente, como `codex`, `claude-code`, `cursor`, `antigravity`, `devin`, `gemini-cli`, `via`, `openbot`, `generic` o `dsh`. Un adaptador mapea contenido canónico de Alfredo al layout de directorios de ese target. La integración DSH requiere DSH `0.1.5-rc.3` o posterior.
+
+### OpenBot
+
+OpenBot carga skills compartidas desde `~/.agents/skills` y skills de proyecto
+desde `.agents/skills`. Instala las skills portables de Alfredo en cualquiera
+de estos ámbitos:
+
+```sh
+alfredo setup --openbot
+alfredo setup --openbot --scope project
+```
+
+El ámbito de usuario comparte las skills entre agentes que leen
+`~/.agents/skills`; el ámbito de proyecto instala en el proyecto actual. La
+biblioteca Local skills de OpenBot es independiente, está gestionada por
+OpenBot y este adaptador no la modifica.
 
 `alfredo setup --all` instala solamente los targets declarados por los paquetes oficiales descubiertos que ya están configurados en el alcance local seleccionado. No instala en todos los adapters incorporados solo porque Alfredo sabe que existen.
 
@@ -156,6 +172,7 @@ alfredo setup --claude-code
 alfredo setup --antigravity
 alfredo setup --generic
 alfredo setup --dsh
+alfredo setup --openbot
 ```
 
 Usa `--scope project` para instalar en el proyecto actual en vez del alcance de usuario, y `--force` para sobrescribir archivos administrados modificados localmente.

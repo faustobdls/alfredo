@@ -1,7 +1,7 @@
 schema_version: 1
 id: skills-core
 name: Skills Core
-version: 0.3.3
+version: 0.3.4
 description: Alfredo's workflow skills — orchestration methods, in Alfredo's voice.
 license: MIT
 targets:
@@ -14,6 +14,7 @@ targets:
   - gemini-cli
   - via
   - dsh
+  - openbot
 contents:
   skills:
     - skills/autopilot

@@ -9,7 +9,11 @@ on:
     paths:
       - ".github/workflows/alfredo_cli.yaml"
       - "alfredo-source.yaml"
+      - "adapters/**"
       - "cli/**"
+      - "README*.md"
+      - "docs/architecture/agent-adapters.md"
+      - "CHANGELOG.md"
       - "packages/**"
       - "rules/**"
       - "schemas/**"
@@ -21,7 +25,11 @@ on:
     paths:
       - ".github/workflows/alfredo_cli.yaml"
       - "alfredo-source.yaml"
+      - "adapters/**"
       - "cli/**"
+      - "README*.md"
+      - "docs/architecture/agent-adapters.md"
+      - "CHANGELOG.md"
       - "packages/**"
       - "rules/**"
       - "schemas/**"

@@ -22,6 +22,7 @@ class CatalogContractValidator {
     'dsh',
     'generic',
     'gemini-cli',
+    'openbot',
     'via',
   };
   static const _contentKinds = {

@@ -56,6 +56,11 @@ class SetupCommand extends Command<int> {
       )
       ..addFlag('via', negatable: false, help: 'Install for Via.')
       ..addFlag('dsh', negatable: false, help: 'Install for DeepSeek Harness.')
+      ..addFlag(
+        'openbot',
+        negatable: false,
+        help: 'Install skills for OpenBot.',
+      )
       ..addOption(
         'profile',
         defaultsTo: 'web',
@@ -221,6 +226,7 @@ class SetupCommand extends Command<int> {
       'gemini': 'gemini-cli',
       'via': 'via',
       'dsh': 'dsh',
+      'openbot': 'openbot',
     };
     final all = argResults!['all'] as bool;
     final selected = [

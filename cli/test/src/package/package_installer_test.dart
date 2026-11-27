@@ -36,6 +36,7 @@ void main() {
             'generic',
             'gemini-cli',
             'via',
+            'openbot',
           ],
         ),
       ],
@@ -74,6 +75,7 @@ void main() {
       'generic',
       'gemini-cli',
       'via',
+      'openbot',
     ]) {
       final targetResolution = PackageResolution(
         target: target,
