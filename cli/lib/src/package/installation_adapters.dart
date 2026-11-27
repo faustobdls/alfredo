@@ -195,6 +195,14 @@ class TargetAdapters {
     projectDirectoryName: '.dsh',
   );
 
+  /// OpenBot discovers portable Agent Skills from `.agents/skills`.
+  static const openbot = TargetAdapter(
+    id: 'openbot',
+    userDirectoryName: '.agents',
+    projectDirectoryName: '.agents',
+    configurationMarkers: ['skills'],
+  );
+
   /// Every built-in adapter, in stable identifier order.
   static const List<TargetAdapter> all = [
     codex,
@@ -205,6 +213,7 @@ class TargetAdapters {
     dsh,
     generic,
     geminiCli,
+    openbot,
     via,
   ];
 
@@ -218,6 +227,7 @@ class TargetAdapters {
     'dsh',
     'generic',
     'gemini-cli',
+    'openbot',
     'via',
   ];
 
@@ -241,6 +251,7 @@ class TargetAdapters {
       'dsh' => dsh,
       'generic' => generic,
       'gemini-cli' => geminiCli,
+      'openbot' => openbot,
       'via' => via,
       _ => throw PackageException('Unsupported installation target: $id'),
     };

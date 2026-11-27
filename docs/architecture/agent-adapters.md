@@ -18,8 +18,16 @@ authoritative work stores.
 | Devin | `.devin/` | `.devin/` | canonical `skills/` tree |
 | Gemini CLI | `.gemini/` | `.gemini/` | canonical `skills/` tree |
 | Via | `.via/` | `.via/` | canonical `skills/` tree |
+| OpenBot | `~/.agents/` | `.agents/` | canonical `skills/` tree |
 | Generic | `.alfredo/` | `.alfredo/` | canonical content tree |
 | DeepSeek Harness | `.dsh/` | `.dsh/` | DSH profile skill/instruction tree and plugin bundle |
+
+## OpenBot (`openbot`)
+
+The OpenBot adapter installs the `skills-core` package into the shared Agent
+Skills directory (`~/.agents/skills`) or the current project's
+`.agents/skills`. OpenBot discovers skills from these standard directories;
+the adapter does not write to OpenBot's separate Local skills library.
 
 ## DeepSeek Harness (`dsh`)
 

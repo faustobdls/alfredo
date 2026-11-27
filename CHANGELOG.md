@@ -6,6 +6,13 @@ All notable changes to Alfredo are documented in this file. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Added OpenBot support to the `skills-core` 0.3.4 package, installing
+  Alfredo's portable skills into
+  `~/.agents/skills` or the current project's `.agents/skills` directory with
+  `alfredo setup --openbot`.
+
 ## [1.2.2] - 2026-09-24
 
 ### Fixed

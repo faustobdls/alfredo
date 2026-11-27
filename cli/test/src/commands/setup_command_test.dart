@@ -43,6 +43,7 @@ void main() {
             'generic',
             'gemini-cli',
             'via',
+            'openbot',
           ],
         ),
       ],
@@ -68,6 +69,7 @@ void main() {
       p.join('.alfredo', 'skills'),
       '.gemini',
       '.via',
+      p.join('.agents', 'skills'),
       p.join('.gemini', 'config'),
     ]) {
       await Directory(p.join(roots.userRoot.path, directory))
@@ -84,6 +86,7 @@ void main() {
       '.alfredo',
       '.gemini',
       '.via',
+      '.agents',
     ]) {
       expect(
         File(
@@ -113,7 +116,7 @@ void main() {
       );
     }
     verify(() => logger.success(any(that: contains('Installed 1 package'))))
-        .called(7);
+        .called(8);
   });
 
   test(
@@ -132,6 +135,7 @@ void main() {
         '.alfredo',
         '.gemini',
         '.via',
+        '.agents',
       ]) {
         expect(
           File(
@@ -184,33 +188,67 @@ void main() {
     );
   });
 
-  test('accepts Devin, Gemini CLI, Via, and generic targets', () async {
+  test(
+    'accepts Devin, Gemini CLI, Via, generic, and OpenBot targets',
+    () async {
+      expect(
+        await runner.run([
+          'setup',
+          '--devin',
+          '--gemini-cli',
+          '--via',
+          '--generic',
+          '--openbot',
+        ]),
+        ExitCode.success.code,
+      );
+
+      for (final directory in [
+        '.devin',
+        '.gemini',
+        '.via',
+        '.alfredo',
+        '.agents',
+      ]) {
+        expect(
+          File(
+            p.join(
+              roots.userRoot.path,
+              directory,
+              'skills',
+              'example',
+              'SKILL.md',
+            ),
+          ).existsSync(),
+          isTrue,
+          reason: directory,
+        );
+      }
+    },
+  );
+
+  test('installs OpenBot skills in project scope', () async {
     expect(
-      await runner.run([
-        'setup',
-        '--devin',
-        '--gemini-cli',
-        '--via',
-        '--generic',
-      ]),
+      await runner.run(['setup', '--openbot', '--scope', 'project']),
       ExitCode.success.code,
     );
 
-    for (final directory in ['.devin', '.gemini', '.via', '.alfredo']) {
-      expect(
-        File(
-          p.join(
-            roots.userRoot.path,
-            directory,
-            'skills',
-            'example',
-            'SKILL.md',
-          ),
-        ).existsSync(),
-        isTrue,
-        reason: directory,
-      );
-    }
+    expect(
+      File(
+        p.join(
+          roots.projectRoot.path,
+          '.agents',
+          'skills',
+          'example',
+          'SKILL.md',
+        ),
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      Directory(p.join(roots.userRoot.path, '.agents')).existsSync(),
+      isFalse,
+    );
   });
 
   test('requires all or at least one individual agent flag', () async {

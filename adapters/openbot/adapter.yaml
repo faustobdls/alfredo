@@ -1,0 +1,6 @@
+schema: alfredo.adapter/v1
+id: openbot
+user_directory: .agents
+project_directory: .agents
+configuration_markers:
+  - skills
